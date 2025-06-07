@@ -14,40 +14,40 @@ namespace Composer\Command;
 
 use Composer\Advisory\Auditor;
 use Composer\Composer;
-use Composer\Factory;
 use Composer\Config;
 use Composer\Downloader\TransportException;
+use Composer\Factory;
 use Composer\IO\BufferIO;
+use Composer\IO\NullIO;
 use Composer\Json\JsonFile;
 use Composer\Json\JsonValidationException;
+use Composer\Package\CompletePackageInterface;
 use Composer\Package\Locker;
 use Composer\Package\RootPackage;
 use Composer\Package\Version\VersionParser;
 use Composer\Pcre\Preg;
+use Composer\Plugin\CommandEvent;
+use Composer\Plugin\PluginEvents;
 use Composer\Repository\ComposerRepository;
 use Composer\Repository\FilesystemRepository;
 use Composer\Repository\PlatformRepository;
-use Composer\Plugin\CommandEvent;
-use Composer\Plugin\PluginEvents;
 use Composer\Repository\RepositorySet;
 use Composer\Repository\RootPackageRepository;
-use Composer\Util\ConfigValidator;
-use Composer\Util\Git;
-use Composer\Util\IniHelper;
-use Composer\Util\ProcessExecutor;
-use Composer\Util\HttpDownloader;
-use Composer\Util\StreamContextFactory;
-use Composer\Util\Platform;
 use Composer\SelfUpdate\Keys;
 use Composer\SelfUpdate\Versions;
-use Composer\IO\NullIO;
-use Composer\Package\CompletePackageInterface;
+use Composer\Util\ConfigValidator;
+use Composer\Util\Git;
+use Composer\Util\Http\ProxyManager;
+use Composer\Util\Http\RequestProxy;
+use Composer\Util\HttpDownloader;
+use Composer\Util\IniHelper;
+use Composer\Util\Platform;
+use Composer\Util\ProcessExecutor;
+use Composer\Util\StreamContextFactory;
 use Composer\XdebugHandler\XdebugHandler;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ExecutableFinder;
-use Composer\Util\Http\ProxyManager;
-use Composer\Util\Http\RequestProxy;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -77,7 +77,7 @@ The process exit code will be 1 in case of warnings and 2 for errors.
 Read more at https://getcomposer.org/doc/03-cli.md#diagnose
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -139,7 +139,7 @@ EOT
 				if (str_starts_with($url, 'https://repo.packagist.org')) {
 					continue;
 				}
-				$io->write('Checking connectivity to ' . $repo['url'].': ', false);
+				$io->write('Checking connectivity to ' . $repo['url'] . ': ', false);
 				$this->outputResult($this->checkComposerRepo($url, $config));
 			}
 		}
@@ -148,10 +148,10 @@ EOT
 		$protos = $config->get('disable-tls') === true ? ['http'] : ['http', 'https'];
 		try {
 			foreach ($protos as $proto) {
-				$proxy = $proxyManager->getProxyForRequest($proto.'://repo.packagist.org');
+				$proxy = $proxyManager->getProxyForRequest($proto . '://repo.packagist.org');
 				if ($proxy->getStatus() !== '') {
 					$type = $proxy->isSecure() ? 'HTTPS' : 'HTTP';
-					$io->write('Checking '.$type.' proxy with '.$proto.': ', false);
+					$io->write('Checking ' . $type . ' proxy with ' . $proto . ': ', false);
 					$this->outputResult($this->checkHttpProxy($proxy, $proto));
 				}
 			}
@@ -163,7 +163,7 @@ EOT
 
 		if (count($oauth = $config->get('github-oauth')) > 0) {
 			foreach ($oauth as $domain => $token) {
-				$io->write('Checking '.$domain.' oauth access: ', false);
+				$io->write('Checking ' . $domain . ' oauth access: ', false);
 				$this->outputResult($this->checkGithubOauth($domain, $token));
 			}
 		} else {
@@ -176,10 +176,10 @@ EOT
 					$io->write('<warning>WARNING</warning>');
 					$io->write(sprintf(
 						'<comment>GitHub has a rate limit on their API. '
-						. 'You currently have <options=bold>%u</options=bold> '
-						. 'out of <options=bold>%u</options=bold> requests left.' . PHP_EOL
-						. 'See https://developer.github.com/v3/#rate-limiting and also' . PHP_EOL
-						. '    https://getcomposer.org/doc/articles/troubleshooting.md#api-rate-limit-and-oauth-tokens</comment>',
+							. 'You currently have <options=bold>%u</options=bold> '
+							. 'out of <options=bold>%u</options=bold> requests left.' . PHP_EOL
+							. 'See https://developer.github.com/v3/#rate-limiting and also' . PHP_EOL
+							. '    https://getcomposer.org/doc/articles/troubleshooting.md#api-rate-limit-and-oauth-tokens</comment>',
 						$rate['remaining'],
 						$rate['limit']
 					));
@@ -225,7 +225,7 @@ EOT
 			$io->write(sprintf('PHP binary path: <comment>%s</comment>', PHP_BINARY));
 		}
 
-		$io->write('OpenSSL version: ' . (defined('OPENSSL_VERSION_TEXT') ? '<comment>'.OPENSSL_VERSION_TEXT.'</comment>' : '<error>missing</error>'));
+		$io->write('OpenSSL version: ' . (defined('OPENSSL_VERSION_TEXT') ? '<comment>' . OPENSSL_VERSION_TEXT . '</comment>' : '<error>missing</error>'));
 		$io->write('curl version: ' . $this->getCurlVersion());
 
 		$finder = new ExecutableFinder;
@@ -234,15 +234,15 @@ EOT
 		if ($hasSystem7zip = (bool) $finder->find('7z', null, ['C:\Program Files\7-Zip'])) {
 			$bin7zip = '7z';
 		}
-		if (!Platform::isWindows() && !$hasSystem7zip && $hasSystem7zip = (bool) $finder->find('7zz')) {
+		if (!Platform::isWindows() && !$hasSystem7zip && $hasSystem7zip = (bool)$finder->find('7zz')) {
 			$bin7zip = '7zz';
 		}
 
 		$io->write(
 			'zip: ' . (extension_loaded('zip') ? '<comment>extension present</comment>' : '<comment>extension not loaded</comment>')
-			. ', ' . ($hasSystemUnzip ? '<comment>unzip present</comment>' : '<comment>unzip not available</comment>')
-			. ', ' . ($hasSystem7zip ? '<comment>7-Zip present ('.$bin7zip.')</comment>' : '<comment>7-Zip not available</comment>')
-			. (($hasSystem7zip || $hasSystemUnzip) && !function_exists('proc_open') ? ', <warning>proc_open is disabled or not present, unzip/7-z will not be usable</warning>' : '')
+				. ', ' . ($hasSystemUnzip ? '<comment>unzip present</comment>' : '<comment>unzip not available</comment>')
+				. ', ' . ($hasSystem7zip ? '<comment>7-Zip present (' . $bin7zip . ')</comment>' : '<comment>7-Zip not available</comment>')
+				. (($hasSystem7zip || $hasSystemUnzip) && !function_exists('proc_open') ? ', <warning>proc_open is disabled or not present, unzip/7-z will not be usable</warning>' : '')
 		);
 
 		return $this->exitCode;
@@ -254,11 +254,11 @@ EOT
 	private function checkComposerSchema()
 	{
 		$validator = new ConfigValidator($this->getIO());
-		[$errors, , $warnings] = $validator->validate(Factory::getComposerFile());
+		[$errors,, $warnings] = $validator->validate(Factory::getComposerFile());
 
 		if ($errors || $warnings) {
 			$messages = [
-				'error' => $errors,
+				'error'   => $errors,
 				'warning' => $warnings,
 			];
 
@@ -287,7 +287,7 @@ EOT
 		} catch (JsonValidationException $e) {
 			$output = '';
 			foreach ($e->getErrors() as $error) {
-				$output .= '<error>'.$error.'</error>'.PHP_EOL;
+				$output .= '<error>' . $error . '</error>' . PHP_EOL;
 			}
 
 			return trim($output);
@@ -313,10 +313,10 @@ EOT
 		}
 
 		if (version_compare('2.24.0', $gitVersion, '>')) {
-			return '<warning>Your git version ('.$gitVersion.') is too old and possibly will cause issues. Please upgrade to git 2.24 or above</>';
+			return '<warning>Your git version (' . $gitVersion . ') is too old and possibly will cause issues. Please upgrade to git 2.24 or above</>';
 		}
 
-		return '<info>OK</> <comment>git version '.$gitVersion.'</>';
+		return '<info>OK</> <comment>git version ' . $gitVersion . '</>';
 	}
 
 	/**
@@ -411,22 +411,22 @@ EOT
 			$proxyStatus = $proxy->getStatus();
 
 			if ($proxy->isExcludedByNoProxy()) {
-				return '<info>SKIP</> <comment>Because repo.packagist.org is '.$proxyStatus.'</>';
+				return '<info>SKIP</> <comment>Because repo.packagist.org is ' . $proxyStatus . '</>';
 			}
 
-			$json = $this->httpDownloader->get($protocol.'://repo.packagist.org/packages.json')->decodeJson();
+			$json = $this->httpDownloader->get($protocol . '://repo.packagist.org/packages.json')->decodeJson();
 			if (isset($json['provider-includes'])) {
 				$hash = reset($json['provider-includes']);
 				$hash = $hash['sha256'];
 				$path = str_replace('%hash%', $hash, key($json['provider-includes']));
-				$provider = $this->httpDownloader->get($protocol.'://repo.packagist.org/'.$path)->getBody();
+				$provider = $this->httpDownloader->get($protocol . '://repo.packagist.org/' . $path)->getBody();
 
 				if (hash('sha256', $provider) !== $hash) {
-					return '<warning>It seems that your proxy ('.$proxyStatus.') is modifying '.$protocol.' traffic on the fly</>';
+					return '<warning>It seems that your proxy (' . $proxyStatus . ') is modifying ' . $protocol . ' traffic on the fly</>';
 				}
 			}
 
-			return '<info>OK</> <comment>'.$proxyStatus.'</>';
+			return '<info>OK</> <comment>' . $proxyStatus . '</>';
 		} catch (\Exception $e) {
 			return $e;
 		}
@@ -444,7 +444,7 @@ EOT
 
 		$this->getIO()->setAuthentication($domain, $token, 'x-oauth-basic');
 		try {
-			$url = $domain === 'github.com' ? 'https://api.'.$domain.'/' : 'https://'.$domain.'/api/v3/';
+			$url = $domain === 'github.com' ? 'https://api.' . $domain . '/' : 'https://' . $domain . '/api/v3/';
 
 			$response = $this->httpDownloader->get($url, [
 				'retry-auth-failure' => false,
@@ -456,10 +456,10 @@ EOT
 				return '<info>OK</> <comment>does not expire</>';
 			}
 
-			return '<info>OK</> <comment>expires on '. $expiration .'</>';
+			return '<info>OK</> <comment>expires on ' . $expiration . '</>';
 		} catch (\Exception $e) {
 			if ($e instanceof TransportException && $e->getCode() === 401) {
-				return '<comment>The oauth token for '.$domain.' seems invalid, run "composer config --global --unset github-oauth.'.$domain.'" to remove it</comment>';
+				return '<comment>The oauth token for ' . $domain . ' seems invalid, run "composer config --global --unset github-oauth.' . $domain . '" to remove it</comment>';
 			}
 
 			return $e;
@@ -467,7 +467,7 @@ EOT
 	}
 
 	/**
-	 * @param  string             $token
+	 * @param  string $token
 	 * @throws TransportException
 	 * @return mixed|string
 	 */
@@ -482,7 +482,7 @@ EOT
 			$this->getIO()->setAuthentication($domain, $token, 'x-oauth-basic');
 		}
 
-		$url = $domain === 'github.com' ? 'https://api.'.$domain.'/rate_limit' : 'https://'.$domain.'/api/rate_limit';
+		$url = $domain === 'github.com' ? 'https://api.' . $domain . '/rate_limit' : 'https://' . $domain . '/api/rate_limit';
 		$data = $this->httpDownloader->get($url, ['retry-auth-failure' => false])->decodeJson();
 
 		return $data['resources']['core'];
@@ -501,7 +501,7 @@ EOT
 		if ((($df = @disk_free_space($dir = $config->get('home'))) !== false && $df < $minSpaceFree)
 			|| (($df = @disk_free_space($dir = $config->get('vendor-dir'))) !== false && $df < $minSpaceFree)
 		) {
-			return '<error>The disk hosting '.$dir.' is full</error>';
+			return '<error>The disk hosting ' . $dir . ' is full</error>';
 		}
 
 		return true;
@@ -516,18 +516,18 @@ EOT
 		$errors = [];
 		$io = $this->getIO();
 
-		if (file_exists($home.'/keys.tags.pub') && file_exists($home.'/keys.dev.pub')) {
+		if (file_exists($home . '/keys.tags.pub') && file_exists($home . '/keys.dev.pub')) {
 			$io->write('');
 		}
 
-		if (file_exists($home.'/keys.tags.pub')) {
-			$io->write('Tags Public Key Fingerprint: ' . Keys::fingerprint($home.'/keys.tags.pub'));
+		if (file_exists($home . '/keys.tags.pub')) {
+			$io->write('Tags Public Key Fingerprint: ' . Keys::fingerprint($home . '/keys.tags.pub'));
 		} else {
 			$errors[] = '<error>Missing pubkey for tags verification</error>';
 		}
 
-		if (file_exists($home.'/keys.dev.pub')) {
-			$io->write('Dev Public Key Fingerprint: ' . Keys::fingerprint($home.'/keys.dev.pub'));
+		if (file_exists($home . '/keys.dev.pub')) {
+			$io->write('Dev Public Key Fingerprint: ' . Keys::fingerprint($home . '/keys.dev.pub'));
 		} else {
 			$errors[] = '<error>Missing pubkey for dev verification</error>';
 		}
@@ -557,7 +557,7 @@ EOT
 		}
 
 		if (Composer::VERSION !== $latest['version'] && Composer::VERSION !== '@package_version@') {
-			return '<comment>You are not running the latest '.$versionsUtil->getChannel().' version, run `composer self-update` to update ('.Composer::VERSION.' => '.$latest['version'].')</comment>';
+			return '<comment>You are not running the latest ' . $versionsUtil->getChannel() . ' version, run `composer self-update` to update (' . Composer::VERSION . ' => ' . $latest['version'] . ')</comment>';
 		}
 
 		return true;
@@ -595,7 +595,7 @@ EOT
 			$io = new BufferIO();
 			$result = $auditor->audit($io, $repoSet, $packages, Auditor::FORMAT_TABLE, true, [], Auditor::ABANDONED_IGNORE);
 		} catch (\Throwable $e) {
-			return '<highlight>Failed performing audit: '.$e->getMessage().'</>';
+			return '<highlight>Failed performing audit: ' . $e->getMessage() . '</>';
 		}
 
 		if ($result > 0) {
@@ -622,12 +622,12 @@ EOT
 				$httpVersions .= ', 3';
 			}
 
-			return '<comment>'.$version['version'].'</comment> '.
-				'libz <comment>'.($version['libz_version'] ?? 'missing').'</comment> '.
-				'brotli <comment>'.($version['brotli_version'] ?? 'missing').'</comment> '.
-				'zstd <comment>'.($hasZstd ? 'supported' : 'missing').'</comment> '.
-				'ssl <comment>'.($version['ssl_version'] ?? 'missing').'</comment> '.
-				'HTTP <comment>'.$httpVersions.'</comment>';
+			return '<comment>' . $version['version'] . '</comment> ' .
+				'libz <comment>' . ($version['libz_version'] ?? 'missing') . '</comment> ' .
+				'brotli <comment>' . ($version['brotli_version'] ?? 'missing') . '</comment> ' .
+				'zstd <comment>' . ($hasZstd ? 'supported' : 'missing') . '</comment> ' .
+				'ssl <comment>' . ($version['ssl_version'] ?? 'missing') . '</comment> ' .
+				'HTTP <comment>' . $httpVersions . '</comment>';
 		}
 
 		return '<error>missing, using php streams fallback, which reduces performance</error>';
@@ -648,7 +648,7 @@ EOT
 		$hadError = false;
 		$hadWarning = false;
 		if ($result instanceof \Exception) {
-			$result = '<error>['.get_class($result).'] '.$result->getMessage().'</error>';
+			$result = '<error>[' . get_class($result) . '] ' . $result->getMessage() . '</error>';
 		}
 
 		if (!$result) {
@@ -688,8 +688,8 @@ EOT
 	private function checkPlatform()
 	{
 		$output = '';
-		$out = static function ($msg, $style) use (&$output): void {
-			$output .= '<'.$style.'>'.$msg.'</'.$style.'>'.PHP_EOL;
+		$out = static function($msg, $style) use (&$output): void {
+			$output .= '<' . $style . '>' . $msg . '</' . $style . '>' . PHP_EOL;
 		};
 
 		// code below taken from getcomposer.org/installer, any changes should be made there and replicated here
@@ -697,8 +697,8 @@ EOT
 		$warnings = [];
 		$displayIniMessage = false;
 
-		$iniMessage = PHP_EOL.PHP_EOL.IniHelper::getMessage();
-		$iniMessage .= PHP_EOL.'If you can not modify the ini file, you can also run `php -d option=value` to modify ini values on the fly. You can use -d multiple times.';
+		$iniMessage = PHP_EOL . PHP_EOL . IniHelper::getMessage();
+		$iniMessage .= PHP_EOL . 'If you can not modify the ini file, you can also run `php -d option=value` to modify ini values on the fly. You can use -d multiple times.';
 
 		if (!function_exists('json_decode')) {
 			$errors['json'] = true;
@@ -771,70 +771,70 @@ EOT
 
 		if (defined('PHP_WINDOWS_VERSION_BUILD')
 			&& (version_compare(PHP_VERSION, '7.2.23', '<')
-			|| (version_compare(PHP_VERSION, '7.3.0', '>=')
-			&& version_compare(PHP_VERSION, '7.3.10', '<')))) {
+				|| (version_compare(PHP_VERSION, '7.3.0', '>=')
+					&& version_compare(PHP_VERSION, '7.3.10', '<')))) {
 			$warnings['onedrive'] = PHP_VERSION;
 		}
 
 		if (extension_loaded('uopz')
 			&& !(filter_var(ini_get('uopz.disable'), FILTER_VALIDATE_BOOLEAN)
-			|| filter_var(ini_get('uopz.exit'), FILTER_VALIDATE_BOOLEAN))) {
+				|| filter_var(ini_get('uopz.exit'), FILTER_VALIDATE_BOOLEAN))) {
 			$warnings['uopz'] = true;
 		}
 
 		if (!empty($errors)) {
 			foreach ($errors as $error => $current) {
 				switch ($error) {
-					case 'json':
-						$text = PHP_EOL."The json extension is missing.".PHP_EOL;
-						$text .= "Install it or recompile php without --disable-json";
-						break;
+				case 'json':
+					$text = PHP_EOL . "The json extension is missing." . PHP_EOL;
+					$text .= "Install it or recompile php without --disable-json";
+					break;
 
-					case 'phar':
-						$text = PHP_EOL."The phar extension is missing.".PHP_EOL;
-						$text .= "Install it or recompile php without --disable-phar";
-						break;
+				case 'phar':
+					$text = PHP_EOL . "The phar extension is missing." . PHP_EOL;
+					$text .= "Install it or recompile php without --disable-phar";
+					break;
 
-					case 'filter':
-						$text = PHP_EOL."The filter extension is missing.".PHP_EOL;
-						$text .= "Install it or recompile php without --disable-filter";
-						break;
+				case 'filter':
+					$text = PHP_EOL . "The filter extension is missing." . PHP_EOL;
+					$text .= "Install it or recompile php without --disable-filter";
+					break;
 
-					case 'hash':
-						$text = PHP_EOL."The hash extension is missing.".PHP_EOL;
-						$text .= "Install it or recompile php without --disable-hash";
-						break;
+				case 'hash':
+					$text = PHP_EOL . "The hash extension is missing." . PHP_EOL;
+					$text .= "Install it or recompile php without --disable-hash";
+					break;
 
-					case 'iconv_mbstring':
-						$text = PHP_EOL."The iconv OR mbstring extension is required and both are missing.".PHP_EOL;
-						$text .= "Install either of them or recompile php without --disable-iconv";
-						break;
+				case 'iconv_mbstring':
+					$text = PHP_EOL . "The iconv OR mbstring extension is required and both are missing." . PHP_EOL;
+					$text .= "Install either of them or recompile php without --disable-iconv";
+					break;
 
-					case 'php':
-						$text = PHP_EOL."Your PHP ({$current}) is too old, you must upgrade to PHP 7.2.5 or higher.";
-						break;
+				case 'php':
+					$text = PHP_EOL . "Your PHP ({$current}) is too old, you must upgrade to PHP 7.2.5 or higher.";
+					break;
 
-					case 'allow_url_fopen':
-						$text = PHP_EOL."The allow_url_fopen setting is incorrect.".PHP_EOL;
-						$text .= "Add the following to the end of your `php.ini`:".PHP_EOL;
-						$text .= "    allow_url_fopen = On";
-						$displayIniMessage = true;
-						break;
+				case 'allow_url_fopen':
+					$text = PHP_EOL . "The allow_url_fopen setting is incorrect." . PHP_EOL;
+					$text .= "Add the following to the end of your `php.ini`:" . PHP_EOL;
+					$text .= "    allow_url_fopen = On";
+					$displayIniMessage = true;
+					break;
 
-					case 'ioncube':
-						$text = PHP_EOL."Your ionCube Loader extension ($current) is incompatible with Phar files.".PHP_EOL;
-						$text .= "Upgrade to ionCube 4.0.9 or higher or remove this line (path may be different) from your `php.ini` to disable it:".PHP_EOL;
-						$text .= "    zend_extension = /usr/lib/php5/20090626+lfs/ioncube_loader_lin_5.3.so";
-						$displayIniMessage = true;
-						break;
+				case 'ioncube':
+					$text = PHP_EOL . "Your ionCube Loader extension ($current) is incompatible with Phar files." . PHP_EOL;
+					$text .= "Upgrade to ionCube 4.0.9 or higher or remove this line (path may be different) from your `php.ini` to disable it:" . PHP_EOL;
+					$text .= "    zend_extension = /usr/lib/php5/20090626+lfs/ioncube_loader_lin_5.3.so";
+					$displayIniMessage = true;
+					break;
 
-					case 'openssl':
-						$text = PHP_EOL."The openssl extension is missing, which means that secure HTTPS transfers are impossible.".PHP_EOL;
-						$text .= "If possible you should enable it or recompile php with --with-openssl";
-						break;
+				case 'openssl':
+					$text = PHP_EOL . "The openssl extension is missing, which means that secure HTTPS transfers are impossible." . PHP_EOL;
+					$text .= "If possible you should enable it or recompile php with --with-openssl";
+					break;
 
-					default:
-						throw new \InvalidArgumentException(sprintf("DiagnoseCommand: Unknown error type \"%s\". Please report at https://github.com/composer/composer/issues/new.", $error));
+				default:
+					throw new \InvalidArgumentException(sprintf("DiagnoseCommand: Unknown error type \"%s\". Please report at https://github.com/composer/composer/issues/new.", $error));
 				}
 				$out($text, 'error');
 			}
@@ -845,63 +845,63 @@ EOT
 		if (!empty($warnings)) {
 			foreach ($warnings as $warning => $current) {
 				switch ($warning) {
-					case 'apc_cli':
-						$text = "The apc.enable_cli setting is incorrect.".PHP_EOL;
-						$text .= "Add the following to the end of your `php.ini`:".PHP_EOL;
-						$text .= "  apc.enable_cli = Off";
-						$displayIniMessage = true;
-						break;
+				case 'apc_cli':
+					$text = "The apc.enable_cli setting is incorrect." . PHP_EOL;
+					$text .= "Add the following to the end of your `php.ini`:" . PHP_EOL;
+					$text .= "  apc.enable_cli = Off";
+					$displayIniMessage = true;
+					break;
 
-					case 'zlib':
-						$text = 'The zlib extension is not loaded, this can slow down Composer a lot.'.PHP_EOL;
-						$text .= 'If possible, enable it or recompile php with --with-zlib'.PHP_EOL;
-						$displayIniMessage = true;
-						break;
+				case 'zlib':
+					$text = 'The zlib extension is not loaded, this can slow down Composer a lot.' . PHP_EOL;
+					$text .= 'If possible, enable it or recompile php with --with-zlib' . PHP_EOL;
+					$displayIniMessage = true;
+					break;
 
-					case 'sigchild':
-						$text = "PHP was compiled with --enable-sigchild which can cause issues on some platforms.".PHP_EOL;
-						$text .= "Recompile it without this flag if possible, see also:".PHP_EOL;
-						$text .= "  https://bugs.php.net/bug.php?id=22999";
-						break;
+				case 'sigchild':
+					$text = "PHP was compiled with --enable-sigchild which can cause issues on some platforms." . PHP_EOL;
+					$text .= "Recompile it without this flag if possible, see also:" . PHP_EOL;
+					$text .= "  https://bugs.php.net/bug.php?id=22999";
+					break;
 
-					case 'curlwrappers':
-						$text = "PHP was compiled with --with-curlwrappers which will cause issues with HTTP authentication and GitHub.".PHP_EOL;
-						$text .= " Recompile it without this flag if possible";
-						break;
+				case 'curlwrappers':
+					$text = "PHP was compiled with --with-curlwrappers which will cause issues with HTTP authentication and GitHub." . PHP_EOL;
+					$text .= " Recompile it without this flag if possible";
+					break;
 
-					case 'openssl_version':
-						// Attempt to parse version number out, fallback to whole string value.
-						$opensslVersion = strstr(trim(strstr(OPENSSL_VERSION_TEXT, ' ')), ' ', true);
-						$opensslVersion = $opensslVersion ?: OPENSSL_VERSION_TEXT;
+				case 'openssl_version':
+					// Attempt to parse version number out, fallback to whole string value.
+					$opensslVersion = strstr(trim(strstr(OPENSSL_VERSION_TEXT, ' ')), ' ', true);
+					$opensslVersion = $opensslVersion ?: OPENSSL_VERSION_TEXT;
 
-						$text = "The OpenSSL library ({$opensslVersion}) used by PHP does not support TLSv1.2 or TLSv1.1.".PHP_EOL;
-						$text .= "If possible you should upgrade OpenSSL to version 1.0.1 or above.";
-						break;
+					$text = "The OpenSSL library ({$opensslVersion}) used by PHP does not support TLSv1.2 or TLSv1.1." . PHP_EOL;
+					$text .= "If possible you should upgrade OpenSSL to version 1.0.1 or above.";
+					break;
 
-					case 'xdebug_loaded':
-						$text = "The xdebug extension is loaded, this can slow down Composer a little.".PHP_EOL;
-						$text .= " Disabling it when using Composer is recommended.";
-						break;
+				case 'xdebug_loaded':
+					$text = "The xdebug extension is loaded, this can slow down Composer a little." . PHP_EOL;
+					$text .= " Disabling it when using Composer is recommended.";
+					break;
 
-					case 'xdebug_profile':
-						$text = "The xdebug.profiler_enabled setting is enabled, this can slow down Composer a lot.".PHP_EOL;
-						$text .= "Add the following to the end of your `php.ini` to disable it:".PHP_EOL;
-						$text .= "  xdebug.profiler_enabled = 0";
-						$displayIniMessage = true;
-						break;
+				case 'xdebug_profile':
+					$text = "The xdebug.profiler_enabled setting is enabled, this can slow down Composer a lot." . PHP_EOL;
+					$text .= "Add the following to the end of your `php.ini` to disable it:" . PHP_EOL;
+					$text .= "  xdebug.profiler_enabled = 0";
+					$displayIniMessage = true;
+					break;
 
-					case 'onedrive':
-						$text = "The Windows OneDrive folder is not supported on PHP versions below 7.2.23 and 7.3.10.".PHP_EOL;
-						$text .= "Upgrade your PHP ({$current}) to use this location with Composer.".PHP_EOL;
-						break;
+				case 'onedrive':
+					$text = "The Windows OneDrive folder is not supported on PHP versions below 7.2.23 and 7.3.10." . PHP_EOL;
+					$text .= "Upgrade your PHP ({$current}) to use this location with Composer." . PHP_EOL;
+					break;
 
-					case 'uopz':
-						$text = "The uopz extension ignores exit calls and may not work with all Composer commands.".PHP_EOL;
-						$text .= "Disabling it when using Composer is recommended.";
-						break;
+				case 'uopz':
+					$text = "The uopz extension ignores exit calls and may not work with all Composer commands." . PHP_EOL;
+					$text .= "Disabling it when using Composer is recommended.";
+					break;
 
-					default:
-						throw new \InvalidArgumentException(sprintf("DiagnoseCommand: Unknown warning type \"%s\". Please report at https://github.com/composer/composer/issues/new.", $warning));
+				default:
+					throw new \InvalidArgumentException(sprintf("DiagnoseCommand: Unknown warning type \"%s\". Please report at https://github.com/composer/composer/issues/new.", $warning));
 				}
 				$out($text, 'comment');
 			}
@@ -913,7 +913,7 @@ EOT
 
 		if (in_array(Platform::getEnv('COMPOSER_IPRESOLVE'), ['4', '6'], true)) {
 			$warnings['ipresolve'] = true;
-			$out('The COMPOSER_IPRESOLVE env var is set to ' . Platform::getEnv('COMPOSER_IPRESOLVE') .' which may result in network failures below.', 'comment');
+			$out('The COMPOSER_IPRESOLVE env var is set to ' . Platform::getEnv('COMPOSER_IPRESOLVE') . ' which may result in network failures below.', 'comment');
 		}
 
 		return count($warnings) === 0 && count($errors) === 0 ? true : $output;

@@ -12,12 +12,12 @@
 
 namespace Composer;
 
+use Composer\Autoload\AutoloadGenerator;
+use Composer\Downloader\DownloadManager;
+use Composer\Package\Archiver\ArchiveManager;
 use Composer\Package\Locker;
 use Composer\Pcre\Preg;
 use Composer\Plugin\PluginManager;
-use Composer\Downloader\DownloadManager;
-use Composer\Autoload\AutoloadGenerator;
-use Composer\Package\Archiver\ArchiveManager;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -51,10 +51,10 @@ class Composer extends PartialComposer
 	 *
 	 * @see getVersion()
 	 */
-	public const VERSION = '@package_version@';
+	public const VERSION              = '@package_version@';
 	public const BRANCH_ALIAS_VERSION = '@package_branch_alias_version@';
-	public const RELEASE_DATE = '@release_date@';
-	public const SOURCE_VERSION = '2.9.999-dev+source';
+	public const RELEASE_DATE         = '@release_date@';
+	public const SOURCE_VERSION       = '2.9.999-dev+source';
 
 	/**
 	 * Version number of the internal composer-runtime-api package
@@ -70,13 +70,13 @@ class Composer extends PartialComposer
 	public static function getVersion(): string
 	{
 		// no replacement done, this must be a source checkout
-		if (self::VERSION === '@package_version'.'@') {
+		if (self::VERSION === '@package_version' . '@') {
 			return self::SOURCE_VERSION;
 		}
 
 		// we have a branch alias and version is a commit id, this must be a snapshot build
 		if (self::BRANCH_ALIAS_VERSION !== '' && Preg::isMatch('{^[a-f0-9]{40}$}', self::VERSION)) {
-			return self::BRANCH_ALIAS_VERSION.'+'.self::VERSION;
+			return self::BRANCH_ALIAS_VERSION . '+' . self::VERSION;
 		}
 
 		return self::VERSION;

@@ -12,10 +12,10 @@
 
 namespace Composer\Command;
 
+use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
 use Composer\Pcre\Preg;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
-use Composer\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -70,7 +70,7 @@ The <info>run-script</info> command runs scripts defined in composer.json:
 Read more at https://getcomposer.org/doc/03-cli.md#run-script-run
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -81,7 +81,7 @@ EOT
 
 		// TODO remove for Symfony 6+ as it is then in the interface
 		if (!method_exists($input, '__toString')) { // @phpstan-ignore-line
-			throw new \LogicException('Expected an Input instance that is stringable, got '.get_class($input));
+			throw new \LogicException('Expected an Input instance that is stringable, got ' . get_class($input));
 		}
 
 		return $composer->getEventDispatcher()->dispatchScript($this->script, $input->getOption('dev') || !$input->getOption('no-dev'), $args['args'], ['script-alias-input' => Preg::replace('{^\S+ ?}', '', $input->__toString(), 1)]);

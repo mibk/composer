@@ -16,13 +16,13 @@ use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
 use Composer\Package\CompleteAliasPackage;
 use Composer\Package\CompletePackage;
-use Composer\Package\PackageInterface;
 use Composer\Package\CompletePackageInterface;
-use Composer\Package\Version\VersionParser;
+use Composer\Package\PackageInterface;
 use Composer\Package\Version\StabilityFilter;
+use Composer\Package\Version\VersionParser;
 use Composer\Pcre\Preg;
-use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\Constraint\ConstraintInterface;
 
 /**
  * A repository implementation that simply stores packages in an array
@@ -51,7 +51,7 @@ class ArrayRepository implements RepositoryInterface
 
 	public function getRepoName()
 	{
-		return 'array repo (defining '.$this->count().' package'.($this->count() > 1 ? 's' : '').')';
+		return 'array repo (defining ' . $this->count() . ' package' . ($this->count() > 1 ? 's' : '') . ')';
 	}
 
 	/**
@@ -68,7 +68,7 @@ class ArrayRepository implements RepositoryInterface
 				if (
 					(!$packageNameMap[$package->getName()] || $packageNameMap[$package->getName()]->matches(new Constraint('==', $package->getVersion())))
 					&& StabilityFilter::isPackageAcceptable($acceptableStabilities, $stabilityFlags, $package->getNames(), $package->getStability())
-					&& !isset($alreadyLoaded[$package->getName()][$package->getVersion()])
+						&& !isset($alreadyLoaded[$package->getName()][$package->getVersion()])
 				) {
 					// add selected packages which match stability requirements
 					$result[spl_object_hash($package)] = $package;
@@ -101,7 +101,7 @@ class ArrayRepository implements RepositoryInterface
 	{
 		$name = strtolower($name);
 
-		if (!$constraint instanceof ConstraintInterface) {
+		if (! $constraint instanceof ConstraintInterface) {
 			$versionParser = new VersionParser();
 			$constraint = $versionParser->parseConstraints($constraint);
 		}
@@ -127,7 +127,7 @@ class ArrayRepository implements RepositoryInterface
 		$name = strtolower($name);
 		$packages = [];
 
-		if (null !== $constraint && !$constraint instanceof ConstraintInterface) {
+		if (null !== $constraint && ! $constraint instanceof ConstraintInterface) {
 			$versionParser = new VersionParser();
 			$constraint = $versionParser->parseConstraints($constraint);
 		}
@@ -149,10 +149,10 @@ class ArrayRepository implements RepositoryInterface
 	public function search(string $query, int $mode = 0, ?string $type = null)
 	{
 		if ($mode === self::SEARCH_FULLTEXT) {
-			$regex = '{(?:'.implode('|', Preg::split('{\s+}', preg_quote($query))).')}i';
+			$regex = '{(?:' . implode('|', Preg::split('{\s+}', preg_quote($query))) . ')}i';
 		} else {
 			// vendor/name searches expect the caller to have preg_quoted the query
-			$regex = '{(?:'.implode('|', Preg::split('{\s+}', $query)).')}i';
+			$regex = '{(?:' . implode('|', Preg::split('{\s+}', $query)) . ')}i';
 		}
 
 		$matches = [];
@@ -173,12 +173,12 @@ class ArrayRepository implements RepositoryInterface
 			) {
 				if ($mode === self::SEARCH_VENDOR) {
 					$matches[$name] = [
-						'name' => $name,
+						'name'        => $name,
 						'description' => null,
 					];
 				} else {
 					$matches[$name] = [
-						'name' => $package->getPrettyName(),
+						'name'        => $package->getPrettyName(),
 						'description' => $package instanceof CompletePackageInterface ? $package->getDescription() : null,
 					];
 
@@ -214,7 +214,7 @@ class ArrayRepository implements RepositoryInterface
 	 */
 	public function addPackage(PackageInterface $package)
 	{
-		if (!$package instanceof BasePackage) {
+		if (! $package instanceof BasePackage) {
 			throw new \InvalidArgumentException('Only subclasses of BasePackage are supported');
 		}
 		if (null === $this->packages) {
@@ -248,9 +248,9 @@ class ArrayRepository implements RepositoryInterface
 			foreach ($candidate->getProvides() as $link) {
 				if ($packageName === $link->getTarget()) {
 					$result[$candidate->getName()] = [
-						'name' => $candidate->getName(),
+						'name'        => $candidate->getName(),
 						'description' => $candidate instanceof CompletePackageInterface ? $candidate->getDescription() : null,
-						'type' => $candidate->getType(),
+						'type'        => $candidate->getType(),
 					];
 					continue 2;
 				}

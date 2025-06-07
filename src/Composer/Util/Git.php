@@ -53,7 +53,7 @@ class Git
 			if ($io === null) {
 				throw new \RuntimeException($msg);
 			}
-			$io->writeError('<warning>'.$msg.'</warning>');
+			$io->writeError('<warning>' . $msg . '</warning>');
 		}
 	}
 
@@ -71,20 +71,20 @@ class Git
 	 * As soon as a single command fails it will halt, so assume the commands are run as && in bash
 	 *
 	 * @param non-empty-array<non-empty-list<string>> $commands
-	 * @param mixed $commandOutput  the output will be written into this var if passed by ref
+	 * @param mixed                                   $commandOutput the output will be written into this var if passed by ref
 	 *                              if a callable is passed it will be used as output handler
 	 */
 	public function runCommands(array $commands, string $url, ?string $cwd, bool $initialClone = false, &$commandOutput = null): void
 	{
 		$callables = [];
 		foreach ($commands as $cmd) {
-			$callables[] = static function (string $url) use ($cmd): array {
+			$callables[] = static function(string $url) use ($cmd): array {
 				$map = [
-					'%url%' => $url,
+					'%url%'          => $url,
 					'%sanitizedUrl%' => Preg::replace('{://([^@]+?):(.+?)@}', '://', $url),
 				];
 
-				return array_map(static function ($value) use ($map): string {
+				return array_map(static function($value) use ($map): string {
 					return $map[$value] ?? $value;
 				}, $cmd);
 			};
@@ -96,7 +96,7 @@ class Git
 
 	/**
 	 * @param callable|array<callable> $commandCallable
-	 * @param mixed       $commandOutput  the output will be written into this var if passed by ref
+	 * @param mixed                    $commandOutput the output will be written into this var if passed by ref
 	 *                                    if a callable is passed it will be used as output handler
 	 * @deprecated Use runCommands with placeholders instead of callbacks for simplicity
 	 */
@@ -112,7 +112,7 @@ class Git
 			$origCwd = $cwd;
 		}
 
-		$runCommands = function ($url) use ($commandCallables, $cwd, &$commandOutput, &$lastCommand, $initialClone) {
+		$runCommands = function($url) use ($commandCallables, $cwd, &$commandOutput, &$lastCommand, $initialClone) {
 			$collectOutputs = !is_callable($commandOutput);
 			$outputs = [];
 
@@ -212,10 +212,10 @@ class Git
 					$credentials = [rawurlencode($auth['username']), rawurlencode($auth['password'])];
 					$errorMsg = $this->process->getErrorOutput();
 				}
-			// @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
+				// @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
 			} elseif (
 				Preg::isMatchStrictGroups('{^(https?)://(bitbucket\.org)/(.*?)(?:\.git)?$}i', $url, $match)
-				|| Preg::isMatchStrictGroups('{^(git)@(bitbucket\.org):(.+?\.git)$}i', $url, $match)
+					|| Preg::isMatchStrictGroups('{^(git)@(bitbucket\.org):(.+?\.git)$}i', $url, $match)
 			) { //bitbucket either through oauth or app password, with fallback to ssh.
 				$bitbucketUtil = new Bitbucket($this->io, $this->config, $this->process, $this->httpDownloader);
 
@@ -276,8 +276,8 @@ class Git
 			} elseif (
 				// @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
 				Preg::isMatchStrictGroups('{^(git)@' . self::getGitLabDomainsRegex($this->config) . ':(.+?\.git)$}i', $url, $match)
-				// @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
-				|| Preg::isMatchStrictGroups('{^(https?)://' . self::getGitLabDomainsRegex($this->config) . '/(.*)}i', $url, $match)
+					// @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
+					|| Preg::isMatchStrictGroups('{^(https?)://' . self::getGitLabDomainsRegex($this->config) . '/(.*)}i', $url, $match)
 			) {
 				if ($match[1] === 'git') {
 					$match[1] = 'https';
@@ -319,7 +319,7 @@ class Git
 					$defaultUsername = null;
 					if (isset($authParts) && $authParts !== '') {
 						if (str_contains($authParts, ':')) {
-							[$defaultUsername, ] = explode(':', $authParts, 2);
+							[$defaultUsername] = explode(':', $authParts, 2);
 						} else {
 							$defaultUsername = $authParts;
 						}
@@ -366,7 +366,7 @@ class Git
 	public function syncMirror(string $url, string $dir): bool
 	{
 		if ((bool) Platform::getEnv('COMPOSER_DISABLE_NETWORK') && Platform::getEnv('COMPOSER_DISABLE_NETWORK') !== 'prime') {
-			$this->io->writeError('<warning>Aborting git mirror sync of '.$url.' as network is disabled</warning>');
+			$this->io->writeError('<warning>Aborting git mirror sync of ' . $url . ' as network is disabled</warning>');
 
 			return false;
 		}
@@ -418,8 +418,8 @@ class Git
 				// nor as a tag, then we sync the mirror as otherwise it will likely fail during install.
 				// this can occur if a git tag gets created *after* the reference is already put into the cache, as the ref check above will then not sync the new tags
 				// see https://github.com/composer/composer/discussions/11002
-				if (null !== $branches && !Preg::isMatch('{^[\s*]*v?'.preg_quote($branch).'$}m', $branches)
-					&& null !== $tags && !Preg::isMatch('{^[\s*]*'.preg_quote($branch).'$}m', $tags)
+				if (null !== $branches && !Preg::isMatch('{^[\s*]*v?' . preg_quote($branch) . '$}m', $branches)
+					&& null !== $tags && !Preg::isMatch('{^[\s*]*' . preg_quote($branch) . '$}m', $tags)
 				) {
 					$this->syncMirror($url, $dir);
 				}
@@ -461,7 +461,7 @@ class Git
 	private function checkRefIsInMirror(string $dir, string $ref): bool
 	{
 		if (is_dir($dir) && 0 === $this->process->execute(['git', 'rev-parse', '--git-dir'], $output, $dir) && trim($output) === '.') {
-			$exitCode = $this->process->execute(['git', 'rev-parse', '--quiet', '--verify', $ref.'^{commit}'], $ignoredOutput, $dir);
+			$exitCode = $this->process->execute(['git', 'rev-parse', '--quiet', '--verify', $ref . '^{commit}'], $ignoredOutput, $dir);
 			if ($exitCode === 0) {
 				return true;
 			}

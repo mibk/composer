@@ -45,7 +45,7 @@ abstract class BaseExcludeFilter
 	 * Negated patterns overwrite exclude decisions of previous filters.
 	 *
 	 * @param string $relativePath The file's path relative to the sourcePath
-	 * @param bool $exclude Whether a previous filter wants to exclude this file
+	 * @param bool   $exclude      Whether a previous filter wants to exclude this file
 	 *
 	 * @return bool Whether the file should be excluded
 	 */
@@ -75,7 +75,7 @@ abstract class BaseExcludeFilter
 	/**
 	 * Processes a file containing exclude rules of different formats per line
 	 *
-	 * @param string[] $lines A set of lines to be parsed
+	 * @param string[] $lines      A set of lines to be parsed
 	 * @param callable $lineParser The parser to be used on each line
 	 *
 	 * @return array<array{0: non-empty-string, 1: bool, 2: bool}> Exclude patterns to be used in filter()
@@ -84,7 +84,7 @@ abstract class BaseExcludeFilter
 	{
 		return array_filter(
 			array_map(
-				static function ($line) use ($lineParser) {
+				static function($line) use ($lineParser) {
 					$line = trim($line);
 
 					if (!$line || 0 === strpos($line, '#')) {
@@ -95,7 +95,7 @@ abstract class BaseExcludeFilter
 				},
 				$lines
 			),
-			static function ($pattern): bool {
+			static function($pattern): bool {
 				return $pattern !== null;
 			}
 		);
@@ -147,6 +147,6 @@ abstract class BaseExcludeFilter
 		// remove delimiters as well as caret (^) and dollar sign ($) from the regex
 		$rule = substr(Finder\Glob::toRegex($rule), 2, -2);
 
-		return ['{'.$pattern.$rule.'(?=$|/)}', $negate, false];
+		return ['{' . $pattern . $rule . '(?=$|/)}', $negate, false];
 	}
 }

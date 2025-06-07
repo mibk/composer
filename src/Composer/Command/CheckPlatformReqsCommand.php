@@ -12,15 +12,15 @@
 
 namespace Composer\Command;
 
-use Composer\Package\Link;
-use Composer\Semver\Constraint\Constraint;
-use Symfony\Component\Console\Input\InputInterface;
 use Composer\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use Composer\Json\JsonFile;
+use Composer\Package\Link;
+use Composer\Repository\InstalledRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RootPackageRepository;
-use Composer\Repository\InstalledRepository;
-use Composer\Json\JsonFile;
+use Composer\Semver\Constraint\Constraint;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckPlatformReqsCommand extends BaseCommand
 {
@@ -52,20 +52,20 @@ EOT
 		$requires = [];
 		$removePackages = [];
 		if ($input->getOption('lock')) {
-			$this->getIO()->writeError('<info>Checking '.($input->getOption('no-dev') ? 'non-dev ' : '').'platform requirements using the lock file</info>');
+			$this->getIO()->writeError('<info>Checking ' . ($input->getOption('no-dev') ? 'non-dev ' : '') . 'platform requirements using the lock file</info>');
 			$installedRepo = $composer->getLocker()->getLockedRepository(!$input->getOption('no-dev'));
 		} else {
 			$installedRepo = $composer->getRepositoryManager()->getLocalRepository();
 			// fallback to lockfile if installed repo is empty
 			if (!$installedRepo->getPackages()) {
-				$this->getIO()->writeError('<warning>No vendor dir present, checking '.($input->getOption('no-dev') ? 'non-dev ' : '').'platform requirements from the lock file</warning>');
+				$this->getIO()->writeError('<warning>No vendor dir present, checking ' . ($input->getOption('no-dev') ? 'non-dev ' : '') . 'platform requirements from the lock file</warning>');
 				$installedRepo = $composer->getLocker()->getLockedRepository(!$input->getOption('no-dev'));
 			} else {
 				if ($input->getOption('no-dev')) {
 					$removePackages = $installedRepo->getDevPackageNames();
 				}
 
-				$this->getIO()->writeError('<info>Checking '.($input->getOption('no-dev') ? 'non-dev ' : '').'platform requirements for packages in the vendor dir</info>');
+				$this->getIO()->writeError('<info>Checking ' . ($input->getOption('no-dev') ? 'non-dev ' : '') . 'platform requirements for packages in the vendor dir</info>');
 			}
 		}
 		if (!$input->getOption('no-dev')) {
@@ -125,7 +125,7 @@ EOT
 									$candidateConstraint->getPrettyString(),
 									$link,
 									'<error>failed</error>',
-									$candidate->getName() === $require ? '' : '<comment>provided by '.$candidate->getPrettyName().'</comment>',
+									$candidate->getName() === $require ? '' : '<comment>provided by ' . $candidate->getPrettyName() . '</comment>',
 								];
 
 								// skip to next candidate
@@ -138,7 +138,7 @@ EOT
 							$candidateConstraint->getPrettyString(),
 							null,
 							'<info>success</info>',
-							$candidate->getName() === $require ? '' : '<comment>provided by '.$candidate->getPrettyName().'</comment>',
+							$candidate->getName() === $require ? '' : '<comment>provided by ' . $candidate->getPrettyName() . '</comment>',
 						];
 
 						// candidate matched, skip to next requirement
@@ -183,13 +183,13 @@ EOT
 
 			if ('json' === $format) {
 				$rows[] = [
-					"name" => $platformPackage,
-					"version" => $version,
-					"status" => strip_tags($status),
+					"name"               => $platformPackage,
+					"version"            => $version,
+					"status"             => strip_tags($status),
 					"failed_requirement" => $link instanceof Link ? [
-						'source' => $link->getSource(),
-						'type' => $link->getDescription(),
-						'target' => $link->getTarget(),
+						'source'     => $link->getSource(),
+						'type'       => $link->getDescription(),
+						'target'     => $link->getTarget(),
 						'constraint' => $link->getPrettyConstraint(),
 					] : null,
 					"provider" => $provider === '' ? null : strip_tags($provider),
@@ -200,7 +200,7 @@ EOT
 					$version,
 					$link,
 					$link ? sprintf('%s %s %s (%s)', $link->getSource(), $link->getDescription(), $link->getTarget(), $link->getPrettyConstraint()) : '',
-					rtrim($status.' '.$provider),
+					rtrim($status . ' ' . $provider),
 				];
 			}
 		}

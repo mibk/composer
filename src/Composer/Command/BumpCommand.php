@@ -12,29 +12,29 @@
 
 namespace Composer\Command;
 
+use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
+use Composer\Factory;
 use Composer\IO\IOInterface;
+use Composer\Json\JsonFile;
+use Composer\Json\JsonManipulator;
 use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
 use Composer\Package\Locker;
 use Composer\Package\Version\VersionBumper;
 use Composer\Pcre\Preg;
-use Composer\Util\Filesystem;
-use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputArgument;
-use Composer\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Composer\Factory;
-use Composer\Json\JsonFile;
-use Composer\Json\JsonManipulator;
 use Composer\Repository\PlatformRepository;
+use Composer\Util\Filesystem;
 use Composer\Util\Silencer;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
  */
 final class BumpCommand extends BaseCommand
 {
-	private const ERROR_GENERIC = 1;
+	private const ERROR_GENERIC       = 1;
 	private const ERROR_LOCK_OUTDATED = 2;
 
 	use CompletionTrait;
@@ -65,7 +65,7 @@ are local to the library and do not affect consumers of the package.
 
 EOT
 			)
-		;
+			;
 	}
 
 	/**
@@ -83,7 +83,7 @@ EOT
 	}
 
 	/**
-	 * @param string[] $packagesFilter
+	 * @param  string[] $packagesFilter
 	 * @throws \Seld\JsonLint\ParsingException
 	 */
 	public function doBump(
@@ -92,12 +92,13 @@ EOT
 		bool $noDevOnly,
 		bool $dryRun,
 		array $packagesFilter
-	): int {
+	): int
+	{
 		/** @readonly */
 		$composerJsonPath = Factory::getComposerFile();
 
 		if (!Filesystem::isReadable($composerJsonPath)) {
-			$io->writeError('<error>'.$composerJsonPath.' is not readable.</error>');
+			$io->writeError('<error>' . $composerJsonPath . ' is not readable.</error>');
 
 			return self::ERROR_GENERIC;
 		}
@@ -105,7 +106,7 @@ EOT
 		$composerJson = new JsonFile($composerJsonPath);
 		$contents = file_get_contents($composerJson->getPath());
 		if (false === $contents) {
-			$io->writeError('<error>'.$composerJsonPath.' is not readable.</error>');
+			$io->writeError('<error>' . $composerJsonPath . ' is not readable.</error>');
 
 			return self::ERROR_GENERIC;
 		}
@@ -113,7 +114,7 @@ EOT
 		// check for writability by writing to the file as is_writable can not be trusted on network-mounts
 		// see https://github.com/composer/composer/issues/8231 and https://bugs.php.net/bug.php?id=68926
 		if (!is_writable($composerJsonPath) && false === Silencer::call('file_put_contents', $composerJsonPath, $contents)) {
-			$io->writeError('<error>'.$composerJsonPath.' is not writable.</error>');
+			$io->writeError('<error>' . $composerJsonPath . ' is not writable.</error>');
 
 			return self::ERROR_GENERIC;
 		}
@@ -154,7 +155,7 @@ EOT
 
 		if (count($packagesFilter) > 0) {
 			// support proxied args from the update command that contain constraints together with the package names
-			$packagesFilter = array_map(function ($constraint) {
+			$packagesFilter = array_map(function($constraint) {
 				return Preg::replace('{[:= ].+}', '', $constraint);
 			}, $packagesFilter);
 			$pattern = BasePackage::packageNamesToRegexp(array_unique(array_map('strtolower', $packagesFilter)));
@@ -217,7 +218,7 @@ EOT
 				$io->write('<info>' . $composerJsonPath . ' has been updated (' . $changeCount . ' changes).</info>');
 			}
 		} else {
-			$io->write('<info>No requirements to update in '.$composerJsonPath.'.</info>');
+			$io->write('<info>No requirements to update in ' . $composerJsonPath . '.</info>');
 		}
 
 		if (!$dryRun && $composer->getLocker()->isLocked() && $composer->getConfig()->get('lock') && $changeCount > 0) {
@@ -238,7 +239,7 @@ EOT
 	{
 		$contents = file_get_contents($json->getPath());
 		if (false === $contents) {
-			throw new \RuntimeException('Unable to read '.$json->getPath().' contents.');
+			throw new \RuntimeException('Unable to read ' . $json->getPath() . ' contents.');
 		}
 
 		$manipulator = new JsonManipulator($contents);
@@ -252,7 +253,7 @@ EOT
 		}
 
 		if (false === file_put_contents($json->getPath(), $manipulator->getContents())) {
-			throw new \RuntimeException('Unable to write new '.$json->getPath().' contents.');
+			throw new \RuntimeException('Unable to write new ' . $json->getPath() . ' contents.');
 		}
 
 		return true;

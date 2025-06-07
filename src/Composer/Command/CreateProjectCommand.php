@@ -12,41 +12,41 @@
 
 namespace Composer\Command;
 
+use Composer\Advisory\Auditor;
 use Composer\Config;
+use Composer\Config\JsonConfigSource;
+use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
+use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\Factory;
 use Composer\Filter\PlatformRequirementFilter\IgnoreAllPlatformRequirementFilter;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterInterface;
+use Composer\IO\IOInterface;
 use Composer\Installer;
 use Composer\Installer\ProjectInstaller;
 use Composer\Installer\SuggestedPackagesReporter;
-use Composer\IO\IOInterface;
-use Composer\Package\BasePackage;
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\Package\Version\VersionSelector;
+use Composer\Json\JsonFile;
 use Composer\Package\AliasPackage;
+use Composer\Package\BasePackage;
+use Composer\Package\Version\VersionParser;
+use Composer\Package\Version\VersionSelector;
 use Composer\Pcre\Preg;
 use Composer\Plugin\PluginBlockedException;
-use Composer\Repository\RepositoryFactory;
 use Composer\Repository\CompositeRepository;
-use Composer\Repository\PlatformRepository;
 use Composer\Repository\InstalledArrayRepository;
+use Composer\Repository\PlatformRepository;
+use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositorySet;
 use Composer\Script\ScriptEvents;
-use Composer\Util\Silencer;
-use Composer\Console\Input\InputArgument;
-use Seld\Signal\SignalHandler;
-use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
-use Composer\Json\JsonFile;
-use Composer\Config\JsonConfigSource;
 use Composer\Util\Filesystem;
 use Composer\Util\Platform;
 use Composer\Util\ProcessExecutor;
-use Composer\Package\Version\VersionParser;
-use Composer\Advisory\Auditor;
+use Composer\Util\Silencer;
+use Seld\Signal\SignalHandler;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Install a package as new project into new directory.
@@ -123,7 +123,7 @@ can pass the <info>'--repository=https://myrepository.org'</info> flag.
 Read more at https://getcomposer.org/doc/03-cli.md#create-project
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -147,7 +147,7 @@ EOT
 				throw new \RuntimeException('Not enough arguments (missing: "package").');
 			}
 			$parts = explode("/", strtolower($package), 2);
-			$input->setArgument('directory', $io->ask('New project directory [<comment>'.array_pop($parts).'</comment>]: '));
+			$input->setArgument('directory', $io->ask('New project directory [<comment>' . array_pop($parts) . '</comment>]: '));
 		}
 
 		return $this->installProject(
@@ -266,7 +266,7 @@ EOT
 				}
 			} catch (PluginBlockedException $e) {
 				$io->writeError('<error>Hint: To allow running the config command recommended below before dependencies are installed, run create-project with --no-install.</error>');
-				$io->writeError('<error>You can then cd into '.getcwd().', configure allow-plugins, and finally run a composer install to complete the process.</error>');
+				$io->writeError('<error>You can then cd into ' . getcwd() . ', configure allow-plugins, and finally run a composer install to complete the process.</error>');
 				throw $e;
 			}
 		}
@@ -274,12 +274,12 @@ EOT
 		$hasVcs = $installedFromVcs;
 		if (
 			!$input->getOption('keep-vcs')
-			&& $installedFromVcs
-			&& (
-				$input->getOption('remove-vcs')
-				|| !$io->isInteractive()
-				|| $io->askConfirmation('<info>Do you want to remove the existing VCS (.git, .svn..) history?</info> [<comment>Y,n</comment>]? ')
-			)
+				&& $installedFromVcs
+				&& (
+					$input->getOption('remove-vcs')
+						|| !$io->isInteractive()
+						|| $io->askConfirmation('<info>Do you want to remove the existing VCS (.git, .svn..) history?</info> [<comment>Y,n</comment>]? ')
+				)
 		) {
 			$finder = new Finder();
 			$finder->depth(0)->directories()->in(Platform::getCwd())->ignoreVCS(false)->ignoreDotFiles(false);
@@ -292,11 +292,11 @@ EOT
 				unset($finder);
 				foreach ($dirs as $dir) {
 					if (!$fs->removeDirectory((string) $dir)) {
-						throw new \RuntimeException('Could not remove '.$dir);
+						throw new \RuntimeException('Could not remove ' . $dir);
 					}
 				}
 			} catch (\Exception $e) {
-				$io->writeError('<error>An error occurred while removing the VCS metadata: '.$e->getMessage().'</error>');
+				$io->writeError('<error>An error occurred while removing the VCS metadata: ' . $e->getMessage() . '</error>');
 			}
 
 			$hasVcs = false;
@@ -307,7 +307,7 @@ EOT
 			$package = $composer->getPackage();
 			$configSource = new JsonConfigSource(new JsonFile('composer.json'));
 			foreach (BasePackage::$supportedLinkTypes as $type => $meta) {
-				foreach ($package->{'get'.$meta['method']}() as $link) {
+				foreach ($package->{'get' . $meta['method']}() as $link) {
 					if ($link->getPrettyConstraint() === 'self.version') {
 						$configSource->addLink($type, $link->getTarget(), $package->getPrettyVersion());
 					}
@@ -363,17 +363,17 @@ EOT
 
 		if (file_exists($directory)) {
 			if (!is_dir($directory)) {
-				throw new \InvalidArgumentException('Cannot create project directory at "'.$directory.'", it exists as a file.');
+				throw new \InvalidArgumentException('Cannot create project directory at "' . $directory . '", it exists as a file.');
 			}
 			if (!$fs->isDirEmpty($directory)) {
-				throw new \InvalidArgumentException('Project directory "'.$directory.'" is not empty.');
+				throw new \InvalidArgumentException('Project directory "' . $directory . '" is not empty.');
 			}
 		}
 
 		if (null === $stability) {
 			if (null === $packageVersion) {
 				$stability = 'stable';
-			} elseif (Preg::isMatchStrictGroups('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::STABILITIES)).')$}i', $packageVersion, $match)) {
+			} elseif (Preg::isMatchStrictGroups('{^[^,\s]*?@(' . implode('|', array_keys(BasePackage::STABILITIES)) . ')$}i', $packageVersion, $match)) {
 				$stability = $match[1];
 			} else {
 				$stability = VersionParser::parseStability($packageVersion);
@@ -383,7 +383,7 @@ EOT
 		$stability = VersionParser::normalizeStability($stability);
 
 		if (!isset(BasePackage::STABILITIES[$stability])) {
-			throw new \InvalidArgumentException('Invalid stability provided ('.$stability.'), must be one of: '.implode(', ', array_keys(BasePackage::STABILITIES)));
+			throw new \InvalidArgumentException('Invalid stability provided (' . $stability . '), must be one of: ' . implode(', ', array_keys(BasePackage::STABILITIES)));
 		}
 
 		$composer = $this->createComposerInstance($input, $io, $config->all(), $disablePlugins, $disableScripts);
@@ -424,17 +424,17 @@ EOT
 		if (!$package) {
 			$errorMessage = "Could not find package $name with " . ($packageVersion ? "version $packageVersion" : "stability $stability");
 			if (!($platformRequirementFilter instanceof IgnoreAllPlatformRequirementFilter) && $versionSelector->findBestCandidate($name, $packageVersion, $stability, PlatformRequirementFilterFactory::ignoreAll())) {
-				throw new \InvalidArgumentException($errorMessage .' in a version installable using your PHP version, PHP extensions and Composer version.');
+				throw new \InvalidArgumentException($errorMessage . ' in a version installable using your PHP version, PHP extensions and Composer version.');
 			}
 
-			throw new \InvalidArgumentException($errorMessage .'.');
+			throw new \InvalidArgumentException($errorMessage . '.');
 		}
 
 		// handler Ctrl+C aborts gracefully
 		@mkdir($directory, 0777, true);
 		if (false !== ($realDir = realpath($directory))) {
-			$signalHandler = SignalHandler::create([SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP], function (string $signal, SignalHandler $handler) use ($realDir) {
-				$this->getIO()->writeError('Received '.$signal.', aborting', true, IOInterface::DEBUG);
+			$signalHandler = SignalHandler::create([SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP], function(string $signal, SignalHandler $handler) use ($realDir) {
+				$this->getIO()->writeError('Received ' . $signal . ', aborting', true, IOInterface::DEBUG);
 				$fs = new Filesystem();
 				$fs->removeDirectory($realDir);
 				$handler->exitWithLastSignal();
@@ -478,7 +478,7 @@ EOT
 		// ensure that the env var being set does not interfere with create-project
 		// as it is probably not meant to be used here, so we do not use it if a composer.json can be found
 		// in the project
-		if (file_exists($directory.'/composer.json') && Platform::getEnv('COMPOSER') !== false) {
+		if (file_exists($directory . '/composer.json') && Platform::getEnv('COMPOSER') !== false) {
 			Platform::clearEnv('COMPOSER');
 		}
 

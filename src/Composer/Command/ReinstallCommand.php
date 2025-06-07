@@ -12,6 +12,8 @@
 
 namespace Composer\Command;
 
+use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Transaction;
@@ -23,8 +25,6 @@ use Composer\Plugin\PluginEvents;
 use Composer\Script\ScriptEvents;
 use Composer\Util\Platform;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
-use Composer\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -66,7 +66,7 @@ the installation type using --prefer-install.
 Read more at https://getcomposer.org/doc/03-cli.md#reinstall
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -138,7 +138,7 @@ EOT
 				$installOrder[$op->getPackage()->getName()] = $index;
 			}
 		}
-		usort($uninstallOperations, static function ($a, $b) use ($installOrder): int {
+		usort($uninstallOperations, static function($a, $b) use ($installOrder): int {
 			return $installOrder[$b->getPackage()->getName()] - $installOrder[$a->getPackage()->getName()];
 		});
 

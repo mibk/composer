@@ -50,7 +50,7 @@ trait CompletionTrait
 	 */
 	private function suggestRootRequirement(): \Closure
 	{
-		return function (CompletionInput $input): array {
+		return function(CompletionInput $input): array {
 			$composer = $this->requireComposer();
 
 			return array_merge(array_keys($composer->getPackage()->getRequires()), array_keys($composer->getPackage()->getDevRequires()));
@@ -62,7 +62,7 @@ trait CompletionTrait
 	 */
 	private function suggestInstalledPackage(bool $includeRootPackage = true, bool $includePlatformPackages = false): \Closure
 	{
-		return function (CompletionInput $input) use ($includeRootPackage, $includePlatformPackages): array {
+		return function(CompletionInput $input) use ($includeRootPackage, $includePlatformPackages): array {
 			$composer = $this->requireComposer();
 			$installedRepos = [];
 
@@ -95,7 +95,7 @@ trait CompletionTrait
 									$hintsToFind[$hintPrefix]++;
 								} elseif ($hintCount === 1) {
 									unset($hintsToFind[$hintPrefix]);
-									$platformHint[] = substr($pkg->getName(), 0, max(strlen($pkg->getName()) - 3, strlen($hintPrefix) + 1)).'...';
+									$platformHint[] = substr($pkg->getName(), 0, max(strlen($pkg->getName()) - 3, strlen($hintPrefix) + 1)) . '...';
 								}
 								continue 2;
 							}
@@ -109,7 +109,7 @@ trait CompletionTrait
 			$installedRepo = new InstalledRepository($installedRepos);
 
 			return array_merge(
-				array_map(static function (PackageInterface $package) {
+				array_map(static function(PackageInterface $package) {
 					return $package->getName();
 				}, $installedRepo->getPackages()),
 				$platformHint
@@ -122,7 +122,7 @@ trait CompletionTrait
 	 */
 	private function suggestInstalledPackageTypes(bool $includeRootPackage = true): \Closure
 	{
-		return function (CompletionInput $input) use ($includeRootPackage): array {
+		return function(CompletionInput $input) use ($includeRootPackage): array {
 			$composer = $this->requireComposer();
 			$installedRepos = [];
 
@@ -140,7 +140,7 @@ trait CompletionTrait
 			$installedRepo = new InstalledRepository($installedRepos);
 
 			return array_values(array_unique(
-				array_map(static function (PackageInterface $package) {
+				array_map(static function(PackageInterface $package) {
 					return $package->getType();
 				}, $installedRepo->getPackages())
 			));
@@ -152,7 +152,7 @@ trait CompletionTrait
 	 */
 	private function suggestAvailablePackage(int $max = 99): \Closure
 	{
-		return function (CompletionInput $input) use ($max): array {
+		return function(CompletionInput $input) use ($max): array {
 			if ($max < 1) {
 				return [];
 			}
@@ -169,19 +169,19 @@ trait CompletionTrait
 
 			// if we get a single vendor, we expand it into its contents already
 			if (\count($results) <= 1) {
-				$results = $repos->search('^'.preg_quote($input->getCompletionValue()), RepositoryInterface::SEARCH_NAME);
+				$results = $repos->search('^' . preg_quote($input->getCompletionValue()), RepositoryInterface::SEARCH_NAME);
 				$showVendors = false;
 			}
 
 			$results = array_column($results, 'name');
 
 			if ($showVendors) {
-				$results = array_map(static function (string $name): string {
-					return $name.'/';
+				$results = array_map(static function(string $name): string {
+					return $name . '/';
 				}, $results);
 
 				// sort shorter results first to avoid auto-expanding the completion to a longer string than needed
-				usort($results, static function (string $a, string $b) {
+				usort($results, static function(string $a, string $b) {
 					$lenA = \strlen($a);
 					$lenB = \strlen($b);
 					if ($lenA === $lenB) {
@@ -194,7 +194,7 @@ trait CompletionTrait
 				$pinned = [];
 
 				// ensure if the input is an exact match that it is always in the result set
-				$completionInput = $input->getCompletionValue().'/';
+				$completionInput = $input->getCompletionValue() . '/';
 				if (false !== ($exactIndex = array_search($completionInput, $results, true))) {
 					$pinned[] = $completionInput;
 					array_splice($results, $exactIndex, 1);
@@ -213,7 +213,7 @@ trait CompletionTrait
 	 */
 	private function suggestAvailablePackageInclPlatform(): \Closure
 	{
-		return function (CompletionInput $input): array {
+		return function(CompletionInput $input): array {
 			if (Preg::isMatch('{^(ext|lib|php)(-|$)|^com}', $input->getCompletionValue())) {
 				$matches = $this->suggestPlatformPackage()($input);
 			} else {
@@ -229,14 +229,14 @@ trait CompletionTrait
 	 */
 	private function suggestPlatformPackage(): \Closure
 	{
-		return function (CompletionInput $input): array {
+		return function(CompletionInput $input): array {
 			$repos = new PlatformRepository([], $this->requireComposer()->getConfig()->get('platform'));
 
-			$pattern = BasePackage::packageNameToRegexp($input->getCompletionValue().'*');
+			$pattern = BasePackage::packageNameToRegexp($input->getCompletionValue() . '*');
 
-			return array_filter(array_map(static function (PackageInterface $package) {
+			return array_filter(array_map(static function(PackageInterface $package) {
 				return $package->getName();
-			}, $repos->getPackages()), static function (string $name) use ($pattern): bool {
+			}, $repos->getPackages()), static function(string $name) use ($pattern): bool {
 				return Preg::isMatch($pattern, $name);
 			});
 		};

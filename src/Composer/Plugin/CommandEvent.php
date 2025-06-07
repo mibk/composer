@@ -41,10 +41,10 @@ class CommandEvent extends Event
 	/**
 	 * Constructor.
 	 *
-	 * @param string          $name        The event name
-	 * @param string          $commandName The command name
-	 * @param mixed[]         $args        Arguments passed by the user
-	 * @param mixed[]         $flags       Optional flags to pass data not as argument
+	 * @param string  $name        The event name
+	 * @param string  $commandName The command name
+	 * @param mixed[] $args        Arguments passed by the user
+	 * @param mixed[] $flags       Optional flags to pass data not as argument
 	 */
 	public function __construct(string $name, string $commandName, InputInterface $input, OutputInterface $output, array $args = [], array $flags = [])
 	{

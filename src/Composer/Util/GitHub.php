@@ -12,10 +12,10 @@
 
 namespace Composer\Util;
 
-use Composer\Factory;
-use Composer\IO\IOInterface;
 use Composer\Config;
 use Composer\Downloader\TransportException;
+use Composer\Factory;
+use Composer\IO\IOInterface;
 use Composer\Pcre\Preg;
 
 /**
@@ -73,11 +73,11 @@ class GitHub
 	/**
 	 * Authorizes a GitHub domain interactively via OAuth
 	 *
-	 * @param  string                        $originUrl The host this GitHub instance is located at
-	 * @param  string                        $message   The reason this authorization is required
+	 * @param  string $originUrl The host this GitHub instance is located at
+	 * @param  string $message   The reason this authorization is required
 	 * @throws \RuntimeException
 	 * @throws TransportException|\Exception
-	 * @return bool                          true on success
+	 * @return bool true on success
 	 */
 	public function authorizeOAuthInteractively(string $originUrl, ?string $message = null): bool
 	{
@@ -91,13 +91,13 @@ class GitHub
 		}
 		$note .= ' ' . date('Y-m-d Hi');
 
-		$url = 'https://'.$originUrl.'/settings/tokens/new?scopes=&description=' . str_replace('%20', '+', rawurlencode($note));
+		$url = 'https://' . $originUrl . '/settings/tokens/new?scopes=&description=' . str_replace('%20', '+', rawurlencode($note));
 		$this->io->writeError('When working with _public_ GitHub repositories only, head here to retrieve a token:');
 		$this->io->writeError($url);
 		$this->io->writeError('This token will have read-only permission for public information only.');
 
 		$localAuthConfig = $this->config->getLocalAuthConfigSource();
-		$url = 'https://'.$originUrl.'/settings/tokens/new?scopes=repo&description=' . str_replace('%20', '+', rawurlencode($note));
+		$url = 'https://' . $originUrl . '/settings/tokens/new?scopes=repo&description=' . str_replace('%20', '+', rawurlencode($note));
 		$this->io->writeError('When you need to access _private_ GitHub repositories as well, go to:');
 		$this->io->writeError($url);
 		$this->io->writeError('Note that such tokens have broad read/write permissions on your behalf, even if not needed by Composer.');
@@ -123,7 +123,7 @@ class GitHub
 		try {
 			$apiUrl = ('github.com' === $originUrl) ? 'api.github.com/' : $originUrl . '/api/v3/';
 
-			$this->httpDownloader->get('https://'. $apiUrl, [
+			$this->httpDownloader->get('https://' . $apiUrl, [
 				'retry-auth-failure' => false,
 			]);
 		} catch (TransportException $e) {
@@ -139,8 +139,8 @@ class GitHub
 
 		// store value in local/user config
 		$authConfigSource = $storeInLocalAuthConfig && $localAuthConfig !== null ? $localAuthConfig : $this->config->getAuthConfigSource();
-		$this->config->getConfigSource()->removeConfigSetting('github-oauth.'.$originUrl);
-		$authConfigSource->addConfigSetting('github-oauth.'.$originUrl, $token);
+		$this->config->getConfigSource()->removeConfigSetting('github-oauth.' . $originUrl);
+		$authConfigSource->addConfigSetting('github-oauth.' . $originUrl, $token);
 
 		$this->io->writeError('<info>Token stored successfully.</info>');
 
@@ -168,12 +168,12 @@ class GitHub
 			}
 			[$type, $value] = explode(':', $header, 2);
 			switch (strtolower($type)) {
-				case 'x-ratelimit-limit':
-					$rateLimit['limit'] = (int) trim($value);
-					break;
-				case 'x-ratelimit-reset':
-					$rateLimit['reset'] = date('Y-m-d H:i:s', (int) trim($value));
-					break;
+			case 'x-ratelimit-limit':
+				$rateLimit['limit'] = (int) trim($value);
+				break;
+			case 'x-ratelimit-reset':
+				$rateLimit['reset'] = date('Y-m-d H:i:s', (int) trim($value));
+				break;
 			}
 		}
 

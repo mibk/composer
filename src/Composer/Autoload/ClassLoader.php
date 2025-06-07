@@ -42,7 +42,7 @@ namespace Composer\Autoload;
  */
 class ClassLoader
 {
-	/** @var \Closure(string):void */
+	/** @var \Closure (string):void */
 	private static $includeFile;
 
 	/** @var string|null */
@@ -449,7 +449,7 @@ class ClassLoader
 			return false;
 		}
 		if (null !== $this->apcuPrefix) {
-			$file = apcu_fetch($this->apcuPrefix.$class, $hit);
+			$file = apcu_fetch($this->apcuPrefix . $class, $hit);
 			if ($hit) {
 				return $file;
 			}
@@ -463,7 +463,7 @@ class ClassLoader
 		}
 
 		if (null !== $this->apcuPrefix) {
-			apcu_add($this->apcuPrefix.$class, $file);
+			apcu_add($this->apcuPrefix . $class, $file);
 		}
 
 		if (false === $file) {
@@ -485,8 +485,8 @@ class ClassLoader
 	}
 
 	/**
-	 * @param  string       $class
-	 * @param  string       $ext
+	 * @param  string $class
+	 * @param  string $ext
 	 * @return string|false
 	 */
 	private function findFileWithExtension($class, $ext)

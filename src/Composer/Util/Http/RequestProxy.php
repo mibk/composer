@@ -32,9 +32,9 @@ class RequestProxy
 	private $auth;
 
 	/**
-	 * @param ?non-empty-string $url The proxy url, without authorization
+	 * @param ?non-empty-string $url  The proxy url, without authorization
 	 * @param ?non-empty-string $auth Authorization for curl
-	 * @param ?contextOptions $contextOptions
+	 * @param ?contextOptions   $contextOptions
 	 * @param ?non-empty-string $status
 	 */
 	public function __construct(?string $url, ?string $auth, ?array $contextOptions, ?string $status)
@@ -68,7 +68,7 @@ class RequestProxy
 	/**
 	 * Returns an array of curl proxy options
 	 *
-	 * @param array<string, string|int> $sslOptions
+	 * @param  array<string, string|int> $sslOptions
 	 * @return array<int, string|int>
 	 */
 	public function getCurlOptions(array $sslOptions): array

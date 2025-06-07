@@ -12,10 +12,10 @@
 
 namespace Composer\Util;
 
-use Composer\IO\IOInterface;
 use Composer\Config;
-use Composer\Factory;
 use Composer\Downloader\TransportException;
+use Composer\Factory;
+use Composer\IO\IOInterface;
 use Composer\Pcre\Preg;
 
 /**
@@ -95,7 +95,7 @@ class GitLab
 
 			// Composer expects the GitLab token to be stored as username and 'private-token' or 'gitlab-ci-token' to be stored as password
 			// Detect cases where this is reversed and resolve automatically resolve it
-			if (in_array($username, ['private-token', 'gitlab-ci-token',  'oauth2'], true)) {
+			if (in_array($username, ['private-token', 'gitlab-ci-token', 'oauth2'], true)) {
 				$this->io->setAuthentication($originUrl, $password, $username);
 			} else {
 				$this->io->setAuthentication($originUrl, $username, $password);
@@ -126,8 +126,8 @@ class GitLab
 		}
 
 		$localAuthConfig = $this->config->getLocalAuthConfigSource();
-		$personalAccessTokenLink = $scheme.'://'.$originUrl.'/-/user_settings/personal_access_tokens';
-		$revokeLink = $scheme.'://'.$originUrl.'/-/user_settings/applications';
+		$personalAccessTokenLink = $scheme . '://' . $originUrl . '/-/user_settings/personal_access_tokens';
+		$revokeLink = $scheme . '://' . $originUrl . '/-/user_settings/applications';
 		$this->io->writeError(sprintf('A token will be created and stored in "%s", your password will never be stored', ($localAuthConfig !== null ? $localAuthConfig->getName() . ' OR ' : '') . $this->config->getAuthConfigSource()->getName()));
 		$this->io->writeError('To revoke access to this token you can visit:');
 		$this->io->writeError($revokeLink);
@@ -164,7 +164,7 @@ class GitLab
 
 					$this->io->writeError('You can also manually create a personal access token enabling the "read_api" scope at:');
 					$this->io->writeError($personalAccessTokenLink);
-					$this->io->writeError('Add it using "composer config --global --auth gitlab-token.'.$originUrl.' <token>"');
+					$this->io->writeError('Add it using "composer config --global --auth gitlab-token.' . $originUrl . ' <token>"');
 
 					continue;
 				}
@@ -178,15 +178,15 @@ class GitLab
 			// store value in user config in auth file
 			if (isset($response['expires_in'])) {
 				$authConfigSource->addConfigSetting(
-					'gitlab-oauth.'.$originUrl,
+					'gitlab-oauth.' . $originUrl,
 					[
-						'expires-at' => intval($response['created_at']) + intval($response['expires_in']),
+						'expires-at'    => intval($response['created_at']) + intval($response['expires_in']),
 						'refresh-token' => $response['refresh_token'],
-						'token' => $response['access_token'],
+						'token'         => $response['access_token'],
 					]
 				);
 			} else {
-				$authConfigSource->addConfigSetting('gitlab-oauth.'.$originUrl, $response['access_token']);
+				$authConfigSource->addConfigSetting('gitlab-oauth.' . $originUrl, $response['access_token']);
 			}
 
 			return true;
@@ -211,7 +211,7 @@ class GitLab
 		try {
 			$response = $this->refreshToken($scheme, $originUrl);
 		} catch (TransportException $e) {
-			$this->io->writeError("Couldn't refresh access token: ".$e->getMessage());
+			$this->io->writeError("Couldn't refresh access token: " . $e->getMessage());
 
 			return false;
 		}
@@ -220,11 +220,11 @@ class GitLab
 
 		// store value in user config in auth file
 		$this->config->getAuthConfigSource()->addConfigSetting(
-			'gitlab-oauth.'.$originUrl,
+			'gitlab-oauth.' . $originUrl,
 			[
-				'expires-at' => intval($response['created_at']) + intval($response['expires_in']),
+				'expires-at'    => intval($response['created_at']) + intval($response['expires_in']),
 				'refresh-token' => $response['refresh_token'],
-				'token' => $response['access_token'],
+				'token'         => $response['access_token'],
 			]
 		);
 
@@ -245,20 +245,20 @@ class GitLab
 
 		$apiUrl = $originUrl;
 		$data = http_build_query([
-			'username' => $username,
-			'password' => $password,
+			'username'   => $username,
+			'password'   => $password,
 			'grant_type' => 'password',
 		], '', '&');
 		$options = [
 			'retry-auth-failure' => false,
-			'http' => [
-				'method' => 'POST',
-				'header' => $headers,
+			'http'               => [
+				'method'  => 'POST',
+				'header'  => $headers,
 				'content' => $data,
 			],
 		];
 
-		$token = $this->httpDownloader->get($scheme.'://'.$apiUrl.'/oauth/token', $options)->decodeJson();
+		$token = $this->httpDownloader->get($scheme . '://' . $apiUrl . '/oauth/token', $options)->decodeJson();
 
 		$this->io->writeError('Token successfully created');
 
@@ -291,7 +291,7 @@ class GitLab
 	{
 		$authTokens = $this->config->get('gitlab-oauth');
 		if (!isset($authTokens[$originUrl]['refresh-token'])) {
-			throw new \RuntimeException('No GitLab refresh token present for '.$originUrl.'.');
+			throw new \RuntimeException('No GitLab refresh token present for ' . $originUrl . '.');
 		}
 
 		$refreshToken = $authTokens[$originUrl]['refresh-token'];
@@ -299,20 +299,20 @@ class GitLab
 
 		$data = http_build_query([
 			'refresh_token' => $refreshToken,
-			'grant_type' => 'refresh_token',
+			'grant_type'    => 'refresh_token',
 		], '', '&');
 		$options = [
 			'retry-auth-failure' => false,
-			'http' => [
-				'method' => 'POST',
-				'header' => $headers,
+			'http'               => [
+				'method'  => 'POST',
+				'header'  => $headers,
 				'content' => $data,
 			],
 		];
 
-		$token = $this->httpDownloader->get($scheme.'://'.$originUrl.'/oauth/token', $options)->decodeJson();
+		$token = $this->httpDownloader->get($scheme . '://' . $originUrl . '/oauth/token', $options)->decodeJson();
 		$this->io->writeError('GitLab token successfully refreshed', true, IOInterface::VERY_VERBOSE);
-		$this->io->writeError('To revoke access to this token you can visit '.$scheme.'://'.$originUrl.'/-/user_settings/applications', true, IOInterface::VERY_VERBOSE);
+		$this->io->writeError('To revoke access to this token you can visit ' . $scheme . '://' . $originUrl . '/-/user_settings/applications', true, IOInterface::VERY_VERBOSE);
 
 		return $token;
 	}

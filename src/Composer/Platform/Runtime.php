@@ -19,7 +19,7 @@ class Runtime
 	 */
 	public function hasConstant(string $constant, ?string $class = null): bool
 	{
-		return defined(ltrim($class.'::'.$constant, ':'));
+		return defined(ltrim($class . '::' . $constant, ':'));
 	}
 
 	/**
@@ -29,7 +29,7 @@ class Runtime
 	 */
 	public function getConstant(string $constant, ?string $class = null)
 	{
-		return constant(ltrim($class.'::'.$constant, ':'));
+		return constant(ltrim($class . '::' . $constant, ':'));
 	}
 
 	public function hasFunction(string $fn): bool
@@ -57,9 +57,9 @@ class Runtime
 
 	/**
 	 * @template T of object
-	 * @param mixed[] $arguments
+	 * @param    mixed[] $arguments
 	 *
-	 * @phpstan-param class-string<T> $class
+	 * @phpstan-param  class-string<T> $class
 	 * @phpstan-return T
 	 *
 	 * @throws \ReflectionException

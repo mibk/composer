@@ -64,7 +64,7 @@ class Package extends BasePackage
 	/** @var bool */
 	protected $dev;
 	/**
-	 * @var string
+	 * @var         string
 	 * @phpstan-var 'stable'|'RC'|'beta'|'alpha'|'dev'
 	 */
 	protected $stability;
@@ -84,12 +84,12 @@ class Package extends BasePackage
 	/** @var array<string, string> */
 	protected $suggests = [];
 	/**
-	 * @var array
+	 * @var         array
 	 * @phpstan-var AutoloadRules
 	 */
 	protected $autoload = [];
 	/**
-	 * @var array
+	 * @var         array
 	 * @phpstan-var DevAutoloadRules
 	 */
 	protected $devAutoload = [];
@@ -100,7 +100,7 @@ class Package extends BasePackage
 	/** @var mixed[] */
 	protected $transportOptions = [];
 	/**
-	 * @var array|null
+	 * @var         array|null
 	 * @phpstan-var PhpExtConfig|null
 	 */
 	protected $phpExt = null;
@@ -656,7 +656,7 @@ class Package extends BasePackage
 		// TODO generalize this a bit for self-managed/on-prem versions? Some kind of replace token in dist urls which allow this?
 		if (
 			$this->getDistUrl() !== null
-			&& Preg::isMatch('{^https?://(?:(?:www\.)?bitbucket\.org|(api\.)?github\.com|(?:www\.)?gitlab\.com)/}i', $this->getDistUrl())
+				&& Preg::isMatch('{^https?://(?:(?:www\.)?bitbucket\.org|(api\.)?github\.com|(?:www\.)?gitlab\.com)/}i', $this->getDistUrl())
 		) {
 			$this->setDistReference($reference);
 			$this->setDistUrl(Preg::replace('{(?<=/|sha=)[a-f0-9]{40}(?=/|$)}i', $reference, $this->getDistUrl()));
@@ -726,7 +726,7 @@ class Package extends BasePackage
 	 */
 	private function convertLinksToMap(array $links, string $source): array
 	{
-		trigger_error('Package::'.$source.' must be called with a map of lowercased package name => Link object, got a indexed array, this is deprecated and you should fix your usage.');
+		trigger_error('Package::' . $source . ' must be called with a map of lowercased package name => Link object, got a indexed array, this is deprecated and you should fix your usage.');
 		$newLinks = [];
 		foreach ($links as $link) {
 			$newLinks[$link->getTarget()] = $link;

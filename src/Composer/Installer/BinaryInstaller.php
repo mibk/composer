@@ -41,7 +41,7 @@ class BinaryInstaller
 	private $vendorDir;
 
 	/**
-	 * @param Filesystem  $filesystem
+	 * @param Filesystem $filesystem
 	 */
 	public function __construct(IOInterface $io, string $binDir, string $binCompat, ?Filesystem $filesystem = null, ?string $vendorDir = null)
 	{
@@ -62,13 +62,13 @@ class BinaryInstaller
 		Platform::workaroundFilesystemIssues();
 
 		foreach ($binaries as $bin) {
-			$binPath = $installPath.'/'.$bin;
+			$binPath = $installPath . '/' . $bin;
 			if (!file_exists($binPath)) {
-				$this->io->writeError('    <warning>Skipped installation of bin '.$bin.' for package '.$package->getName().': file not found in package</warning>');
+				$this->io->writeError('    <warning>Skipped installation of bin ' . $bin . ' for package ' . $package->getName() . ': file not found in package</warning>');
 				continue;
 			}
 			if (is_dir($binPath)) {
-				$this->io->writeError('    <warning>Skipped installation of bin '.$bin.' for package '.$package->getName().': found a directory at that path</warning>');
+				$this->io->writeError('    <warning>Skipped installation of bin ' . $bin . ' for package ' . $package->getName() . ': found a directory at that path</warning>');
 				continue;
 			}
 			if (!$this->filesystem->isAbsolutePath($binPath)) {
@@ -79,11 +79,11 @@ class BinaryInstaller
 				$binPath = realpath($binPath);
 			}
 			$this->initializeBinDir();
-			$link = $this->binDir.'/'.basename($bin);
+			$link = $this->binDir . '/' . basename($bin);
 			if (file_exists($link)) {
 				if (!is_link($link)) {
 					if ($warnOnOverwrite) {
-						$this->io->writeError('    Skipped installation of bin '.$bin.' for package '.$package->getName().': name conflicts with an existing file');
+						$this->io->writeError('    Skipped installation of bin ' . $bin . ' for package ' . $package->getName() . ': name conflicts with an existing file');
 					}
 					continue;
 				}
@@ -116,12 +116,12 @@ class BinaryInstaller
 			return;
 		}
 		foreach ($binaries as $bin) {
-			$link = $this->binDir.'/'.basename($bin);
+			$link = $this->binDir . '/' . basename($bin);
 			if (is_link($link) || file_exists($link)) { // still checking for symlinks here for legacy support
 				$this->filesystem->unlink($link);
 			}
-			if (is_file($link.'.bat')) {
-				$this->filesystem->unlink($link.'.bat');
+			if (is_file($link . '.bat')) {
+				$this->filesystem->unlink($link . '.bat');
 			}
 		}
 
@@ -162,7 +162,7 @@ class BinaryInstaller
 			$this->installUnixyProxyBinaries($binPath, $link);
 			$link .= '.bat';
 			if (file_exists($link)) {
-				$this->io->writeError('    Skipped installation of bin '.$bin.'.bat proxy for package '.$package->getName().': a .bat proxy was already installed');
+				$this->io->writeError('    Skipped installation of bin ' . $bin . '.bat proxy for package ' . $package->getName() . ': a .bat proxy was already installed');
 			}
 		}
 		if (!file_exists($link)) {
@@ -192,17 +192,17 @@ class BinaryInstaller
 		// to ensure that _composer_autoload_path gets defined, instead
 		// of running the binary directly
 		if ($caller === 'php') {
-			return "@ECHO OFF\r\n".
-				"setlocal DISABLEDELAYEDEXPANSION\r\n".
-				"SET BIN_TARGET=%~dp0/".trim(ProcessExecutor::escape(basename($link, '.bat')), '"\'')."\r\n".
-				"SET COMPOSER_RUNTIME_BIN_DIR=%~dp0\r\n".
+			return "@ECHO OFF\r\n" .
+				"setlocal DISABLEDELAYEDEXPANSION\r\n" .
+				"SET BIN_TARGET=%~dp0/" . trim(ProcessExecutor::escape(basename($link, '.bat')), '"\'') . "\r\n" .
+				"SET COMPOSER_RUNTIME_BIN_DIR=%~dp0\r\n" .
 				"{$caller} \"%BIN_TARGET%\" %*\r\n";
 		}
 
-		return "@ECHO OFF\r\n".
-			"setlocal DISABLEDELAYEDEXPANSION\r\n".
-			"SET BIN_TARGET=%~dp0/".trim(ProcessExecutor::escape($binPath), '"\'')."\r\n".
-			"SET COMPOSER_RUNTIME_BIN_DIR=%~dp0\r\n".
+		return "@ECHO OFF\r\n" .
+			"setlocal DISABLEDELAYEDEXPANSION\r\n" .
+			"SET BIN_TARGET=%~dp0/" . trim(ProcessExecutor::escape($binPath), '"\'') . "\r\n" .
+			"SET COMPOSER_RUNTIME_BIN_DIR=%~dp0\r\n" .
 			"{$caller} \"%BIN_TARGET%\" %*\r\n";
 	}
 
@@ -221,7 +221,7 @@ class BinaryInstaller
 			$proxyCode = $match[1] === null ? '#!/usr/bin/env php' : trim($match[1]);
 			$binPathExported = $this->filesystem->findShortestPathCode($link, $bin, false, true);
 			$streamProxyCode = $streamHint = '';
-			$globalsCode = '$GLOBALS[\'_composer_bin_dir\'] = __DIR__;'."\n";
+			$globalsCode = '$GLOBALS[\'_composer_bin_dir\'] = __DIR__;' . "\n";
 			$phpunitHack1 = $phpunitHack2 = '';
 			// Don't expose autoload path when vendor dir was not set in custom installers
 			if ($this->vendorDir !== null) {
@@ -230,12 +230,12 @@ class BinaryInstaller
 				if ($vendorDirReal === false) {
 					$vendorDirReal = $this->vendorDir;
 				}
-				$globalsCode .= '$GLOBALS[\'_composer_autoload_path\'] = ' . $this->filesystem->findShortestPathCode($link, $vendorDirReal . '/autoload.php', false, true).";\n";
+				$globalsCode .= '$GLOBALS[\'_composer_autoload_path\'] = ' . $this->filesystem->findShortestPathCode($link, $vendorDirReal . '/autoload.php', false, true) . ";\n";
 			}
 			// Add workaround for PHPUnit process isolation
-			if ($this->filesystem->normalizePath($bin) === $this->filesystem->normalizePath($this->vendorDir.'/phpunit/phpunit/phpunit')) {
+			if ($this->filesystem->normalizePath($bin) === $this->filesystem->normalizePath($this->vendorDir . '/phpunit/phpunit/phpunit')) {
 				// workaround issue on PHPUnit 6.5+ running on PHP 8+
-				$globalsCode .= '$GLOBALS[\'__PHPUNIT_ISOLATION_EXCLUDE_LIST\'] = $GLOBALS[\'__PHPUNIT_ISOLATION_BLACKLIST\'] = array(realpath('.$binPathExported.'));'."\n";
+				$globalsCode .= '$GLOBALS[\'__PHPUNIT_ISOLATION_EXCLUDE_LIST\'] = $GLOBALS[\'__PHPUNIT_ISOLATION_BLACKLIST\'] = array(realpath(' . $binPathExported . '));' . "\n";
 				// workaround issue on all PHPUnit versions running on PHP <8
 				$phpunitHack1 = "'phpvfscomposer://'.";
 				$phpunitHack2 = '
@@ -243,7 +243,7 @@ class BinaryInstaller
 				$data = str_replace(\'__FILE__\', var_export($this->realpath, true), $data);';
 			}
 			if (trim($match[0]) !== '<?php') {
-				$streamHint = ' using a stream wrapper to prevent the shebang from being output on PHP<8'."\n *";
+				$streamHint = ' using a stream wrapper to prevent the shebang from being output on PHP<8' . "\n *";
 				$streamProxyCode = <<<STREAMPROXY
 if (PHP_VERSION_ID < 80000) {
 	if (!class_exists('Composer\BinProxyWrapper')) {

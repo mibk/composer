@@ -50,7 +50,7 @@ class Comparer
 		if ($explicated) {
 			foreach ($changed as $sectionKey => $itemSection) {
 				foreach ($itemSection as $itemKey => $item) {
-					$changed[$sectionKey][$itemKey] = $item.' ('.$sectionKey.')';
+					$changed[$sectionKey][$itemKey] = $item . ' (' . $sectionKey . ')';
 				}
 			}
 		}
@@ -71,7 +71,7 @@ class Comparer
 		$strings = [];
 		foreach ($changed as $sectionKey => $itemSection) {
 			foreach ($itemSection as $itemKey => $item) {
-				$strings[] = $item."\r\n";
+				$strings[] = $item . "\r\n";
 			}
 		}
 
@@ -100,17 +100,17 @@ class Comparer
 			foreach ($value as $file => $hash) {
 				if (isset($destination[$dir][$file])) {
 					if ($hash !== $destination[$dir][$file]) {
-						$this->changed['changed'][] = $dir.'/'.$file;
+						$this->changed['changed'][] = $dir . '/' . $file;
 					}
 				} else {
-					$this->changed['removed'][] = $dir.'/'.$file;
+					$this->changed['removed'][] = $dir . '/' . $file;
 				}
 			}
 		}
 		foreach ($destination as $dir => $value) {
 			foreach ($value as $file => $hash) {
 				if (!isset($source[$dir][$file])) {
-					$this->changed['added'][] = $dir.'/'.$file;
+					$this->changed['added'][] = $dir . '/' . $file;
 				}
 			}
 		}
@@ -126,17 +126,17 @@ class Comparer
 		if ($dh = opendir($dir)) {
 			while ($file = readdir($dh)) {
 				if ($file !== '.' && $file !== '..') {
-					if (is_link($dir.'/'.$file)) {
-						$array[$dir][$file] = readlink($dir.'/'.$file);
-					} elseif (is_dir($dir.'/'.$file)) {
+					if (is_link($dir . '/' . $file)) {
+						$array[$dir][$file] = readlink($dir . '/' . $file);
+					} elseif (is_dir($dir . '/' . $file)) {
 						if (!count($array)) {
 							$array[0] = 'Temp';
 						}
-						if (!$this->doTree($dir.'/'.$file, $array)) {
+						if (!$this->doTree($dir . '/' . $file, $array)) {
 							return false;
 						}
-					} elseif (is_file($dir.'/'.$file) && filesize($dir.'/'.$file)) {
-						$array[$dir][$file] = hash_file(\PHP_VERSION_ID > 80100 ? 'xxh3' : 'sha1', $dir.'/'.$file);
+					} elseif (is_file($dir . '/' . $file) && filesize($dir . '/' . $file)) {
+						$array[$dir][$file] = hash_file(\PHP_VERSION_ID > 80100 ? 'xxh3' : 'sha1', $dir . '/' . $file);
 					}
 				}
 			}

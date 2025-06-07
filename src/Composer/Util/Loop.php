@@ -13,8 +13,8 @@
 namespace Composer\Util;
 
 use React\Promise\CancellablePromiseInterface;
-use Symfony\Component\Console\Helper\ProgressBar;
 use React\Promise\PromiseInterface;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -53,16 +53,16 @@ class Loop
 
 	/**
 	 * @param array<PromiseInterface<mixed>> $promises
-	 * @param ProgressBar|null              $progress
+	 * @param ProgressBar|null               $progress
 	 */
 	public function wait(array $promises, ?ProgressBar $progress = null): void
 	{
 		$uncaught = null;
 
 		\React\Promise\all($promises)->then(
-			static function (): void {
+			static function(): void {
 			},
-			static function (\Throwable $e) use (&$uncaught): void {
+			static function(\Throwable $e) use (&$uncaught): void {
 				$uncaught = $e;
 			}
 		);

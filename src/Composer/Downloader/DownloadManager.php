@@ -12,11 +12,11 @@
 
 namespace Composer\Downloader;
 
-use Composer\Package\PackageInterface;
+use Composer\Exception\IrrecoverableDownloadException;
 use Composer\IO\IOInterface;
+use Composer\Package\PackageInterface;
 use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
-use Composer\Exception\IrrecoverableDownloadException;
 use React\Promise\PromiseInterface;
 
 /**
@@ -56,7 +56,7 @@ class DownloadManager
 	/**
 	 * Makes downloader prefer source installation over the dist.
 	 *
-	 * @param  bool            $preferSource prefer downloading from source
+	 * @param  bool $preferSource prefer downloading from source
 	 * @return DownloadManager
 	 */
 	public function setPreferSource(bool $preferSource): self
@@ -69,7 +69,7 @@ class DownloadManager
 	/**
 	 * Makes downloader prefer dist installation over the source.
 	 *
-	 * @param  bool            $preferDist prefer downloading from dist
+	 * @param  bool $preferDist prefer downloading from dist
 	 * @return DownloadManager
 	 */
 	public function setPreferDist(bool $preferDist): self
@@ -146,7 +146,7 @@ class DownloadManager
 			$downloader = $this->getDownloader($package->getSourceType());
 		} else {
 			throw new \InvalidArgumentException(
-				'Package '.$package.' does not have an installation source set'
+				'Package ' . $package . ' does not have an installation source set'
 			);
 		}
 
@@ -171,9 +171,9 @@ class DownloadManager
 	/**
 	 * Downloads package into target dir.
 	 *
-	 * @param PackageInterface      $package     package instance
-	 * @param string                $targetDir   target dir
-	 * @param PackageInterface|null $prevPackage previous package instance in case of updates
+	 * @param          PackageInterface      $package     package instance
+	 * @param          string                $targetDir   target dir
+	 * @param          PackageInterface|null $prevPackage previous package instance in case of updates
 	 * @phpstan-return PromiseInterface<void|null>
 	 *
 	 * @throws \InvalidArgumentException if package have no urls to download from
@@ -188,7 +188,7 @@ class DownloadManager
 
 		$io = $this->io;
 
-		$download = function ($retry = false) use (&$sources, $io, $package, $targetDir, &$download, $prevPackage) {
+		$download = function($retry = false) use (&$sources, $io, $package, $targetDir, &$download, $prevPackage) {
 			$source = array_shift($sources);
 			if ($retry) {
 				$io->writeError('    <warning>Now trying to download from ' . $source . '</warning>');
@@ -200,17 +200,17 @@ class DownloadManager
 				return \React\Promise\resolve(null);
 			}
 
-			$handleError = static function ($e) use ($sources, $source, $package, $io, $download) {
-				if ($e instanceof \RuntimeException && !$e instanceof IrrecoverableDownloadException) {
+			$handleError = static function($e) use ($sources, $source, $package, $io, $download) {
+				if ($e instanceof \RuntimeException && ! $e instanceof IrrecoverableDownloadException) {
 					if (!$sources) {
 						throw $e;
 					}
 
 					$io->writeError(
-						'    <warning>Failed to download '.
-						$package->getPrettyName().
-						' from ' . $source . ': '.
-						$e->getMessage().'</warning>'
+						'    <warning>Failed to download ' .
+							$package->getPrettyName() .
+							' from ' . $source . ': ' .
+							$e->getMessage() . '</warning>'
 					);
 
 					return $download(true);
@@ -225,7 +225,7 @@ class DownloadManager
 				return $handleError($e);
 			}
 
-			$res = $result->then(static function ($res) {
+			$res = $result->then(static function($res) {
 				return $res;
 			}, $handleError);
 
@@ -238,10 +238,10 @@ class DownloadManager
 	/**
 	 * Prepares an operation execution
 	 *
-	 * @param string                $type        one of install/update/uninstall
-	 * @param PackageInterface      $package     package instance
-	 * @param string                $targetDir   target dir
-	 * @param PackageInterface|null $prevPackage previous package instance in case of updates
+	 * @param          string                $type        one of install/update/uninstall
+	 * @param          PackageInterface      $package     package instance
+	 * @param          string                $targetDir   target dir
+	 * @param          PackageInterface|null $prevPackage previous package instance in case of updates
 	 * @phpstan-return PromiseInterface<void|null>
 	 */
 	public function prepare(string $type, PackageInterface $package, string $targetDir, ?PackageInterface $prevPackage = null): PromiseInterface
@@ -258,8 +258,8 @@ class DownloadManager
 	/**
 	 * Installs package into target dir.
 	 *
-	 * @param PackageInterface $package   package instance
-	 * @param string           $targetDir target dir
+	 * @param          PackageInterface $package   package instance
+	 * @param          string           $targetDir target dir
 	 * @phpstan-return PromiseInterface<void|null>
 	 *
 	 * @throws \InvalidArgumentException if package have no urls to download from
@@ -279,9 +279,9 @@ class DownloadManager
 	/**
 	 * Updates package from initial to target version.
 	 *
-	 * @param PackageInterface $initial   initial package version
-	 * @param PackageInterface $target    target package version
-	 * @param string           $targetDir target dir
+	 * @param          PackageInterface $initial   initial package version
+	 * @param          PackageInterface $target    target package version
+	 * @param          string           $targetDir target dir
 	 * @phpstan-return PromiseInterface<void|null>
 	 *
 	 * @throws \InvalidArgumentException if initial package is not installed
@@ -311,7 +311,7 @@ class DownloadManager
 				if (!$this->io->isInteractive()) {
 					throw $e;
 				}
-				$this->io->writeError('<error>    Update failed ('.$e->getMessage().')</error>');
+				$this->io->writeError('<error>    Update failed (' . $e->getMessage() . ')</error>');
 				if (!$this->io->askConfirmation('    Would you like to try reinstalling the package instead [<comment>yes</comment>]? ')) {
 					throw $e;
 				}
@@ -322,7 +322,7 @@ class DownloadManager
 		// we wipe the dir and do a new install instead of updating it
 		$promise = $initialDownloader->remove($initial, $targetDir);
 
-		return $promise->then(function ($res) use ($target, $targetDir): PromiseInterface {
+		return $promise->then(function($res) use ($target, $targetDir): PromiseInterface {
 			return $this->install($target, $targetDir);
 		});
 	}
@@ -330,8 +330,8 @@ class DownloadManager
 	/**
 	 * Removes package from target dir.
 	 *
-	 * @param PackageInterface $package   package instance
-	 * @param string           $targetDir target dir
+	 * @param          PackageInterface $package   package instance
+	 * @param          string           $targetDir target dir
 	 * @phpstan-return PromiseInterface<void|null>
 	 */
 	public function remove(PackageInterface $package, string $targetDir): PromiseInterface
@@ -348,10 +348,10 @@ class DownloadManager
 	/**
 	 * Cleans up a failed operation
 	 *
-	 * @param string                $type        one of install/update/uninstall
-	 * @param PackageInterface      $package     package instance
-	 * @param string                $targetDir   target dir
-	 * @param PackageInterface|null $prevPackage previous package instance in case of updates
+	 * @param          string                $type        one of install/update/uninstall
+	 * @param          PackageInterface      $package     package instance
+	 * @param          string                $targetDir   target dir
+	 * @param          PackageInterface|null $prevPackage previous package instance in case of updates
 	 * @phpstan-return PromiseInterface<void|null>
 	 */
 	public function cleanup(string $type, PackageInterface $package, string $targetDir, ?PackageInterface $prevPackage = null): PromiseInterface
@@ -373,7 +373,7 @@ class DownloadManager
 	protected function resolvePackageInstallPreference(PackageInterface $package): string
 	{
 		foreach ($this->packagePreferences as $pattern => $preference) {
-			$pattern = '{^'.str_replace('\\*', '.*', preg_quote($pattern)).'$}i';
+			$pattern = '{^' . str_replace('\\*', '.*', preg_quote($pattern)) . '$}i';
 			if (Preg::isMatch($pattern, $package->getName())) {
 				if ('dist' === $preference || (!$package->isDev() && 'auto' === $preference)) {
 					return 'dist';
@@ -387,7 +387,7 @@ class DownloadManager
 	}
 
 	/**
-	 * @return string[]
+	 * @return         string[]
 	 * @phpstan-return array<'dist'|'source'>&non-empty-array
 	 */
 	private function getAvailableSources(PackageInterface $package, ?PackageInterface $prevPackage = null): array
@@ -405,18 +405,18 @@ class DownloadManager
 		}
 
 		if (empty($sources)) {
-			throw new \InvalidArgumentException('Package '.$package.' must have a source or dist specified');
+			throw new \InvalidArgumentException('Package ' . $package . ' must have a source or dist specified');
 		}
 
 		if (
 			$prevPackage
-			// if we are updating, we want to keep the same source as the previously installed package (if available in the new one)
-			&& in_array($prevPackage->getInstallationSource(), $sources, true)
-			// unless the previous package was stable dist (by default) and the new package is dev, then we allow the new default to take over
-			&& !(!$prevPackage->isDev() && $prevPackage->getInstallationSource() === 'dist' && $package->isDev())
+				// if we are updating, we want to keep the same source as the previously installed package (if available in the new one)
+				&& in_array($prevPackage->getInstallationSource(), $sources, true)
+				// unless the previous package was stable dist (by default) and the new package is dev, then we allow the new default to take over
+				&& !(!$prevPackage->isDev() && $prevPackage->getInstallationSource() === 'dist' && $package->isDev())
 		) {
 			$prevSource = $prevPackage->getInstallationSource();
-			usort($sources, static function ($a, $b) use ($prevSource): int {
+			usort($sources, static function($a, $b) use ($prevSource): int {
 				return $a === $prevSource ? -1 : 1;
 			});
 

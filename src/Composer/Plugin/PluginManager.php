@@ -14,24 +14,24 @@ namespace Composer\Plugin;
 
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
-use Composer\Installer\InstallerInterface;
 use Composer\IO\IOInterface;
+use Composer\Installer\InstallerInterface;
 use Composer\Package\BasePackage;
 use Composer\Package\CompletePackage;
+use Composer\Package\Link;
 use Composer\Package\Locker;
 use Composer\Package\Package;
+use Composer\Package\PackageInterface;
 use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
 use Composer\PartialComposer;
 use Composer\Pcre\Preg;
-use Composer\Repository\RepositoryInterface;
+use Composer\Plugin\Capability\Capability;
 use Composer\Repository\InstalledRepository;
+use Composer\Repository\RepositoryInterface;
 use Composer\Repository\RepositoryUtils;
 use Composer\Repository\RootPackageRepository;
-use Composer\Package\PackageInterface;
-use Composer\Package\Link;
 use Composer\Semver\Constraint\Constraint;
-use Composer\Plugin\Capability\Capability;
 use Composer\Util\PackageSorter;
 
 /**
@@ -147,21 +147,22 @@ class PluginManager
 	 * If it's of type composer-installer it is registered as an installer
 	 * instead for BC
 	 *
-	 * @param bool             $failOnMissingClasses By default this silently skips plugins that can not be found, but if set to true it fails with an exception
-	 * @param bool             $isGlobalPlugin       Set to true to denote plugins which are installed in the global Composer directory
+	 * @param bool $failOnMissingClasses By default this silently skips plugins that can not be found, but if set to true it fails with an exception
+	 * @param bool $isGlobalPlugin       Set to true to denote plugins which are installed in the global Composer directory
 	 *
 	 * @throws \UnexpectedValueException
 	 */
 	public function registerPackage(PackageInterface $package, bool $failOnMissingClasses = false, bool $isGlobalPlugin = false): void
 	{
 		if ($this->arePluginsDisabled($isGlobalPlugin ? 'global' : 'local')) {
-			$this->io->writeError('<warning>The "'.$package->getName().'" plugin was not loaded as plugins are disabled.</warning>');
+			$this->io->writeError('<warning>The "' . $package->getName() . '" plugin was not loaded as plugins are disabled.</warning>');
 			return;
 		}
 
 		if ($package->getType() === 'composer-plugin') {
 			$requiresComposer = null;
-			foreach ($package->getRequires() as $link) { /** @var Link $link */
+			foreach ($package->getRequires() as $link) {
+				/** @var Link $link */
 				if ('composer-plugin-api' === $link->getTarget()) {
 					$requiresComposer = $link->getConstraint();
 					break;
@@ -169,29 +170,29 @@ class PluginManager
 			}
 
 			if (!$requiresComposer) {
-				throw new \RuntimeException("Plugin ".$package->getName()." is missing a require statement for a version of the composer-plugin-api package.");
+				throw new \RuntimeException("Plugin " . $package->getName() . " is missing a require statement for a version of the composer-plugin-api package.");
 			}
 
 			$currentPluginApiVersion = $this->getPluginApiVersion();
 			$currentPluginApiConstraint = new Constraint('==', $this->versionParser->normalize($currentPluginApiVersion));
 
 			if ($requiresComposer->getPrettyString() === $this->getPluginApiVersion()) {
-				$this->io->writeError('<warning>The "' . $package->getName() . '" plugin requires composer-plugin-api '.$this->getPluginApiVersion().', this *WILL* break in the future and it should be fixed ASAP (require ^'.$this->getPluginApiVersion().' instead for example).</warning>');
+				$this->io->writeError('<warning>The "' . $package->getName() . '" plugin requires composer-plugin-api ' . $this->getPluginApiVersion() . ', this *WILL* break in the future and it should be fixed ASAP (require ^' . $this->getPluginApiVersion() . ' instead for example).</warning>');
 			} elseif (!$requiresComposer->matches($currentPluginApiConstraint)) {
-				$this->io->writeError('<warning>The "' . $package->getName() . '" plugin '.($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '').'was skipped because it requires a Plugin API version ("' . $requiresComposer->getPrettyString() . '") that does not match your Composer installation ("' . $currentPluginApiVersion . '"). You may need to run composer update with the "--no-plugins" option.</warning>');
+				$this->io->writeError('<warning>The "' . $package->getName() . '" plugin ' . ($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '') . 'was skipped because it requires a Plugin API version ("' . $requiresComposer->getPrettyString() . '") that does not match your Composer installation ("' . $currentPluginApiVersion . '"). You may need to run composer update with the "--no-plugins" option.</warning>');
 
 				return;
 			}
 
 			if ($package->getName() === 'symfony/flex' && Preg::isMatch('{^[0-9.]+$}', $package->getVersion()) && version_compare($package->getVersion(), '1.9.8', '<')) {
-				$this->io->writeError('<warning>The "' . $package->getName() . '" plugin '.($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '').'was skipped because it is not compatible with Composer 2+. Make sure to update it to version 1.9.8 or greater.</warning>');
+				$this->io->writeError('<warning>The "' . $package->getName() . '" plugin ' . ($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '') . 'was skipped because it is not compatible with Composer 2+. Make sure to update it to version 1.9.8 or greater.</warning>');
 
 				return;
 			}
 		}
 
 		if (!$this->isPluginAllowed($package->getName(), $isGlobalPlugin, true === ($package->getExtra()['plugin-optional'] ?? false))) {
-			$this->io->writeError('Skipped loading "'.$package->getName() . '" '.($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '').'as it is not in config.allow-plugins', true, IOInterface::DEBUG);
+			$this->io->writeError('Skipped loading "' . $package->getName() . '" ' . ($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '') . 'as it is not in config.allow-plugins', true, IOInterface::DEBUG);
 
 			return;
 		}
@@ -205,7 +206,7 @@ class PluginManager
 
 		$extra = $package->getExtra();
 		if (empty($extra['class'])) {
-			throw new \UnexpectedValueException('Error while installing '.$package->getPrettyName().', composer-plugin packages should have a class defined in their extra key to be usable.');
+			throw new \UnexpectedValueException('Error while installing ' . $package->getPrettyName() . ', composer-plugin packages should have a class defined in their extra key to be usable.');
 		}
 		$classes = is_array($extra['class']) ? $extra['class'] : [$extra['class']];
 
@@ -271,35 +272,35 @@ class PluginManager
 				if ($separatorPos) {
 					$className = substr($class, $separatorPos + 1);
 				}
-				$code = Preg::replace('{^((?:(?:final|readonly)\s+)*(?:\s*))class\s+('.preg_quote($className).')}mi', '$1class $2_composer_tmp'.self::$classCounter, $code, 1);
+				$code = Preg::replace('{^((?:(?:final|readonly)\s+)*(?:\s*))class\s+(' . preg_quote($className) . ')}mi', '$1class $2_composer_tmp' . self::$classCounter, $code, 1);
 				$code = strtr($code, [
-					'__FILE__' => var_export($path, true),
-					'__DIR__' => var_export(dirname($path), true),
+					'__FILE__'  => var_export($path, true),
+					'__DIR__'   => var_export(dirname($path), true),
 					'__CLASS__' => var_export($class, true),
 				]);
 				$code = Preg::replace('/^\s*<\?(php)?/i', '', $code, 1);
 				eval($code);
-				$class .= '_composer_tmp'.self::$classCounter;
+				$class .= '_composer_tmp' . self::$classCounter;
 				self::$classCounter++;
 			}
 
 			if ($oldInstallerPlugin) {
 				if (!is_a($class, 'Composer\Installer\InstallerInterface', true)) {
-					throw new \RuntimeException('Could not activate plugin "'.$package->getName().'" as "'.$class.'" does not implement Composer\Installer\InstallerInterface');
+					throw new \RuntimeException('Could not activate plugin "' . $package->getName() . '" as "' . $class . '" does not implement Composer\Installer\InstallerInterface');
 				}
-				$this->io->writeError('<warning>Loading "'.$package->getName() . '" '.($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '').'which is a legacy composer-installer built for Composer 1.x, it is likely to cause issues as you are running Composer 2.x.</warning>');
+				$this->io->writeError('<warning>Loading "' . $package->getName() . '" ' . ($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '') . 'which is a legacy composer-installer built for Composer 1.x, it is likely to cause issues as you are running Composer 2.x.</warning>');
 				$installer = new $class($this->io, $this->composer);
 				$this->composer->getInstallationManager()->addInstaller($installer);
 				$this->registeredPlugins[$package->getName()][] = $installer;
 			} elseif (class_exists($class)) {
 				if (!is_a($class, 'Composer\Plugin\PluginInterface', true)) {
-					throw new \RuntimeException('Could not activate plugin "'.$package->getName().'" as "'.$class.'" does not implement Composer\Plugin\PluginInterface');
+					throw new \RuntimeException('Could not activate plugin "' . $package->getName() . '" as "' . $class . '" does not implement Composer\Plugin\PluginInterface');
 				}
 				$plugin = new $class();
 				$this->addPlugin($plugin, $isGlobalPlugin, $package);
 				$this->registeredPlugins[$package->getName()][] = $plugin;
 			} elseif ($failOnMissingClasses) {
-				throw new \UnexpectedValueException('Plugin '.$package->getName().' could not be initialized, class not found: '.$class);
+				throw new \UnexpectedValueException('Plugin ' . $package->getName() . ' could not be initialized, class not found: ' . $class);
 			}
 		}
 	}
@@ -382,19 +383,19 @@ class PluginManager
 		if ($sourcePackage === null) {
 			trigger_error('Calling PluginManager::addPlugin without $sourcePackage is deprecated, if you are using this please get in touch with us to explain the use case', E_USER_DEPRECATED);
 		} elseif (!$this->isPluginAllowed($sourcePackage->getName(), $isGlobalPlugin, true === ($sourcePackage->getExtra()['plugin-optional'] ?? false))) {
-			$this->io->writeError('Skipped loading "'.get_class($plugin).' from '.$sourcePackage->getName() . '" '.($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '').' as it is not in config.allow-plugins', true, IOInterface::DEBUG);
+			$this->io->writeError('Skipped loading "' . get_class($plugin) . ' from ' . $sourcePackage->getName() . '" ' . ($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '') . ' as it is not in config.allow-plugins', true, IOInterface::DEBUG);
 
 			return;
 		}
 
 		$details = [];
 		if ($sourcePackage) {
-			$details[] = 'from '.$sourcePackage->getName();
+			$details[] = 'from ' . $sourcePackage->getName();
 		}
 		if ($isGlobalPlugin || $this->runningInGlobalDir) {
 			$details[] = 'installed globally';
 		}
-		$this->io->writeError('Loading plugin '.get_class($plugin).($details ? ' ('.implode(', ', $details).')' : ''), true, IOInterface::DEBUG);
+		$this->io->writeError('Loading plugin ' . get_class($plugin) . ($details ? ' (' . implode(', ', $details) . ')' : ''), true, IOInterface::DEBUG);
 		$this->plugins[] = $plugin;
 		$plugin->activate($this->composer, $this->io);
 
@@ -419,7 +420,7 @@ class PluginManager
 			return;
 		}
 
-		$this->io->writeError('Unloading plugin '.get_class($plugin), true, IOInterface::DEBUG);
+		$this->io->writeError('Unloading plugin ' . get_class($plugin), true, IOInterface::DEBUG);
 		unset($this->plugins[$index]);
 		$plugin->deactivate($this->composer, $this->io);
 
@@ -437,7 +438,7 @@ class PluginManager
 	 */
 	public function uninstallPlugin(PluginInterface $plugin): void
 	{
-		$this->io->writeError('Uninstalling plugin '.get_class($plugin), true, IOInterface::DEBUG);
+		$this->io->writeError('Uninstalling plugin ' . get_class($plugin), true, IOInterface::DEBUG);
 		$plugin->uninstall($this->composer, $this->io);
 	}
 
@@ -486,16 +487,16 @@ class PluginManager
 
 			if (
 				!$isGlobalRepo
-				&& !in_array($package, $requiredPackages, true)
-				&& !$this->isPluginAllowed($package->getName(), false, true, false)
+					&& !in_array($package, $requiredPackages, true)
+					&& !$this->isPluginAllowed($package->getName(), false, true, false)
 			) {
-				$this->io->writeError('<warning>The "'.$package->getName().'" plugin was not loaded as it is not listed in allow-plugins and is not required by the root package anymore.</warning>');
+				$this->io->writeError('<warning>The "' . $package->getName() . '" plugin was not loaded as it is not listed in allow-plugins and is not required by the root package anymore.</warning>');
 				continue;
 			}
 
 			if ('composer-plugin' === $package->getType()) {
 				$this->registerPackage($package, false, $isGlobalRepo);
-			// Backward compatibility
+				// Backward compatibility
 			} elseif ('composer-installer' === $package->getType()) {
 				$this->registerPackage($package, false, $isGlobalRepo);
 			}
@@ -520,7 +521,7 @@ class PluginManager
 			}
 			if ('composer-plugin' === $package->getType()) {
 				$this->deactivatePackage($package);
-			// Backward compatibility
+				// Backward compatibility
 			} elseif ('composer-installer' === $package->getType()) {
 				$this->deactivatePackage($package);
 			}
@@ -553,7 +554,7 @@ class PluginManager
 	/**
 	 * Retrieves the path a package is installed to.
 	 *
-	 * @param bool             $global  Whether this is a global package
+	 * @param bool $global Whether this is a global package
 	 *
 	 * @return string|null Install path
 	 */
@@ -586,9 +587,9 @@ class PluginManager
 
 		if (
 			array_key_exists($capability, $capabilities)
-			&& (empty($capabilities[$capability]) || !is_string($capabilities[$capability]) || !trim($capabilities[$capability]))
+				&& (empty($capabilities[$capability]) || !is_string($capabilities[$capability]) || !trim($capabilities[$capability]))
 		) {
-			throw new \UnexpectedValueException('Plugin '.get_class($plugin).' provided invalid capability class name(s), got '.var_export($capabilities[$capability], true));
+			throw new \UnexpectedValueException('Plugin ' . get_class($plugin) . ' provided invalid capability class name(s), got ' . var_export($capabilities[$capability], true));
 		}
 
 		return null;
@@ -596,27 +597,27 @@ class PluginManager
 
 	/**
 	 * @template CapabilityClass of Capability
-	 * @param  class-string<CapabilityClass> $capabilityClassName The fully qualified name of the API interface which the plugin may provide
+	 * @param    class-string<CapabilityClass> $capabilityClassName The fully qualified name of the API interface which the plugin may provide
 	 *                                                            an implementation of.
-	 * @param  array<mixed>                  $ctorArgs            Arguments passed to Capability's constructor.
+	 * @param array<mixed> $ctorArgs Arguments passed to Capability's constructor.
 	 *                                                            Keeping it an array will allow future values to be passed w\o changing the signature.
-	 * @phpstan-param class-string<CapabilityClass> $capabilityClassName
+	 * @phpstan-param  class-string<CapabilityClass> $capabilityClassName
 	 * @phpstan-return null|CapabilityClass
 	 */
 	public function getPluginCapability(PluginInterface $plugin, $capabilityClassName, array $ctorArgs = []): ?Capability
 	{
 		if ($capabilityClass = $this->getCapabilityImplementationClassName($plugin, $capabilityClassName)) {
 			if (!class_exists($capabilityClass)) {
-				throw new \RuntimeException("Cannot instantiate Capability, as class $capabilityClass from plugin ".get_class($plugin)." does not exist.");
+				throw new \RuntimeException("Cannot instantiate Capability, as class $capabilityClass from plugin " . get_class($plugin) . " does not exist.");
 			}
 
 			$ctorArgs['plugin'] = $plugin;
 			$capabilityObj = new $capabilityClass($ctorArgs);
 
 			// FIXME these could use is_a and do the check *before* instantiating once drop support for php<5.3.9
-			if (!$capabilityObj instanceof Capability || !$capabilityObj instanceof $capabilityClassName) {
+			if (! $capabilityObj instanceof Capability || ! $capabilityObj instanceof $capabilityClassName) {
 				throw new \RuntimeException(
-					'Class ' . $capabilityClass . ' must implement both Composer\Plugin\Capability\Capability and '. $capabilityClassName . '.'
+					'Class ' . $capabilityClass . ' must implement both Composer\Plugin\Capability\Capability and ' . $capabilityClassName . '.'
 				);
 			}
 
@@ -628,9 +629,9 @@ class PluginManager
 
 	/**
 	 * @template CapabilityClass of Capability
-	 * @param  class-string<CapabilityClass> $capabilityClassName The fully qualified name of the API interface which the plugin may provide
+	 * @param    class-string<CapabilityClass> $capabilityClassName The fully qualified name of the API interface which the plugin may provide
 	 *                                                            an implementation of.
-	 * @param  array<mixed>                  $ctorArgs            Arguments passed to Capability's constructor.
+	 * @param array<mixed> $ctorArgs Arguments passed to Capability's constructor.
 	 *                                                            Keeping it an array will allow future values to be passed w\o changing the signature.
 	 * @return CapabilityClass[]
 	 */
@@ -676,7 +677,7 @@ class PluginManager
 	/**
 	 * @internal
 	 *
-	 * @param 'local'|'global' $type
+	 * @param  'local'|'global' $type
 	 * @return bool
 	 */
 	public function arePluginsDisabled($type)
@@ -733,7 +734,7 @@ class PluginManager
 		if ($this->io->isInteractive() && $prompt) {
 			$composer = $isGlobalPlugin && $this->globalComposer !== null ? $this->globalComposer : $this->composer;
 
-			$this->io->writeError('<warning>'.$package.($isGlobalPlugin || $this->runningInGlobalDir ? ' (installed globally)' : '').' contains a Composer plugin which is currently not in your allow-plugins config. See https://getcomposer.org/allow-plugins</warning>');
+			$this->io->writeError('<warning>' . $package . ($isGlobalPlugin || $this->runningInGlobalDir ? ' (installed globally)' : '') . ' contains a Composer plugin which is currently not in your allow-plugins config. See https://getcomposer.org/allow-plugins</warning>');
 			$attempts = 0;
 			while (true) {
 				// do not allow more than 5 prints of the help message, at some point assume the
@@ -744,40 +745,40 @@ class PluginManager
 					break;
 				}
 
-				switch ($answer = $this->io->ask('Do you trust "<fg=green;options=bold>'.$package.'</>" to execute code and wish to enable it now? (writes "allow-plugins" to composer.json) [<comment>y,n,d,?</comment>] ', $default)) {
-					case 'y':
-					case 'n':
-					case 'd':
-						$allow = $answer === 'y';
+				switch ($answer = $this->io->ask('Do you trust "<fg=green;options=bold>' . $package . '</>" to execute code and wish to enable it now? (writes "allow-plugins" to composer.json) [<comment>y,n,d,?</comment>] ', $default)) {
+				case 'y':
+				case 'n':
+				case 'd':
+					$allow = $answer === 'y';
 
-						// persist answer in current rules to avoid prompting again if the package gets reloaded
-						$rules[BasePackage::packageNameToRegexp($package)] = $allow;
+					// persist answer in current rules to avoid prompting again if the package gets reloaded
+					$rules[BasePackage::packageNameToRegexp($package)] = $allow;
 
-						// persist answer in composer.json if it wasn't simply discarded
-						if ($answer === 'y' || $answer === 'n') {
-							$allowPlugins = $composer->getConfig()->get('allow-plugins');
-							if (is_array($allowPlugins)) {
-								$allowPlugins[$package] = $allow;
-								if ($composer->getConfig()->get('sort-packages')) {
-									ksort($allowPlugins);
-								}
-								$composer->getConfig()->getConfigSource()->addConfigSetting('allow-plugins', $allowPlugins);
-								$composer->getConfig()->merge(['config' => ['allow-plugins' => $allowPlugins]]);
+					// persist answer in composer.json if it wasn't simply discarded
+					if ($answer === 'y' || $answer === 'n') {
+						$allowPlugins = $composer->getConfig()->get('allow-plugins');
+						if (is_array($allowPlugins)) {
+							$allowPlugins[$package] = $allow;
+							if ($composer->getConfig()->get('sort-packages')) {
+								ksort($allowPlugins);
 							}
+							$composer->getConfig()->getConfigSource()->addConfigSetting('allow-plugins', $allowPlugins);
+							$composer->getConfig()->merge(['config' => ['allow-plugins' => $allowPlugins]]);
 						}
+					}
 
-						return $allow;
+					return $allow;
 
-					case '?':
-					default:
-						$attempts++;
-						$this->io->writeError([
-							'y - add package to allow-plugins in composer.json and let it run immediately',
-							'n - add package (as disallowed) to allow-plugins in composer.json to suppress further prompts',
-							'd - discard this, do not change composer.json and do not allow the plugin to run',
-							'? - print help',
-						]);
-						break;
+				case '?':
+				default:
+					$attempts++;
+					$this->io->writeError([
+						'y - add package to allow-plugins in composer.json and let it run immediately',
+						'n - add package (as disallowed) to allow-plugins in composer.json to suppress further prompts',
+						'd - discard this, do not change composer.json and do not allow the plugin to run',
+						'? - print help',
+					]);
+					break;
 				}
 			}
 		} elseif ($optional) {
@@ -785,9 +786,9 @@ class PluginManager
 		}
 
 		throw new PluginBlockedException(
-			$package.($isGlobalPlugin || $this->runningInGlobalDir ? ' (installed globally)' : '').' contains a Composer plugin which is blocked by your allow-plugins config. You may add it to the list if you consider it safe.'.PHP_EOL.
-			'You can run "composer '.($isGlobalPlugin || $this->runningInGlobalDir ? 'global ' : '').'config --no-plugins allow-plugins.'.$package.' [true|false]" to enable it (true) or disable it explicitly and suppress this exception (false)'.PHP_EOL.
-			'See https://getcomposer.org/allow-plugins'
+			$package . ($isGlobalPlugin || $this->runningInGlobalDir ? ' (installed globally)' : '') . ' contains a Composer plugin which is blocked by your allow-plugins config. You may add it to the list if you consider it safe.' . PHP_EOL .
+				'You can run "composer ' . ($isGlobalPlugin || $this->runningInGlobalDir ? 'global ' : '') . 'config --no-plugins allow-plugins.' . $package . ' [true|false]" to enable it (true) or disable it explicitly and suppress this exception (false)' . PHP_EOL .
+				'See https://getcomposer.org/allow-plugins'
 		);
 	}
 }

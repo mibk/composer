@@ -13,14 +13,14 @@
 namespace Composer\IO;
 
 use Composer\Pcre\Preg;
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
+use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\StreamOutput;
-use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -53,7 +53,7 @@ class BufferIO extends ConsoleIO
 
 		$output = (string) stream_get_contents($this->output->getStream());
 
-		$output = Preg::replaceCallback("{(?<=^|\n|\x08)(.+?)(\x08+)}", static function ($matches): string {
+		$output = Preg::replaceCallback("{(?<=^|\n|\x08)(.+?)(\x08+)}", static function($matches): string {
 			$pre = strip_tags($matches[1]);
 
 			if (strlen($pre) === strlen($matches[2])) {
@@ -61,7 +61,7 @@ class BufferIO extends ConsoleIO
 			}
 
 			// TODO reverse parse the string, skipping span tags and \033\[([0-9;]+)m(.*?)\033\[0m style blobs
-			return rtrim($matches[1])."\n";
+			return rtrim($matches[1]) . "\n";
 		}, $output);
 
 		return $output;
@@ -74,7 +74,7 @@ class BufferIO extends ConsoleIO
 	 */
 	public function setUserInputs(array $inputs): void
 	{
-		if (!$this->input instanceof StreamableInputInterface) {
+		if (! $this->input instanceof StreamableInputInterface) {
 			throw new \RuntimeException('Setting the user inputs requires at least the version 3.2 of the symfony/console component.');
 		}
 
@@ -95,7 +95,7 @@ class BufferIO extends ConsoleIO
 		}
 
 		foreach ($inputs as $input) {
-			fwrite($stream, $input.PHP_EOL);
+			fwrite($stream, $input . PHP_EOL);
 		}
 
 		rewind($stream);

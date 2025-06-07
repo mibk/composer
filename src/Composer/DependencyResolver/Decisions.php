@@ -15,13 +15,13 @@ namespace Composer\DependencyResolver;
 /**
  * Stores decisions on installing, removing or keeping packages
  *
- * @author Nils Adermann <naderman@naderman.de>
+ * @author     Nils Adermann <naderman@naderman.de>
  * @implements \Iterator<array{0: int, 1: Rule}>
  */
 class Decisions implements \Iterator, \Countable
 {
 	public const DECISION_LITERAL = 0;
-	public const DECISION_REASON = 1;
+	public const DECISION_REASON  = 1;
 
 	/** @var Pool */
 	protected $pool;
@@ -43,7 +43,7 @@ class Decisions implements \Iterator, \Countable
 		$this->addDecision($literal, $level);
 		$this->decisionQueue[] = [
 			self::DECISION_LITERAL => $literal,
-			self::DECISION_REASON => $why,
+			self::DECISION_REASON  => $why,
 		];
 	}
 
@@ -53,7 +53,7 @@ class Decisions implements \Iterator, \Countable
 
 		return (
 			$literal > 0 && isset($this->decisionMap[$packageId]) && $this->decisionMap[$packageId] > 0 ||
-			$literal < 0 && isset($this->decisionMap[$packageId]) && $this->decisionMap[$packageId] < 0
+				$literal < 0 && isset($this->decisionMap[$packageId]) && $this->decisionMap[$packageId] < 0
 		);
 	}
 
@@ -63,7 +63,7 @@ class Decisions implements \Iterator, \Countable
 
 		return (
 			(isset($this->decisionMap[$packageId]) && $this->decisionMap[$packageId] > 0 && $literal < 0) ||
-			(isset($this->decisionMap[$packageId]) && $this->decisionMap[$packageId] < 0 && $literal > 0)
+				(isset($this->decisionMap[$packageId]) && $this->decisionMap[$packageId] < 0 && $literal > 0)
 		);
 	}
 
@@ -104,7 +104,7 @@ class Decisions implements \Iterator, \Countable
 			}
 		}
 
-		throw new \LogicException('Did not find a decision rule using '.$literalOrPackageId);
+		throw new \LogicException('Did not find a decision rule using ' . $literalOrPackageId);
 	}
 
 	/**
@@ -202,7 +202,7 @@ class Decisions implements \Iterator, \Countable
 			$literalString = $this->pool->literalToPrettyString($literal, []);
 			$package = $this->pool->literalToPackage($literal);
 			throw new SolverBugException(
-				"Trying to decide $literalString on level $level, even though $package was previously decided as ".$previousDecision."."
+				"Trying to decide $literalString on level $level, even though $package was previously decided as " . $previousDecision . "."
 			);
 		}
 
@@ -219,7 +219,7 @@ class Decisions implements \Iterator, \Countable
 		ksort($decisionMap);
 		$str = '[';
 		foreach ($decisionMap as $packageId => $level) {
-			$str .= ($pool !== null ? $pool->literalToPackage($packageId) : $packageId).':'.$level.',';
+			$str .= ($pool !== null ? $pool->literalToPackage($packageId) : $packageId) . ':' . $level . ',';
 		}
 		$str .= ']';
 

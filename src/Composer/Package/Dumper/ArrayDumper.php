@@ -13,8 +13,8 @@
 namespace Composer\Package\Dumper;
 
 use Composer\Package\BasePackage;
-use Composer\Package\PackageInterface;
 use Composer\Package\CompletePackageInterface;
+use Composer\Package\PackageInterface;
 use Composer\Package\RootPackageInterface;
 
 /**
@@ -34,10 +34,10 @@ class ArrayDumper
 			'extra',
 			'installationSource' => 'installation-source',
 			'autoload',
-			'devAutoload' => 'autoload-dev',
+			'devAutoload'     => 'autoload-dev',
 			'notificationUrl' => 'notification-url',
-			'includePaths' => 'include-path',
-			'phpExt' => 'php-ext',
+			'includePaths'    => 'include-path',
+			'phpExt'          => 'php-ext',
 		];
 
 		$data = [];
@@ -75,7 +75,7 @@ class ArrayDumper
 		}
 
 		foreach (BasePackage::$supportedLinkTypes as $type => $opts) {
-			$links = $package->{'get'.ucfirst($opts['method'])}();
+			$links = $package->{'get' . ucfirst($opts['method'])}();
 			if (\count($links) === 0) {
 				continue;
 			}
@@ -159,7 +159,7 @@ class ArrayDumper
 				$method = $key;
 			}
 
-			$getter = 'get'.ucfirst($method);
+			$getter = 'get' . ucfirst($method);
 			$value = $package->{$getter}();
 
 			if (null !== $value && !(\is_array($value) && 0 === \count($value))) {

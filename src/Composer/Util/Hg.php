@@ -60,7 +60,7 @@ class Hg
 		// Try with the authentication information available
 		if (
 			Preg::isMatch('{^(?P<proto>ssh|https?)://(?:(?P<user>[^:@]+)(?::(?P<pass>[^:@]+))?@)?(?P<host>[^/]+)(?P<path>/.*)?}mi', $url, $matches)
-			&& $this->io->hasAuthentication($matches['host'])
+				&& $this->io->hasAuthentication($matches['host'])
 		) {
 			if ($matches['proto'] === 'ssh') {
 				$user = '';
@@ -80,7 +80,7 @@ class Hg
 
 			$error = $this->process->getErrorOutput();
 		} else {
-			$error = 'The given URL (' .$url. ') does not match the required format (ssh|http(s)://(username:password@)example.com/path-to-repository)';
+			$error = 'The given URL (' . $url . ') does not match the required format (ssh|http(s)://(username:password@)example.com/path-to-repository)';
 		}
 
 		$this->throwException("Failed to clone $url, \n\n" . $error, $url);

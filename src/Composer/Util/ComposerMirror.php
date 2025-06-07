@@ -22,7 +22,7 @@ use Composer\Pcre\Preg;
 class ComposerMirror
 {
 	/**
-	 * @param non-empty-string $mirrorUrl
+	 * @param  non-empty-string $mirrorUrl
 	 * @return non-empty-string
 	 */
 	public static function processUrl(string $mirrorUrl, string $packageName, string $version, ?string $reference, ?string $type, ?string $prettyVersion = null): string
@@ -46,15 +46,15 @@ class ComposerMirror
 	}
 
 	/**
-	 * @param non-empty-string $mirrorUrl
+	 * @param  non-empty-string $mirrorUrl
 	 * @return string
 	 */
 	public static function processGitUrl(string $mirrorUrl, string $packageName, string $url, ?string $type): string
 	{
 		if (Preg::isMatch('#^(?:(?:https?|git)://github\.com/|git@github\.com:)([^/]+)/(.+?)(?:\.git)?$#', $url, $match)) {
-			$url = 'gh-'.$match[1].'/'.$match[2];
+			$url = 'gh-' . $match[1] . '/' . $match[2];
 		} elseif (Preg::isMatch('#^https://bitbucket\.org/([^/]+)/(.+?)(?:\.git)?/?$#', $url, $match)) {
-			$url = 'bb-'.$match[1].'/'.$match[2];
+			$url = 'bb-' . $match[1] . '/' . $match[2];
 		} else {
 			$url = Preg::replace('{[^a-z0-9_.-]}i', '-', trim($url, '/'));
 		}
@@ -67,7 +67,7 @@ class ComposerMirror
 	}
 
 	/**
-	 * @param non-empty-string $mirrorUrl
+	 * @param  non-empty-string $mirrorUrl
 	 * @return string
 	 */
 	public static function processHgUrl(string $mirrorUrl, string $packageName, string $url, string $type): string

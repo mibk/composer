@@ -57,6 +57,6 @@ class IniHelper
 			return 'Your command-line PHP is using multiple ini files. Run `php --ini` to show them.';
 		}
 
-		return 'The php.ini used by your command-line PHP is: '.$ini;
+		return 'The php.ini used by your command-line PHP is: ' . $ini;
 	}
 }

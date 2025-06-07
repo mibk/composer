@@ -12,27 +12,27 @@
 
 namespace Composer\Command;
 
+use Composer\Package\CompletePackageInterface;
 use Composer\Package\Link;
 use Composer\Package\Package;
 use Composer\Package\PackageInterface;
-use Composer\Package\CompletePackageInterface;
 use Composer\Package\RootPackage;
-use Composer\Repository\InstalledArrayRepository;
+use Composer\Package\Version\VersionParser;
+use Composer\Plugin\CommandEvent;
+use Composer\Plugin\PluginEvents;
 use Composer\Repository\CompositeRepository;
-use Composer\Repository\RootPackageRepository;
+use Composer\Repository\InstalledArrayRepository;
 use Composer\Repository\InstalledRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryFactory;
-use Composer\Plugin\CommandEvent;
-use Composer\Plugin\PluginEvents;
+use Composer\Repository\RootPackageRepository;
 use Composer\Semver\Constraint\Bound;
+use Composer\Util\PackageInfo;
 use Composer\Util\Platform;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Composer\Package\Version\VersionParser;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Composer\Util\PackageInfo;
 
 /**
  * Base implementation for commands mapping dependency relationships.
@@ -41,10 +41,10 @@ use Composer\Util\PackageInfo;
  */
 abstract class BaseDependencyCommand extends BaseCommand
 {
-	protected const ARGUMENT_PACKAGE = 'package';
+	protected const ARGUMENT_PACKAGE    = 'package';
 	protected const ARGUMENT_CONSTRAINT = 'version';
-	protected const OPTION_RECURSIVE = 'recursive';
-	protected const OPTION_TREE = 'tree';
+	protected const OPTION_RECURSIVE    = 'recursive';
+	protected const OPTION_TREE         = 'tree';
 
 	/** @var string[] */
 	protected $colors;
@@ -52,8 +52,8 @@ abstract class BaseDependencyCommand extends BaseCommand
 	/**
 	 * Execute the command.
 	 *
-	 * @param  bool            $inverted Whether to invert matching process (why-not vs why behaviour)
-	 * @return int             Exit code of the operation.
+	 * @param  bool $inverted Whether to invert matching process (why-not vs why behaviour)
+	 * @return int  Exit code of the operation.
 	 */
 	protected function doExecute(InputInterface $input, OutputInterface $output, bool $inverted = false): int
 	{
@@ -118,16 +118,16 @@ abstract class BaseDependencyCommand extends BaseCommand
 					$installedRepo->addRepository(new InstalledArrayRepository([$tempPlatformPkg]));
 				}
 			} else {
-				$this->getIO()->writeError('<error>Package "'.$needle.'" could not be found with constraint "'.$textConstraint.'", results below will most likely be incomplete.</error>');
+				$this->getIO()->writeError('<error>Package "' . $needle . '" could not be found with constraint "' . $textConstraint . '", results below will most likely be incomplete.</error>');
 			}
 		} elseif (PlatformRepository::isPlatformPackage($needle)) {
 			$extraNotice = '';
 			if (($matchedPackage->getExtra()['config.platform'] ?? false) === true) {
 				$extraNotice = ' (version provided by config.platform)';
 			}
-			$this->getIO()->writeError('<info>Package "'.$needle.' '.$textConstraint.'" found in version "'.$matchedPackage->getPrettyVersion().'"'.$extraNotice.'.</info>');
+			$this->getIO()->writeError('<info>Package "' . $needle . ' ' . $textConstraint . '" found in version "' . $matchedPackage->getPrettyVersion() . '"' . $extraNotice . '.</info>');
 		} elseif ($inverted) {
-			$this->getIO()->write('<comment>Package "'.$needle.'" '.$matchedPackage->getPrettyVersion().' is already installed! To find out why, run `composer why '.$needle.'`</comment>');
+			$this->getIO()->write('<comment>Package "' . $needle . '" ' . $matchedPackage->getPrettyVersion() . ' is already installed! To find out why, run `composer why ' . $needle . '`</comment>');
 			return 0;
 		}
 
@@ -135,7 +135,7 @@ abstract class BaseDependencyCommand extends BaseCommand
 		$needles = [$needle];
 		if ($inverted) {
 			foreach ($packages as $package) {
-				$needles = array_merge($needles, array_map(static function (Link $link): string {
+				$needles = array_merge($needles, array_map(static function(Link $link): string {
 					return $link->getTarget();
 				}, $package->getReplaces()));
 			}
@@ -191,7 +191,7 @@ abstract class BaseDependencyCommand extends BaseCommand
 				}
 			}
 
-			$this->getIO()->writeError('Not finding what you were looking for? Try calling `composer '.$composerCommand.' "'.$needle.':'.$textConstraint.'" --dry-run` to get another view on the problem.');
+			$this->getIO()->writeError('Not finding what you were looking for? Try calling `composer ' . $composerCommand . ' "' . $needle . ':' . $textConstraint . '" --dry-run` to get another view on the problem.');
 		}
 
 		return $return;
@@ -258,8 +258,8 @@ abstract class BaseDependencyCommand extends BaseCommand
 	 * Recursively prints a tree of the selected results.
 	 *
 	 * @param array{PackageInterface, Link, array<mixed>|false}[] $results Results to be printed at this level.
-	 * @param string  $prefix  Prefix of the current tree level.
-	 * @param int     $level   Current level of recursion.
+	 * @param string                                              $prefix  Prefix of the current tree level.
+	 * @param int                                                 $level   Current level of recursion.
 	 */
 	protected function printTree(array $results, string $prefix = '', int $level = 1): void
 	{

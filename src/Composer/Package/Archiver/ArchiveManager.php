@@ -13,13 +13,13 @@
 namespace Composer\Package\Archiver;
 
 use Composer\Downloader\DownloadManager;
+use Composer\Json\JsonFile;
+use Composer\Package\CompletePackageInterface;
 use Composer\Package\RootPackageInterface;
 use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
 use Composer\Util\Loop;
 use Composer\Util\SyncHelper;
-use Composer\Json\JsonFile;
-use Composer\Package\CompletePackageInterface;
 
 /**
  * @author Matthieu Moquet <matthieu@moquet.net>
@@ -99,7 +99,7 @@ class ArchiveManager
 			$parts['source_reference'] = substr(hash('sha1', $sourceReference), 0, 6);
 		}
 
-		$parts = array_filter($parts, function (?string $part) {
+		$parts = array_filter($parts, function(?string $part) {
 			return $part !== null;
 		});
 		foreach ($parts as $key => $part) {
@@ -135,15 +135,15 @@ class ArchiveManager
 	/**
 	 * Create an archive of the specified package.
 	 *
-	 * @param  CompletePackageInterface  $package       The package to archive
-	 * @param  string                    $format        The format of the archive (zip, tar, ...)
-	 * @param  string                    $targetDir     The directory where to build the archive
-	 * @param  string|null               $fileName      The relative file name to use for the archive, or null to generate
+	 * @param CompletePackageInterface $package   The package to archive
+	 * @param string                   $format    The format of the archive (zip, tar, ...)
+	 * @param string                   $targetDir The directory where to build the archive
+	 * @param string|null              $fileName  The relative file name to use for the archive, or null to generate
 	 *                                                  the package name. Note that the format will be appended to this name
-	 * @param  bool                      $ignoreFilters Ignore filters when looking for files in the package
+	 * @param  bool $ignoreFilters Ignore filters when looking for files in the package
 	 * @throws \InvalidArgumentException
 	 * @throws \RuntimeException
-	 * @return string                    The path of the created archive
+	 * @return string The path of the created archive
 	 */
 	public function archive(CompletePackageInterface $package, string $format, string $targetDir, ?string $fileName = null, bool $ignoreFilters = false): string
 	{
@@ -171,7 +171,7 @@ class ArchiveManager
 			$sourcePath = realpath('.');
 		} else {
 			// Directory used to download the sources
-			$sourcePath = sys_get_temp_dir().'/composer_archive'.bin2hex(random_bytes(5));
+			$sourcePath = sys_get_temp_dir() . '/composer_archive' . bin2hex(random_bytes(5));
 			$filesystem->ensureDirectoryExists($sourcePath);
 
 			try {
@@ -182,11 +182,11 @@ class ArchiveManager
 				SyncHelper::await($this->loop, $promise);
 			} catch (\Exception $e) {
 				$filesystem->removeDirectory($sourcePath);
-				throw  $e;
+				throw $e;
 			}
 
 			// Check exclude from downloaded composer.json
-			if (file_exists($composerJsonPath = $sourcePath.'/composer.json')) {
+			if (file_exists($composerJsonPath = $sourcePath . '/composer.json')) {
 				$jsonFile = new JsonFile($composerJsonPath);
 				$jsonData = $jsonFile->read();
 				if (!empty($jsonData['archive']['name'])) {
@@ -208,7 +208,7 @@ class ArchiveManager
 
 		// Archive filename
 		$filesystem->ensureDirectoryExists($targetDir);
-		$target = realpath($targetDir).'/'.$packageName.'.'.$format;
+		$target = realpath($targetDir) . '/' . $packageName . '.' . $format;
 		$filesystem->ensureDirectoryExists(dirname($target));
 
 		if (!$this->overwriteFiles && file_exists($target)) {
@@ -216,7 +216,7 @@ class ArchiveManager
 		}
 
 		// Create the archive
-		$tempTarget = sys_get_temp_dir().'/composer_archive'.bin2hex(random_bytes(5)).'.'.$format;
+		$tempTarget = sys_get_temp_dir() . '/composer_archive' . bin2hex(random_bytes(5)) . '.' . $format;
 		$filesystem->ensureDirectoryExists(dirname($tempTarget));
 
 		$archivePath = $usableArchiver->archive(
@@ -229,7 +229,7 @@ class ArchiveManager
 		$filesystem->rename($archivePath, $target);
 
 		// cleanup temporary download
-		if (!$package instanceof RootPackageInterface) {
+		if (! $package instanceof RootPackageInterface) {
 			$filesystem->removeDirectory($sourcePath);
 		}
 		$filesystem->remove($tempTarget);
@@ -272,13 +272,13 @@ class ArchiveManager
 		foreach ($this->archivers as $archiver) {
 			$items = [];
 			switch (get_class($archiver)) {
-				case ZipArchiver::class:
-					$items = ['zip'];
-					break;
+			case ZipArchiver::class:
+				$items = ['zip'];
+				break;
 
-				case PharArchiver::class:
-					$items = ['zip', 'tar', 'tar.gz', 'tar.bz2'];
-					break;
+			case PharArchiver::class:
+				$items = ['zip', 'tar', 'tar.gz', 'tar.bz2'];
+				break;
 			}
 
 			$formats = array_merge($formats, $items);

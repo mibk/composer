@@ -37,7 +37,7 @@ class PartialSecurityAdvisory implements JsonSerializable
 	public $affectedVersions;
 
 	/**
-	 * @param array<mixed> $data
+	 * @param  array<mixed> $data
 	 * @return SecurityAdvisory|PartialSecurityAdvisory
 	 */
 	public static function create(string $packageName, array $data, VersionParser $parser): self

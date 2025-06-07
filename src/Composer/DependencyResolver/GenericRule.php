@@ -48,7 +48,7 @@ class GenericRule extends Rule
 	{
 		$data = unpack('ihash', (string) hash(\PHP_VERSION_ID > 80100 ? 'xxh3' : 'sha1', implode(',', $this->literals), true));
 		if (false === $data) {
-			throw new \RuntimeException('Failed unpacking: '.implode(', ', $this->literals));
+			throw new \RuntimeException('Failed unpacking: ' . implode(', ', $this->literals));
 		}
 
 		return $data['hash'];

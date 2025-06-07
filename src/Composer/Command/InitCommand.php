@@ -12,6 +12,7 @@
 
 namespace Composer\Command;
 
+use Composer\Console\Input\InputOption;
 use Composer\Factory;
 use Composer\Json\JsonFile;
 use Composer\Json\JsonValidationException;
@@ -23,15 +24,14 @@ use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryFactory;
 use Composer\Spdx\SpdxLicenses;
 use Composer\Util\Filesystem;
+use Composer\Util\ProcessExecutor;
 use Composer\Util\Silencer;
+use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
-use Composer\Util\ProcessExecutor;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Console\Helper\FormatterHelper;
 
 /**
  * @author Justin Rainbow <justin.rainbow@gmail.com>
@@ -63,7 +63,7 @@ class InitCommand extends BaseCommand
 				new InputOption('homepage', null, InputOption::VALUE_REQUIRED, 'Homepage of package'),
 				new InputOption('require', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Package to require with a version constraint, e.g. foo/bar:1.0.0 or foo/bar=1.0.0 or "foo/bar 1.0.0"', null, $this->suggestAvailablePackageInclPlatform()),
 				new InputOption('require-dev', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Package to require for development with a version constraint, e.g. foo/bar:1.0.0 or foo/bar=1.0.0 or "foo/bar 1.0.0"', null, $this->suggestAvailablePackageInclPlatform()),
-				new InputOption('stability', 's', InputOption::VALUE_REQUIRED, 'Minimum stability (empty or one of: '.implode(', ', array_keys(BasePackage::STABILITIES)).')'),
+				new InputOption('stability', 's', InputOption::VALUE_REQUIRED, 'Minimum stability (empty or one of: ' . implode(', ', array_keys(BasePackage::STABILITIES)) . ')'),
 				new InputOption('license', 'l', InputOption::VALUE_REQUIRED, 'License of package'),
 				new InputOption('repository', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Add custom repositories, either by URL or using JSON arrays'),
 				new InputOption('autoload', 'a', InputOption::VALUE_REQUIRED, 'Add PSR-4 autoload mapping. Maps your package\'s namespace to the provided directory. (Expects a relative path, e.g. src/)'),
@@ -78,7 +78,7 @@ in the current directory.
 Read more at https://getcomposer.org/doc/03-cli.md#init
 EOT
 			)
-		;
+			;
 	}
 
 	/**
@@ -89,11 +89,11 @@ EOT
 		$io = $this->getIO();
 
 		$allowlist = ['name', 'description', 'author', 'type', 'homepage', 'require', 'require-dev', 'stability', 'license', 'autoload'];
-		$options = array_filter(array_intersect_key($input->getOptions(), array_flip($allowlist)), function ($val) { return $val !== null && $val !== []; });
+		$options = array_filter(array_intersect_key($input->getOptions(), array_flip($allowlist)), function($val) { return $val !== null && $val !== []; });
 
 		if (isset($options['name']) && !Preg::isMatch('{^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$}D', $options['name'])) {
 			throw new \InvalidArgumentException(
-				'The package name '.$options['name'].' is invalid, it should be lowercase and have a vendor name, a forward slash, and a package name, matching: [a-z0-9_.-]+/[a-z0-9_.-]+'
+				'The package name ' . $options['name'] . ' is invalid, it should be lowercase and have a vendor name, a forward slash, and a package name, matching: [a-z0-9_.-]+/[a-z0-9_.-]+'
 			);
 		}
 
@@ -154,7 +154,7 @@ EOT
 				throw new \RuntimeException('You have to run this command in interactive mode, or specify at least some data using --name, --require, etc.');
 			}
 
-			$io->writeError('Writing '.$file->getPath());
+			$io->writeError('Writing ' . $file->getPath());
 		}
 
 		$file->write($options);
@@ -205,7 +205,7 @@ EOT
 		if ($autoloadPath) {
 			$namespace = $this->namespaceFromPackageName((string) $input->getOption('name'));
 
-			$io->writeError('PSR-4 autoloading configured. Use "<comment>namespace '.$namespace.';</comment>" in '.$autoloadPath);
+			$io->writeError('PSR-4 autoloading configured. Use "<comment>namespace ' . $namespace . ';</comment>" in ' . $autoloadPath);
 			$io->writeError('Include the Composer autoloader with: <comment>require \'vendor/autoload.php\';</comment>');
 		}
 
@@ -248,7 +248,7 @@ EOT
 			if ($createDefaultPackagistRepo) {
 				$repos[] = RepositoryFactory::createRepo($io, $config, [
 					'type' => 'composer',
-					'url' => 'https://repo.packagist.org',
+					'url'  => 'https://repo.packagist.org',
 				], $repoManager);
 			}
 
@@ -295,15 +295,15 @@ EOT
 		}
 
 		$name = $io->askAndValidate(
-			'Package name (<vendor>/<name>) [<comment>'.$name.'</comment>]: ',
-			static function ($value) use ($name) {
+			'Package name (<vendor>/<name>) [<comment>' . $name . '</comment>]: ',
+			static function($value) use ($name) {
 				if (null === $value) {
 					return $name;
 				}
 
 				if (!Preg::isMatch('{^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$}D', $value)) {
 					throw new \InvalidArgumentException(
-						'The package name '.$value.' is invalid, it should be lowercase and have a vendor name, a forward slash, and a package name, matching: [a-z0-9_.-]+/[a-z0-9_.-]+'
+						'The package name ' . $value . ' is invalid, it should be lowercase and have a vendor name, a forward slash, and a package name, matching: [a-z0-9_.-]+/[a-z0-9_.-]+'
 					);
 				}
 
@@ -316,7 +316,7 @@ EOT
 
 		$description = $input->getOption('description') ?: null;
 		$description = $io->ask(
-			'Description [<comment>'.$description.'</comment>]: ',
+			'Description [<comment>' . $description . '</comment>]: ',
 			$description
 		);
 		$input->setOption('description', $description);
@@ -340,8 +340,8 @@ EOT
 		}
 
 		$author = $io->askAndValidate(
-			'Author ['.(is_string($author) ? '<comment>'.$author.'</comment>, ' : '') . 'n to skip]: ',
-			function ($value) use ($author) {
+			'Author [' . (is_string($author) ? '<comment>' . $author . '</comment>, ' : '') . 'n to skip]: ',
+			function($value) use ($author) {
 				if ($value === 'n' || $value === 'no') {
 					return;
 				}
@@ -361,16 +361,16 @@ EOT
 
 		$minimumStability = $input->getOption('stability') ?: null;
 		$minimumStability = $io->askAndValidate(
-			'Minimum Stability [<comment>'.$minimumStability.'</comment>]: ',
-			static function ($value) use ($minimumStability) {
+			'Minimum Stability [<comment>' . $minimumStability . '</comment>]: ',
+			static function($value) use ($minimumStability) {
 				if (null === $value) {
 					return $minimumStability;
 				}
 
 				if (!isset(BasePackage::STABILITIES[$value])) {
 					throw new \InvalidArgumentException(
-						'Invalid minimum stability "'.$value.'". Must be empty or one of: '.
-						implode(', ', array_keys(BasePackage::STABILITIES))
+						'Invalid minimum stability "' . $value . '". Must be empty or one of: ' .
+							implode(', ', array_keys(BasePackage::STABILITIES))
 					);
 				}
 
@@ -383,7 +383,7 @@ EOT
 
 		$type = $input->getOption('type');
 		$type = $io->ask(
-			'Package Type (e.g. library, project, metapackage, composer-plugin) [<comment>'.$type.'</comment>]: ',
+			'Package Type (e.g. library, project, metapackage, composer-plugin) [<comment>' . $type . '</comment>]: ',
 			$type
 		);
 		if ($type === '' || $type === false) {
@@ -398,12 +398,12 @@ EOT
 		}
 
 		$license = $io->ask(
-			'License [<comment>'.$license.'</comment>]: ',
+			'License [<comment>' . $license . '</comment>]: ',
 			$license
 		);
 		$spdx = new SpdxLicenses();
 		if (null !== $license && !$spdx->validate($license) && $license !== 'proprietary') {
-			throw new \InvalidArgumentException('Invalid license provided: '.$license.'. Only SPDX license identifiers (https://spdx.org/licenses/) or "proprietary" are accepted.');
+			throw new \InvalidArgumentException('Invalid license provided: ' . $license . '. Only SPDX license identifiers (https://spdx.org/licenses/) or "proprietary" are accepted.');
 		}
 		$input->setOption('license', $license);
 
@@ -442,8 +442,8 @@ EOT
 		$autoload = $input->getOption('autoload') ?: 'src/';
 		$namespace = $this->namespaceFromPackageName((string) $input->getOption('name'));
 		$autoload = $io->askAndValidate(
-			'Add PSR-4 autoload mapping? Maps namespace "'.$namespace.'" to the entered relative path. [<comment>'.$autoload.'</comment>, n to skip]: ',
-			static function ($value) use ($autoload) {
+			'Add PSR-4 autoload mapping? Maps namespace "' . $namespace . '" to the entered relative path. [<comment>' . $autoload . '</comment>, n to skip]: ',
+			static function($value) use ($autoload) {
 				if (null === $value) {
 					return $autoload;
 				}
@@ -476,18 +476,18 @@ EOT
 	{
 		if (Preg::isMatch('/^(?P<name>[- .,\p{L}\p{N}\p{Mn}\'’"()]+)(?:\s+<(?P<email>.+?)>)?$/u', $author, $match)) {
 			if (null !== $match['email'] && !$this->isValidEmail($match['email'])) {
-				throw new \InvalidArgumentException('Invalid email "'.$match['email'].'"');
+				throw new \InvalidArgumentException('Invalid email "' . $match['email'] . '"');
 			}
 
 			return [
-				'name' => trim($match['name']),
+				'name'  => trim($match['name']),
 				'email' => $match['email'],
 			];
 		}
 
 		throw new \InvalidArgumentException(
-			'Invalid author string.  Must be in the formats: '.
-			'Jane Doe or John Smith <john@example.com>'
+			'Invalid author string.  Must be in the formats: ' .
+				'Jane Doe or John Smith <john@example.com>'
 		);
 	}
 
@@ -516,7 +516,7 @@ EOT
 		}
 
 		$namespace = array_map(
-			static function ($part): string {
+			static function($part): string {
 				$part = Preg::replace('/[^a-z0-9]/i', ' ', $part);
 				$part = ucwords($part);
 
@@ -592,7 +592,7 @@ EOT
 			}
 		}
 
-		file_put_contents($ignoreFile, $contents . $vendor. "\n");
+		file_put_contents($ignoreFile, $contents . $vendor . "\n");
 	}
 
 	protected function isValidEmail(string $email): bool

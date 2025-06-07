@@ -48,15 +48,15 @@ class ErrorHandler
 		}
 
 		if (filter_var(ini_get('xdebug.scream'), FILTER_VALIDATE_BOOLEAN)) {
-			$message .= "\n\nWarning: You have xdebug.scream enabled, the warning above may be".
-			"\na legitimately suppressed error that you were not supposed to see.";
+			$message .= "\n\nWarning: You have xdebug.scream enabled, the warning above may be" .
+				"\na legitimately suppressed error that you were not supposed to see.";
 		}
 
 		if (!$isDeprecationNotice) {
 			// ignore some newly introduced warnings in new php versions until dependencies
 			// can be fixed as we do not want to abort execution for those
 			if (in_array($level, [E_WARNING, E_USER_WARNING], true) && str_contains($message, 'should either be used or intentionally ignored by casting it as (void)')) {
-				self::outputWarning('Ignored new PHP warning but it should be reported and fixed: '.$message.' in '.$file.':'.$line, true);
+				self::outputWarning('Ignored new PHP warning but it should be reported and fixed: ' . $message . ' in ' . $file . ':' . $line, true);
 				return true;
 			}
 
@@ -72,7 +72,7 @@ class ErrorHandler
 				return true;
 			}
 			self::$hasShownDeprecationNotice = 1;
-			self::outputWarning('Deprecation Notice: '.$message.' in '.$file.':'.$line);
+			self::outputWarning('Deprecation Notice: ' . $message . ' in ' . $file . ':' . $line);
 		}
 
 		return true;
@@ -91,16 +91,17 @@ class ErrorHandler
 	private static function outputWarning(string $message, bool $outputEvenWithoutIO = false): void
 	{
 		if (self::$io !== null) {
-			self::$io->writeError('<warning>'.$message.'</warning>');
+			self::$io->writeError('<warning>' . $message . '</warning>');
 			if (self::$io->isVerbose()) {
 				self::$io->writeError('<warning>Stack trace:</warning>');
-				self::$io->writeError(array_filter(array_map(static function ($a): ?string {
+				self::$io->writeError(array_filter(array_map(static function($a): ?string
+				{
 					if (isset($a['line'], $a['file'])) {
-						return '<warning> '.$a['file'].':'.$a['line'].'</warning>';
+						return '<warning> ' . $a['file'] . ':' . $a['line'] . '</warning>';
 					}
 
 					return null;
-				}, array_slice(debug_backtrace(), 2)), function (?string $line) {
+				}, array_slice(debug_backtrace(), 2)), function(?string $line) {
 					return $line !== null;
 				}));
 			}
@@ -110,9 +111,9 @@ class ErrorHandler
 
 		if ($outputEvenWithoutIO) {
 			if (defined('STDERR') && is_resource(STDERR)) {
-				fwrite(STDERR, 'Warning: '.$message.PHP_EOL);
+				fwrite(STDERR, 'Warning: ' . $message . PHP_EOL);
 			} else {
-				echo 'Warning: '.$message.PHP_EOL;
+				echo 'Warning: ' . $message . PHP_EOL;
 			}
 		}
 	}

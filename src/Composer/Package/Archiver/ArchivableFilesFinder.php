@@ -26,7 +26,7 @@ use Symfony\Component\Finder\SplFileInfo;
  * Handles .gitignore, .gitattributes and .hgignore files as well as composer's
  * own exclude rules from composer.json
  *
- * @author Nils Adermann <naderman@naderman.de>
+ * @author          Nils Adermann <naderman@naderman.de>
  * @phpstan-extends FilterIterator<string, SplFileInfo, Iterator<string, SplFileInfo>>
  */
 class ArchivableFilesFinder extends FilterIterator
@@ -39,9 +39,9 @@ class ArchivableFilesFinder extends FilterIterator
 	/**
 	 * Initializes the internal Symfony Finder with appropriate filters
 	 *
-	 * @param string $sources Path to source files to be archived
-	 * @param string[] $excludes Composer's own exclude rules from composer.json
-	 * @param bool $ignoreFilters Ignore filters when looking for files
+	 * @param string   $sources       Path to source files to be archived
+	 * @param string[] $excludes      Composer's own exclude rules from composer.json
+	 * @param bool     $ignoreFilters Ignore filters when looking for files
 	 */
 	public function __construct(string $sources, array $excludes, bool $ignoreFilters = false)
 	{
@@ -49,7 +49,7 @@ class ArchivableFilesFinder extends FilterIterator
 
 		$sourcesRealPath = realpath($sources);
 		if ($sourcesRealPath === false) {
-			throw new \RuntimeException('Could not realpath() the source directory "'.$sources.'"');
+			throw new \RuntimeException('Could not realpath() the source directory "' . $sources . '"');
 		}
 		$sources = $fs->normalizePath($sourcesRealPath);
 
@@ -64,7 +64,7 @@ class ArchivableFilesFinder extends FilterIterator
 
 		$this->finder = new Finder();
 
-		$filter = static function (\SplFileInfo $file) use ($sources, $filters, $fs): bool {
+		$filter = static function(\SplFileInfo $file) use ($sources, $filters, $fs): bool {
 			$realpath = $file->getRealPath();
 			if ($realpath === false) {
 				return false;
@@ -74,7 +74,7 @@ class ArchivableFilesFinder extends FilterIterator
 			}
 
 			$relativePath = Preg::replace(
-				'#^'.preg_quote($sources, '#').'#',
+				'#^' . preg_quote($sources, '#') . '#',
 				'',
 				$fs->normalizePath($realpath)
 			);

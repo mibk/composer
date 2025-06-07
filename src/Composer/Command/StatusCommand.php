@@ -12,9 +12,7 @@
 
 namespace Composer\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
 use Composer\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Composer\Downloader\ChangeReportInterface;
 use Composer\Downloader\DvcsDownloaderInterface;
 use Composer\Downloader\VcsCapableDownloaderInterface;
@@ -25,6 +23,8 @@ use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
 use Composer\Script\ScriptEvents;
 use Composer\Util\ProcessExecutor;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Tiago Ribeiro <tiago.ribeiro@seegno.com>
@@ -32,9 +32,9 @@ use Composer\Util\ProcessExecutor;
  */
 class StatusCommand extends BaseCommand
 {
-	private const EXIT_CODE_ERRORS = 1;
+	private const EXIT_CODE_ERRORS           = 1;
 	private const EXIT_CODE_UNPUSHED_CHANGES = 2;
-	private const EXIT_CODE_VERSION_CHANGES = 4;
+	private const EXIT_CODE_VERSION_CHANGES  = 4;
 
 	/**
 	 * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
@@ -55,7 +55,7 @@ been modified locally.
 Read more at https://getcomposer.org/doc/03-cli.md#status
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -116,14 +116,14 @@ EOT
 			if ($downloader instanceof VcsCapableDownloaderInterface) {
 				if ($downloader->getVcsReference($package, $targetDir)) {
 					switch ($package->getInstallationSource()) {
-						case 'source':
-							$previousRef = $package->getSourceReference();
-							break;
-						case 'dist':
-							$previousRef = $package->getDistReference();
-							break;
-						default:
-							$previousRef = null;
+					case 'source':
+						$previousRef = $package->getSourceReference();
+						break;
+					case 'dist':
+						$previousRef = $package->getDistReference();
+						break;
+					default:
+						$previousRef = null;
 					}
 
 					$currentVersion = $guesser->guessVersion($dumper->dump($package), $targetDir);
@@ -132,11 +132,11 @@ EOT
 						$vcsVersionChanges[$targetDir] = [
 							'previous' => [
 								'version' => $package->getPrettyVersion(),
-								'ref' => $previousRef,
+								'ref'     => $previousRef,
 							],
 							'current' => [
 								'version' => $currentVersion['pretty_version'],
-								'ref' => $currentVersion['commit'],
+								'ref'     => $currentVersion['commit'],
 							],
 						];
 					}
@@ -162,10 +162,10 @@ EOT
 
 			foreach ($errors as $path => $changes) {
 				if ($input->getOption('verbose')) {
-					$indentedChanges = implode("\n", array_map(static function ($line): string {
+					$indentedChanges = implode("\n", array_map(static function($line): string {
 						return '    ' . ltrim($line);
 					}, explode("\n", $changes)));
-					$io->write('<info>'.$path.'</info>:');
+					$io->write('<info>' . $path . '</info>:');
 					$io->write($indentedChanges);
 				} else {
 					$io->write($path);
@@ -178,10 +178,10 @@ EOT
 
 			foreach ($unpushedChanges as $path => $changes) {
 				if ($input->getOption('verbose')) {
-					$indentedChanges = implode("\n", array_map(static function ($line): string {
+					$indentedChanges = implode("\n", array_map(static function($line): string {
 						return '    ' . ltrim($line);
 					}, explode("\n", $changes)));
-					$io->write('<info>'.$path.'</info>:');
+					$io->write('<info>' . $path . '</info>:');
 					$io->write($indentedChanges);
 				} else {
 					$io->write($path);
@@ -204,7 +204,7 @@ EOT
 						$previousVersion .= sprintf(' (%s)', $changes['previous']['ref']);
 					}
 
-					$io->write('<info>'.$path.'</info>:');
+					$io->write('<info>' . $path . '</info>:');
 					$io->write(sprintf('    From <comment>%s</comment> to <comment>%s</comment>', $previousVersion, $currentVersion));
 				} else {
 					$io->write($path);

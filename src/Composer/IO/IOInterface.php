@@ -22,11 +22,11 @@ use Psr\Log\LoggerInterface;
  */
 interface IOInterface extends LoggerInterface
 {
-	public const QUIET = 1;
-	public const NORMAL = 2;
-	public const VERBOSE = 4;
+	public const QUIET        = 1;
+	public const NORMAL       = 2;
+	public const VERBOSE      = 4;
 	public const VERY_VERBOSE = 8;
-	public const DEBUG = 16;
+	public const DEBUG        = 16;
 
 	/**
 	 * Is this input means interactive?
@@ -134,11 +134,11 @@ interface IOInterface extends LoggerInterface
 	/**
 	 * Asks a question to the user.
 	 *
-	 * @param string $question The question to ask
+	 * @param string                     $question The question to ask
 	 * @param string|bool|int|float|null $default  The default answer if none is given by the user
 	 *
 	 * @throws \RuntimeException If there is no data to read in the input stream
-	 * @return mixed       The user answer
+	 * @return mixed             The user answer
 	 */
 	public function ask(string $question, $default = null);
 
@@ -192,7 +192,7 @@ interface IOInterface extends LoggerInterface
 	 *
 	 * @throws \InvalidArgumentException
 	 *
-	 * @return int|string|list<string>|bool     The selected value or values (the key of the choices array)
+	 * @return         int|string|list<string>|bool The selected value or values (the key of the choices array)
 	 * @phpstan-return ($multiselect is true ? list<string> : string|int|bool)
 	 */
 	public function select(string $question, array $choices, $default, $attempts = false, string $errorMessage = 'Value "%s" is invalid', bool $multiselect = false);

@@ -12,14 +12,14 @@
 
 namespace Composer\Repository;
 
+use Composer\Installer\InstallationManager;
 use Composer\Json\JsonFile;
+use Composer\Package\AliasPackage;
+use Composer\Package\Dumper\ArrayDumper;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
 use Composer\Package\RootAliasPackage;
 use Composer\Package\RootPackageInterface;
-use Composer\Package\AliasPackage;
-use Composer\Package\Dumper\ArrayDumper;
-use Composer\Installer\InstallationManager;
 use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
 use Composer\Util\Platform;
@@ -99,7 +99,7 @@ class FilesystemRepository extends WritableArrayRepository
 				throw new \UnexpectedValueException('Could not parse package list from the repository');
 			}
 		} catch (\Exception $e) {
-			throw new InvalidRepositoryException('Invalid repository data in '.$this->file->getPath().', packages could not be loaded: ['.get_class($e).'] '.$e->getMessage());
+			throw new InvalidRepositoryException('Invalid repository data in ' . $this->file->getPath() . ', packages could not be loaded: [' . get_class($e) . '] ' . $e->getMessage());
 		}
 
 		$loader = new ArrayLoader(null, true);
@@ -153,7 +153,7 @@ class FilesystemRepository extends WritableArrayRepository
 		}
 
 		sort($data['dev-package-names']);
-		usort($data['packages'], static function ($a, $b): int {
+		usort($data['packages'], static function($a, $b): int {
 			return strcmp($a['name'], $b['name']);
 		});
 
@@ -162,12 +162,12 @@ class FilesystemRepository extends WritableArrayRepository
 		if ($this->dumpVersions) {
 			$versions = $this->generateInstalledVersions($installationManager, $installPaths, $devMode, $repoDir);
 
-			$this->filesystem->filePutContentsIfModified($repoDir.'/installed.php', '<?php return ' . $this->dumpToPhpCode($versions) . ';'."\n");
-			$installedVersionsClass = file_get_contents(__DIR__.'/../InstalledVersions.php');
+			$this->filesystem->filePutContentsIfModified($repoDir . '/installed.php', '<?php return ' . $this->dumpToPhpCode($versions) . ';' . "\n");
+			$installedVersionsClass = file_get_contents(__DIR__ . '/../InstalledVersions.php');
 
 			// this normally should not happen but during upgrades of Composer when it is installed in the project it is a possibility
 			if ($installedVersionsClass !== false) {
-				$this->filesystem->filePutContentsIfModified($repoDir.'/InstalledVersions.php', $installedVersionsClass);
+				$this->filesystem->filePutContentsIfModified($repoDir . '/InstalledVersions.php', $installedVersionsClass);
 
 				// make sure the in memory state is up to date with on disk
 				\Composer\InstalledVersions::reload($versions);
@@ -213,7 +213,7 @@ class FilesystemRepository extends WritableArrayRepository
 ^<\?php\s++return\s++(?&array)\s*+;$}ix
 REGEX;
 		if (is_string($installedVersionsData) && Preg::isMatch($pattern, trim($installedVersionsData))) {
-			\Composer\InstalledVersions::reload(eval('?>'.Preg::replace('{=>\s*+__DIR__\s*+\.\s*+([\'"])}', '=> '.var_export(dirname($path), true).' . $1', $installedVersionsData)));
+			\Composer\InstalledVersions::reload(eval('?>' . Preg::replace('{=>\s*+__DIR__\s*+\.\s*+([\'"])}', '=> ' . var_export(dirname($path), true) . ' . $1', $installedVersionsData)));
 
 			return true;
 		}
@@ -252,7 +252,7 @@ REGEX;
 			} elseif (is_null($value)) {
 				$lines .= "null,\n";
 			} else {
-				throw new \UnexpectedValueException('Unexpected type '.gettype($value));
+				throw new \UnexpectedValueException('Unexpected type ' . gettype($value));
 			}
 		}
 
@@ -280,7 +280,7 @@ REGEX;
 			$packages[] = $rootPackage;
 		}
 		$versions = [
-			'root' => $this->dumpRootPackage($rootPackage, $installPaths, $devMode, $repoDir, $devPackages),
+			'root'     => $this->dumpRootPackage($rootPackage, $installPaths, $devMode, $repoDir, $devPackages),
 			'versions' => [],
 		];
 
@@ -336,7 +336,7 @@ REGEX;
 
 		// add aliases
 		foreach ($packages as $package) {
-			if (!$package instanceof AliasPackage) {
+			if (! $package instanceof AliasPackage) {
 				continue;
 			}
 			$versions['versions'][$package->getName()]['aliases'][] = $package->getPrettyVersion();
@@ -360,8 +360,8 @@ REGEX;
 	}
 
 	/**
-	 * @param array<string, string> $installPaths
-	 * @param array<string, int> $devPackages
+	 * @param  array<string, string> $installPaths
+	 * @param  array<string, int>    $devPackages
 	 * @return array{pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev_requirement: bool}
 	 */
 	private function dumpInstalledPackage(PackageInterface $package, array $installPaths, string $repoDir, array $devPackages): array
@@ -382,12 +382,12 @@ REGEX;
 		}
 
 		$data = [
-			'pretty_version' => $package->getPrettyVersion(),
-			'version' => $package->getVersion(),
-			'reference' => $reference,
-			'type' => $package->getType(),
-			'install_path' => $installPath,
-			'aliases' => [],
+			'pretty_version'  => $package->getPrettyVersion(),
+			'version'         => $package->getVersion(),
+			'reference'       => $reference,
+			'type'            => $package->getType(),
+			'install_path'    => $installPath,
+			'aliases'         => [],
 			'dev_requirement' => isset($devPackages[$package->getName()]),
 		];
 
@@ -395,8 +395,8 @@ REGEX;
 	}
 
 	/**
-	 * @param array<string, string> $installPaths
-	 * @param array<string, int> $devPackages
+	 * @param  array<string, string> $installPaths
+	 * @param  array<string, int>    $devPackages
 	 * @return array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}
 	 */
 	private function dumpRootPackage(RootPackageInterface $package, array $installPaths, bool $devMode, string $repoDir, array $devPackages)
@@ -404,14 +404,14 @@ REGEX;
 		$data = $this->dumpInstalledPackage($package, $installPaths, $repoDir, $devPackages);
 
 		return [
-			'name' => $package->getName(),
+			'name'           => $package->getName(),
 			'pretty_version' => $data['pretty_version'],
-			'version' => $data['version'],
-			'reference' => $data['reference'],
-			'type' => $data['type'],
-			'install_path' => $data['install_path'],
-			'aliases' => $data['aliases'],
-			'dev' => $devMode,
+			'version'        => $data['version'],
+			'reference'      => $data['reference'],
+			'type'           => $data['type'],
+			'install_path'   => $data['install_path'],
+			'aliases'        => $data['aliases'],
+			'dev'            => $devMode,
 		];
 	}
 }

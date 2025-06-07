@@ -12,18 +12,21 @@
 
 namespace Composer\Command;
 
+use Composer\Advisory\Auditor;
 use Composer\Composer;
+use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
 use Composer\DependencyResolver\Request;
-use Composer\Installer;
 use Composer\IO\IOInterface;
+use Composer\Installer;
 use Composer\Package\BasePackage;
 use Composer\Package\Loader\RootPackageLoader;
 use Composer\Package\PackageInterface;
+use Composer\Package\Version\VersionParser;
 use Composer\Package\Version\VersionSelector;
 use Composer\Pcre\Preg;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
-use Composer\Package\Version\VersionParser;
 use Composer\Repository\CompositeRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryInterface;
@@ -31,12 +34,9 @@ use Composer\Repository\RepositorySet;
 use Composer\Semver\Constraint\MultiConstraint;
 use Composer\Semver\Intervals;
 use Composer\Util\HttpDownloader;
-use Composer\Advisory\Auditor;
 use Composer\Util\Platform;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
-use Composer\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -120,7 +120,7 @@ To select packages names interactively with auto-completion use <info>-i</info>.
 Read more at https://getcomposer.org/doc/03-cli.md#update-u-upgrade
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -144,7 +144,7 @@ EOT
 
 		// extract --with shorthands from the allowlist
 		if (count($packages) > 0) {
-			$allowlistPackagesWithRequirements = array_filter($packages, static function ($pkg): bool {
+			$allowlistPackagesWithRequirements = array_filter($packages, static function($pkg): bool {
 				return Preg::isMatch('{\S+[ =:]\S+}', $pkg);
 			});
 			foreach ($this->formatRequirements($allowlistPackagesWithRequirements) as $package => $constraint) {
@@ -171,8 +171,8 @@ EOT
 			$parsedConstraint = $parser->parseConstraints($constraint);
 			$temporaryConstraints[$package] = $parsedConstraint;
 			if (isset($rootRequirements[$package]) && !Intervals::haveIntersections($parsedConstraint, $rootRequirements[$package]->getConstraint())) {
-				$io->writeError('<error>The temporary constraint "'.$constraint.'" for "'.$package.'" must be a subset of the constraint in your composer.json ('.$rootRequirements[$package]->getPrettyConstraint().')</error>');
-				$io->write('<info>Run `composer require '.$package.'` or `composer require '.$package.':'.$constraint.'` instead to replace the constraint</info>');
+				$io->writeError('<error>The temporary constraint "' . $constraint . '" for "' . $package . '" must be a subset of the constraint in your composer.json (' . $rootRequirements[$package]->getPrettyConstraint() . ')</error>');
+				$io->write('<info>Run `composer require ' . $package . '` or `composer require ' . $package . ':' . $constraint . '` instead to replace the constraint</info>');
 				return self::FAILURE;
 			}
 		}
@@ -188,7 +188,7 @@ EOT
 				if (!Preg::isMatch('{^(\d+\.\d+\.\d+)}', $package->getVersion(), $match)) {
 					continue;
 				}
-				$constraint = $parser->parseConstraints('~'.$match[1]);
+				$constraint = $parser->parseConstraints('~' . $match[1]);
 				if (isset($temporaryConstraints[$package->getName()])) {
 					$temporaryConstraints[$package->getName()] = MultiConstraint::create([$temporaryConstraints[$package->getName()], $constraint], true);
 				} else {
@@ -216,7 +216,7 @@ EOT
 
 		// the arguments lock/nothing/mirrors are not package names but trigger a mirror update instead
 		// they are further mutually exclusive with listing actual package names
-		$filteredPackages = array_filter($packages, static function ($package): bool {
+		$filteredPackages = array_filter($packages, static function($package): bool {
 			return !in_array($package, ['lock', 'nothing', 'mirrors'], true);
 		});
 		$updateMirrors = $input->getOption('lock') || count($filteredPackages) !== count($packages);
@@ -272,7 +272,7 @@ EOT
 			->setAudit(!$input->getOption('no-audit'))
 			->setAuditFormat($this->getAuditFormat($input))
 			->setMinimalUpdate($input->getOption('minimal-changes'))
-		;
+			;
 
 		if ($input->getOption('no-plugins')) {
 			$install->disablePlugins();
@@ -303,7 +303,7 @@ EOT
 	}
 
 	/**
-	 * @param array<string> $packages
+	 * @param  array<string> $packages
 	 * @return array<string>
 	 */
 	private function getPackagesInteractively(IOInterface $io, InputInterface $input, OutputInterface $output, Composer $composer, array $packages): array
@@ -379,8 +379,8 @@ EOT
 	private function createVersionSelector(Composer $composer): VersionSelector
 	{
 		$repositorySet = new RepositorySet();
-		$repositorySet->addRepository(new CompositeRepository(array_filter($composer->getRepositoryManager()->getRepositories(), function (RepositoryInterface $repository) {
-			return !$repository instanceof PlatformRepository;
+		$repositorySet->addRepository(new CompositeRepository(array_filter($composer->getRepositoryManager()->getRepositories(), function(RepositoryInterface $repository) {
+			return ! $repository instanceof PlatformRepository;
 		})));
 
 		return new VersionSelector($repositorySet);

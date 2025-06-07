@@ -14,9 +14,9 @@ namespace Composer\Package\Version;
 
 use Composer\Config;
 use Composer\IO\IOInterface;
+use Composer\IO\NullIO;
 use Composer\Pcre\Preg;
 use Composer\Repository\Vcs\HgDriver;
-use Composer\IO\NullIO;
 use Composer\Semver\VersionParser as SemverVersionParser;
 use Composer\Util\Git as GitUtil;
 use Composer\Util\HttpDownloader;
@@ -152,8 +152,8 @@ class VersionGuesser
 				if ($branch && Preg::isMatchStrictGroups('{^(?:\* ) *(\(no branch\)|\(detached from \S+\)|\(HEAD detached at \S+\)|\S+) *([a-f0-9]+) .*$}', $branch, $match)) {
 					if (
 						$match[1] === '(no branch)'
-						|| strpos($match[1], '(detached ') === 0
-						|| strpos($match[1], '(HEAD detached at') === 0
+							|| strpos($match[1], '(detached ') === 0
+							|| strpos($match[1], '(HEAD detached at') === 0
 					) {
 						$version = 'dev-' . $match[2];
 						$prettyVersion = $version;
@@ -243,7 +243,7 @@ class VersionGuesser
 			$isFeatureBranch = 0 === strpos($version, 'dev-');
 
 			if (VersionParser::DEFAULT_BRANCH_ALIAS === $version) {
-				return ['version' => $version, 'commit' => null, 'pretty_version' => 'dev-'.$branch];
+				return ['version' => $version, 'commit' => null, 'pretty_version' => 'dev-' . $branch];
 			}
 
 			if (!$isFeatureBranch) {
@@ -268,9 +268,9 @@ class VersionGuesser
 	}
 
 	/**
-	 * @param array<string, mixed>     $packageConfig
-	 * @param list<string>             $branches
-	 * @param list<string>             $scmCmdline
+	 * @param array<string, mixed> $packageConfig
+	 * @param list<string>         $branches
+	 * @param list<string>         $scmCmdline
 	 *
 	 * @return array{version: string|null, pretty_version: string|null}
 	 */
@@ -294,7 +294,7 @@ class VersionGuesser
 			// sort local branches first then remote ones
 			// and sort numeric branches below named ones, to make sure if the branch has the same distance from main and 1.10 and 1.9 for example, 1.9 is picked
 			// and sort using natural sort so that 1.10 will appear before 1.9
-			usort($branches, static function ($a, $b): int {
+			usort($branches, static function($a, $b): int {
 				$aRemote = 0 === strpos($a, 'remotes/');
 				$bRemote = 0 === strpos($b, 'remotes/');
 
@@ -317,10 +317,10 @@ class VersionGuesser
 						continue;
 					}
 
-					$cmdLine = array_map(static function (string $component) use ($candidate, $branch) {
+					$cmdLine = array_map(static function(string $component) use ($candidate, $branch) {
 						return str_replace(['%candidate%', '%branch%'], [$candidate, $branch], $component);
 					}, $scmCmdline);
-					$promises[] = $this->process->executeAsync($cmdLine, $path)->then(function (Process $process) use (&$lastIndex, $index, &$length, &$version, &$prettyVersion, $candidateVersion, &$promises): void {
+					$promises[] = $this->process->executeAsync($cmdLine, $path)->then(function(Process $process) use (&$lastIndex, $index, &$length, &$version, &$prettyVersion, $candidateVersion, &$promises): void {
 						if (!$process->isSuccessful()) {
 							return;
 						}
@@ -441,7 +441,7 @@ class VersionGuesser
 			throw new \RuntimeException('COMPOSER_ROOT_VERSION not set or empty');
 		}
 		if (Preg::isMatch('{^(\d+(?:\.\d+)*)-dev$}i', $version, $match)) {
-			$version = $match[1].'.x-dev';
+			$version = $match[1] . '.x-dev';
 		}
 
 		return $version;

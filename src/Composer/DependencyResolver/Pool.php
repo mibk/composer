@@ -15,8 +15,8 @@ namespace Composer\DependencyResolver;
 use Composer\Package\BasePackage;
 use Composer\Package\Version\VersionParser;
 use Composer\Semver\CompilingMatcher;
-use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\Constraint\ConstraintInterface;
 
 /**
  * A package pool contains all packages for dependency resolution
@@ -42,8 +42,8 @@ class Pool implements \Countable
 	protected $removedVersionsByPackage = [];
 
 	/**
-	 * @param BasePackage[] $packages
-	 * @param BasePackage[] $unacceptableFixedOrLockedPackages
+	 * @param BasePackage[]                        $packages
+	 * @param BasePackage[]                        $unacceptableFixedOrLockedPackages
 	 * @param array<string, array<string, string>> $removedVersions
 	 * @param array<string, array<string, string>> $removedVersionsByPackage
 	 */
@@ -132,7 +132,7 @@ class Pool implements \Countable
 	/**
 	 * Searches all packages providing the given package name and match the constraint
 	 *
-	 * @param string $name The package name to be searched for
+	 * @param string               $name       The package name to be searched for
 	 * @param ?ConstraintInterface $constraint A constraint that all returned
 	 *                                         packages must match or null to return all
 	 * @return BasePackage[] A set of packages
@@ -148,8 +148,8 @@ class Pool implements \Countable
 	}
 
 	/**
-	 * @param  string               $name       The package name to be searched for
-	 * @param  ?ConstraintInterface $constraint A constraint that all returned
+	 * @param string               $name       The package name to be searched for
+	 * @param ?ConstraintInterface $constraint A constraint that all returned
 	 *                                          packages must match or null to return all
 	 * @return BasePackage[]
 	 */
@@ -190,14 +190,14 @@ class Pool implements \Countable
 			$prefix = ($literal > 0 ? 'install' : 'don\'t install');
 		}
 
-		return $prefix.' '.$package->getPrettyString();
+		return $prefix . ' ' . $package->getPrettyString();
 	}
 
 	/**
 	 * Checks if the package matches the given constraint directly or through
 	 * provided or replaced packages
 	 *
-	 * @param  string              $name       Name of the package to be matched
+	 * @param string $name Name of the package to be matched
 	 */
 	public function match(BasePackage $candidate, string $name, ?ConstraintInterface $constraint = null): bool
 	{
@@ -257,7 +257,7 @@ class Pool implements \Countable
 		$str = "Pool:\n";
 
 		foreach ($this->packages as $package) {
-			$str .= '- '.str_pad((string) $package->id, 6, ' ', STR_PAD_LEFT).': '.$package->getName()."\n";
+			$str .= '- ' . str_pad((string) $package->id, 6, ' ', STR_PAD_LEFT) . ': ' . $package->getName() . "\n";
 		}
 
 		return $str;

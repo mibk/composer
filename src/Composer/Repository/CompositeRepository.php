@@ -42,9 +42,9 @@ class CompositeRepository implements RepositoryInterface
 
 	public function getRepoName(): string
 	{
-		return 'composite repo ('.implode(', ', array_map(static function ($repo): string {
+		return 'composite repo (' . implode(', ', array_map(static function($repo): string {
 			return $repo->getRepoName();
-		}, $this->repositories)).')';
+		}, $this->repositories)) . ')';
 	}
 
 	/**
@@ -117,7 +117,7 @@ class CompositeRepository implements RepositoryInterface
 		}
 
 		return [
-			'packages' => $packages ? array_merge(...$packages) : [],
+			'packages'   => $packages ? array_merge(...$packages) : [],
 			'namesFound' => $namesFound ? array_unique(array_merge(...$namesFound)) : [],
 		];
 	}

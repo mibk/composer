@@ -14,10 +14,10 @@ namespace Composer\Repository\Vcs;
 
 use Composer\Cache;
 use Composer\Config;
-use Composer\Pcre\Preg;
-use Composer\Util\ProcessExecutor;
-use Composer\Util\Filesystem;
 use Composer\IO\IOInterface;
+use Composer\Pcre\Preg;
+use Composer\Util\Filesystem;
+use Composer\Util\ProcessExecutor;
 
 /**
  * @author BohwaZ <http://bohwaz.net/>
@@ -87,13 +87,13 @@ class FossilDriver extends VcsDriver
 		$fs->ensureDirectoryExists($this->checkoutDir);
 
 		if (!is_writable(dirname($this->checkoutDir))) {
-			throw new \RuntimeException('Can not clone '.$this->url.' to access package information. The "'.$this->checkoutDir.'" directory is not writable by the current user.');
+			throw new \RuntimeException('Can not clone ' . $this->url . ' to access package information. The "' . $this->checkoutDir . '" directory is not writable by the current user.');
 		}
 
 		// update the repo if it is a valid fossil repository
 		if (is_file($this->repoFile) && is_dir($this->checkoutDir) && 0 === $this->process->execute(['fossil', 'info'], $output, $this->checkoutDir)) {
 			if (0 !== $this->process->execute(['fossil', 'pull'], $output, $this->checkoutDir)) {
-				$this->io->writeError('<error>Failed to update '.$this->url.', package information from this repository may be outdated ('.$this->process->getErrorOutput().')</error>');
+				$this->io->writeError('<error>Failed to update ' . $this->url . ', package information from this repository may be outdated (' . $this->process->getErrorOutput() . ')</error>');
 			}
 		} else {
 			// clean up directory and do a fresh clone into it
@@ -105,13 +105,13 @@ class FossilDriver extends VcsDriver
 			if (0 !== $this->process->execute(['fossil', 'clone', '--', $this->url, $this->repoFile], $output)) {
 				$output = $this->process->getErrorOutput();
 
-				throw new \RuntimeException('Failed to clone '.$this->url.' to repository ' . $this->repoFile . "\n\n" .$output);
+				throw new \RuntimeException('Failed to clone ' . $this->url . ' to repository ' . $this->repoFile . "\n\n" . $output);
 			}
 
 			if (0 !== $this->process->execute(['fossil', 'open', '--nested', '--', $this->repoFile], $output, $this->checkoutDir)) {
 				$output = $this->process->getErrorOutput();
 
-				throw new \RuntimeException('Failed to open repository '.$this->repoFile.' in ' . $this->checkoutDir . "\n\n" .$output);
+				throw new \RuntimeException('Failed to open repository ' . $this->repoFile . ' in ' . $this->checkoutDir . "\n\n" . $output);
 			}
 		}
 	}

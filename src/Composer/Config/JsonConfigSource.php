@@ -59,7 +59,7 @@ class JsonConfigSource implements ConfigSourceInterface
 	 */
 	public function addRepository(string $name, $config, bool $append = true): void
 	{
-		$this->manipulateJson('addRepository', static function (&$config, $repo, $repoConfig) use ($append): void {
+		$this->manipulateJson('addRepository', static function(&$config, $repo, $repoConfig) use ($append): void {
 			// if converting from an array format to hashmap format, and there is a {"packagist.org":false} repo, we have
 			// to convert it to "packagist.org": false key on the hashmap otherwise it fails schema validation
 			if (isset($config['repositories'])) {
@@ -88,7 +88,7 @@ class JsonConfigSource implements ConfigSourceInterface
 	 */
 	public function removeRepository(string $name): void
 	{
-		$this->manipulateJson('removeRepository', static function (&$config, $repo): void {
+		$this->manipulateJson('removeRepository', static function(&$config, $repo): void {
 			unset($config['repositories'][$repo]);
 		}, $name);
 	}
@@ -99,7 +99,7 @@ class JsonConfigSource implements ConfigSourceInterface
 	public function addConfigSetting(string $name, $value): void
 	{
 		$authConfig = $this->authConfig;
-		$this->manipulateJson('addConfigSetting', static function (&$config, $key, $val) use ($authConfig): void {
+		$this->manipulateJson('addConfigSetting', static function(&$config, $key, $val) use ($authConfig): void {
 			if (Preg::isMatch('{^(bitbucket-oauth|github-oauth|gitlab-oauth|gitlab-token|bearer|http-basic|custom-headers|platform)\.}', $key)) {
 				[$key, $host] = explode('.', $key, 2);
 				if ($authConfig) {
@@ -119,7 +119,7 @@ class JsonConfigSource implements ConfigSourceInterface
 	public function removeConfigSetting(string $name): void
 	{
 		$authConfig = $this->authConfig;
-		$this->manipulateJson('removeConfigSetting', static function (&$config, $key) use ($authConfig): void {
+		$this->manipulateJson('removeConfigSetting', static function(&$config, $key) use ($authConfig): void {
 			if (Preg::isMatch('{^(bitbucket-oauth|github-oauth|gitlab-oauth|gitlab-token|bearer|http-basic|custom-headers|platform)\.}', $key)) {
 				[$key, $host] = explode('.', $key, 2);
 				if ($authConfig) {
@@ -138,7 +138,7 @@ class JsonConfigSource implements ConfigSourceInterface
 	 */
 	public function addProperty(string $name, $value): void
 	{
-		$this->manipulateJson('addProperty', static function (&$config, $key, $val): void {
+		$this->manipulateJson('addProperty', static function(&$config, $key, $val): void {
 			if (strpos($key, 'extra.') === 0 || strpos($key, 'scripts.') === 0) {
 				$bits = explode('.', $key);
 				$last = array_pop($bits);
@@ -161,7 +161,7 @@ class JsonConfigSource implements ConfigSourceInterface
 	 */
 	public function removeProperty(string $name): void
 	{
-		$this->manipulateJson('removeProperty', static function (&$config, $key): void {
+		$this->manipulateJson('removeProperty', static function(&$config, $key): void {
 			if (strpos($key, 'extra.') === 0 || strpos($key, 'scripts.') === 0 || stripos($key, 'autoload.') === 0 || stripos($key, 'autoload-dev.') === 0) {
 				$bits = explode('.', $key);
 				$last = array_pop($bits);
@@ -184,7 +184,7 @@ class JsonConfigSource implements ConfigSourceInterface
 	 */
 	public function addLink(string $type, string $name, string $value): void
 	{
-		$this->manipulateJson('addLink', static function (&$config, $type, $name, $value): void {
+		$this->manipulateJson('addLink', static function(&$config, $type, $name, $value): void {
 			$config[$type][$name] = $value;
 		}, $type, $name, $value);
 	}
@@ -194,10 +194,10 @@ class JsonConfigSource implements ConfigSourceInterface
 	 */
 	public function removeLink(string $type, string $name): void
 	{
-		$this->manipulateJson('removeSubNode', static function (&$config, $type, $name): void {
+		$this->manipulateJson('removeSubNode', static function(&$config, $type, $name): void {
 			unset($config[$type][$name]);
 		}, $type, $name);
-		$this->manipulateJson('removeMainKeyIfEmpty', static function (&$config, $type): void {
+		$this->manipulateJson('removeMainKeyIfEmpty', static function(&$config, $type): void {
 			if (0 === count($config[$type])) {
 				unset($config[$type]);
 			}
@@ -275,7 +275,7 @@ class JsonConfigSource implements ConfigSourceInterface
 		} catch (JsonValidationException $e) {
 			// restore contents to the original state
 			file_put_contents($this->file->getPath(), $contents);
-			throw new \RuntimeException('Failed to update composer.json with a valid format, reverting to the original content. Please report an issue to us with details (command you run and a copy of your composer.json). '.PHP_EOL.implode(PHP_EOL, $e->getErrors()), 0, $e);
+			throw new \RuntimeException('Failed to update composer.json with a valid format, reverting to the original content. Please report an issue to us with details (command you run and a copy of your composer.json). ' . PHP_EOL . implode(PHP_EOL, $e->getErrors()), 0, $e);
 		}
 
 		if ($newFile) {
@@ -286,8 +286,8 @@ class JsonConfigSource implements ConfigSourceInterface
 	/**
 	 * Prepend a reference to an element to the beginning of an array.
 	 *
-	 * @param  mixed[] $array
-	 * @param  mixed $value
+	 * @param mixed[] $array
+	 * @param mixed   $value
 	 */
 	private function arrayUnshiftRef(array &$array, &$value): int
 	{

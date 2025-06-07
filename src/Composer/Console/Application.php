@@ -12,13 +12,26 @@
 
 namespace Composer\Console;
 
-use Composer\Installer;
+use Composer\Command;
+use Composer\Composer;
+use Composer\Downloader\TransportException;
+use Composer\EventDispatcher\ScriptExecutionException;
+use Composer\Exception\NoSslException;
+use Composer\Factory;
+use Composer\IO\ConsoleIO;
+use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
+use Composer\Installer;
+use Composer\Json\JsonValidationException;
+use Composer\Util\ErrorHandler;
 use Composer\Util\Filesystem;
+use Composer\Util\HttpDownloader;
 use Composer\Util\Platform;
 use Composer\Util\Silencer;
+use Composer\XdebugHandler\XdebugHandler;
 use LogicException;
 use RuntimeException;
+use Seld\JsonLint\ParsingException;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\ExceptionInterface;
@@ -29,19 +42,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Seld\JsonLint\ParsingException;
-use Composer\Command;
-use Composer\Composer;
-use Composer\Factory;
-use Composer\Downloader\TransportException;
-use Composer\IO\IOInterface;
-use Composer\IO\ConsoleIO;
-use Composer\Json\JsonValidationException;
-use Composer\Util\ErrorHandler;
-use Composer\Util\HttpDownloader;
-use Composer\EventDispatcher\ScriptExecutionException;
-use Composer\Exception\NoSslException;
-use Composer\XdebugHandler\XdebugHandler;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 
 /**
@@ -108,13 +108,13 @@ class Application extends BaseApplication
 		if (!$shutdownRegistered) {
 			$shutdownRegistered = true;
 
-			register_shutdown_function(static function (): void {
+			register_shutdown_function(static function(): void {
 				$lastError = error_get_last();
 
 				if ($lastError && $lastError['message'] &&
-				   (strpos($lastError['message'], 'Allowed memory') !== false /*Zend PHP out of memory error*/ ||
-					strpos($lastError['message'], 'exceeded memory') !== false /*HHVM out of memory errors*/)) {
-					echo "\n". 'Check https://getcomposer.org/doc/articles/troubleshooting.md#memory-limit-errors for more info on how to handle out of memory errors.';
+					(strpos($lastError['message'], 'Allowed memory') !== false /*Zend PHP out of memory error*/ ||
+						strpos($lastError['message'], 'exceeded memory') !== false /*HHVM out of memory errors*/)) {
+					echo "\n" . 'Check https://getcomposer.org/doc/articles/troubleshooting.md#memory-limit-errors for more info on how to handle out of memory errors.';
 				}
 			});
 		}
@@ -187,30 +187,30 @@ class Application extends BaseApplication
 		// prompt user for dir change if no composer.json is present in current dir
 		if (
 			null === $newWorkDir
-			// do not prompt for commands that can function without composer.json
-			&& !in_array($commandName, ['', 'list', 'init', 'about', 'help', 'diagnose', 'self-update', 'global', 'create-project', 'outdated'], true)
-			&& !file_exists(Factory::getComposerFile())
-			// if use-parent-dir is disabled we should not prompt
-			&& ($useParentDirIfNoJsonAvailable = $this->getUseParentDirConfigValue()) !== false
-			// config --file ... should not prompt
-			&& ($commandName !== 'config' || ($input->hasParameterOption('--file', true) === false && $input->hasParameterOption('-f', true) === false))
-			// calling a command's help should not prompt
-			&& $input->hasParameterOption('--help', true) === false
-			&& $input->hasParameterOption('-h', true) === false
+				// do not prompt for commands that can function without composer.json
+				&& !in_array($commandName, ['', 'list', 'init', 'about', 'help', 'diagnose', 'self-update', 'global', 'create-project', 'outdated'], true)
+				&& !file_exists(Factory::getComposerFile())
+				// if use-parent-dir is disabled we should not prompt
+				&& ($useParentDirIfNoJsonAvailable = $this->getUseParentDirConfigValue()) !== false
+				// config --file ... should not prompt
+				&& ($commandName !== 'config' || ($input->hasParameterOption('--file', true) === false && $input->hasParameterOption('-f', true) === false))
+				// calling a command's help should not prompt
+				&& $input->hasParameterOption('--help', true) === false
+				&& $input->hasParameterOption('-h', true) === false
 		) {
 			$dir = dirname(Platform::getCwd(true));
 			$home = realpath(Platform::getEnv('HOME') ?: Platform::getEnv('USERPROFILE') ?: '/');
 
 			// abort when we reach the home dir or top of the filesystem
 			while (dirname($dir) !== $dir && $dir !== $home) {
-				if (file_exists($dir.'/'.Factory::getComposerFile())) {
+				if (file_exists($dir . '/' . Factory::getComposerFile())) {
 					if ($useParentDirIfNoJsonAvailable !== true && !$io->isInteractive()) {
-						$io->writeError('<info>No composer.json in current directory, to use the one at '.$dir.' run interactively or set config.use-parent-dir to true</info>');
+						$io->writeError('<info>No composer.json in current directory, to use the one at ' . $dir . ' run interactively or set config.use-parent-dir to true</info>');
 						break;
 					}
-					if ($useParentDirIfNoJsonAvailable === true || $io->askConfirmation('<info>No composer.json in current directory, do you want to use the one at '.$dir.'?</info> [<comment>Y,n</comment>]? ')) {
+					if ($useParentDirIfNoJsonAvailable === true || $io->askConfirmation('<info>No composer.json in current directory, do you want to use the one at ' . $dir . '?</info> [<comment>Y,n</comment>]? ')) {
 						if ($useParentDirIfNoJsonAvailable === true) {
-							$io->writeError('<info>No composer.json in current directory, changing working directory to '.$dir.'</info>');
+							$io->writeError('<info>No composer.json in current directory, changing working directory to ' . $dir . '</info>');
 						} else {
 							$io->writeError('<info>Always want to use the parent dir? Use "composer config --global use-parent-dir true" to change the default.</info>');
 						}
@@ -252,11 +252,11 @@ class Application extends BaseApplication
 			&& (
 				// not a composer command, so try loading plugin ones
 				false === $commandName
-				// list command requires plugin commands to show them
-				|| in_array($commandName, ['', 'list', 'help'], true)
-				// autocompletion requires plugin commands but if we are running as root without COMPOSER_ALLOW_SUPERUSER
-				// we'd rather not autocomplete plugins than abort autocompletion entirely, so we avoid loading plugins in this case
-				|| ($commandName === '_complete' && !$isNonAllowedRoot)
+					// list command requires plugin commands to show them
+					|| in_array($commandName, ['', 'list', 'help'], true)
+					// autocompletion requires plugin commands but if we are running as root without COMPOSER_ALLOW_SUPERUSER
+					// we'd rather not autocomplete plugins than abort autocompletion entirely, so we avoid loading plugins in this case
+					|| ($commandName === '_complete' && !$isNonAllowedRoot)
 			);
 
 		if ($mayNeedPluginCommand && !$this->disablePluginsByDefault && !$this->hasPluginCommands) {
@@ -278,7 +278,7 @@ class Application extends BaseApplication
 			try {
 				foreach ($this->getPluginCommands() as $command) {
 					if ($this->has($command->getName())) {
-						$io->writeError('<warning>Plugin command '.$command->getName().' ('.get_class($command).') would override a Composer command and has been skipped</warning>');
+						$io->writeError('<warning>Plugin command ' . $command->getName() . ' (' . get_class($command) . ') would override a Composer command and has been skipped</warning>');
 					} else {
 						$this->add($command);
 					}
@@ -326,12 +326,12 @@ class Application extends BaseApplication
 				'Running %s (%s) with %s on %s',
 				Composer::getVersion(),
 				Composer::RELEASE_DATE,
-				defined('HHVM_VERSION') ? 'HHVM '.HHVM_VERSION : 'PHP '.PHP_VERSION,
+				defined('HHVM_VERSION') ? 'HHVM ' . HHVM_VERSION : 'PHP ' . PHP_VERSION,
 				function_exists('php_uname') ? php_uname('s') . ' / ' . php_uname('r') : 'Unknown OS'
 			), true, IOInterface::DEBUG);
 
 			if (\PHP_VERSION_ID < 70205) {
-				$io->writeError('<warning>Composer supports PHP 7.2.5 and above, you will most likely encounter problems with your PHP '.PHP_VERSION.'. Upgrading is strongly recommended but you can use Composer 2.2.x LTS as a fallback.</warning>');
+				$io->writeError('<warning>Composer supports PHP 7.2.5 and above, you will most likely encounter problems with your PHP ' . PHP_VERSION . '. Upgrading is strongly recommended but you can use Composer 2.2.x LTS as a fallback.</warning>');
 			}
 
 			if (XdebugHandler::isXdebugActive() && !Platform::getEnv('COMPOSER_DISABLE_XDEBUG_WARN')) {
@@ -355,7 +355,7 @@ class Application extends BaseApplication
 			}
 
 			// Check system temp folder for usability as it can cause weird runtime issues otherwise
-			Silencer::call(static function () use ($io): void {
+			Silencer::call(static function() use ($io): void {
 				$pid = function_exists('getmypid') ? getmypid() . '-' : '';
 				$tempfile = sys_get_temp_dir() . '/temp-' . $pid . bin2hex(random_bytes(5));
 				if (!(file_put_contents($tempfile, __FILE__) && (file_get_contents($tempfile) === __FILE__) && unlink($tempfile) && !file_exists($tempfile))) {
@@ -368,9 +368,9 @@ class Application extends BaseApplication
 			if (is_file($file) && Filesystem::isReadable($file) && is_array($composer = json_decode(file_get_contents($file), true))) {
 				if (isset($composer['scripts']) && is_array($composer['scripts'])) {
 					foreach ($composer['scripts'] as $script => $dummy) {
-						if (!defined('Composer\Script\ScriptEvents::'.str_replace('-', '_', strtoupper($script)))) {
+						if (!defined('Composer\Script\ScriptEvents::' . str_replace('-', '_', strtoupper($script)))) {
 							if ($this->has($script)) {
-								$io->writeError('<warning>A script named '.$script.' would override a Composer command and has been skipped</warning>');
+								$io->writeError('<warning>A script named ' . $script . ' would override a Composer command and has been skipped</warning>');
 							} else {
 								$description = null;
 
@@ -407,7 +407,7 @@ class Application extends BaseApplication
 			}
 
 			if (isset($startTime)) {
-				$io->writeError('<info>Memory usage: '.round(memory_get_usage() / 1024 / 1024, 2).'MiB (peak: '.round(memory_get_peak_usage() / 1024 / 1024, 2).'MiB), time: '.round(microtime(true) - $startTime, 2).'s</info>');
+				$io->writeError('<info>Memory usage: ' . round(memory_get_usage() / 1024 / 1024, 2) . 'MiB (peak: ' . round(memory_get_peak_usage() / 1024 / 1024, 2) . 'MiB), time: ' . round(microtime(true) - $startTime, 2) . 's</info>');
 			}
 
 			return $result;
@@ -427,7 +427,7 @@ class Application extends BaseApplication
 			// symfony/console <6.4 does not handle \Error subtypes so we have to renderThrowable ourselves
 			// instead of rethrowing those for consumption by the parent class
 			// can be removed when Composer supports PHP 8.1+
-			if (!method_exists($this, 'setCatchErrors') && !$e instanceof \Exception) {
+			if (!method_exists($this, 'setCatchErrors') && ! $e instanceof \Exception) {
 				if ($output instanceof ConsoleOutputInterface) {
 					$this->renderThrowable($e, $output->getErrorOutput());
 				} else {
@@ -460,7 +460,7 @@ class Application extends BaseApplication
 		/** @var string|null $workingDir */
 		$workingDir = $input->getParameterOption(['--working-dir', '-d'], null, true);
 		if (null !== $workingDir && !is_dir($workingDir)) {
-			throw new \RuntimeException('Invalid working directory specified, '.$workingDir.' does not exist.');
+			throw new \RuntimeException('Invalid working directory specified, ' . $workingDir . ' does not exist.');
 		}
 
 		return $workingDir;
@@ -485,7 +485,7 @@ class Application extends BaseApplication
 					|| (($df = disk_free_space($dir = $config->get('vendor-dir'))) !== false && $df < $minSpaceFree)
 					|| (($df = disk_free_space($dir = sys_get_temp_dir())) !== false && $df < $minSpaceFree)
 				) {
-					$io->writeError('<error>The disk hosting '.$dir.' has less than 100MiB of free space, this may be the cause of the following exception</error>', true, IOInterface::QUIET);
+					$io->writeError('<error>The disk hosting ' . $dir . ' has less than 100MiB of free space, this may be the cause of the following exception</error>', true, IOInterface::QUIET);
 				}
 			}
 		} catch (\Exception $e) {
@@ -664,7 +664,7 @@ class Application extends BaseApplication
 	public function getLongVersion(): string
 	{
 		$branchAliasString = '';
-		if (Composer::BRANCH_ALIAS_VERSION && Composer::BRANCH_ALIAS_VERSION !== '@package_branch_alias_version'.'@') {
+		if (Composer::BRANCH_ALIAS_VERSION && Composer::BRANCH_ALIAS_VERSION !== '@package_branch_alias_version' . '@') {
 			$branchAliasString = sprintf(' (%s)', Composer::BRANCH_ALIAS_VERSION);
 		}
 
@@ -706,11 +706,11 @@ class Application extends BaseApplication
 			foreach ($pm->getPluginCapabilities('Composer\Plugin\Capability\CommandProvider', ['composer' => $composer, 'io' => $this->io]) as $capability) {
 				$newCommands = $capability->getCommands();
 				if (!is_array($newCommands)) {
-					throw new \UnexpectedValueException('Plugin capability '.get_class($capability).' failed to return an array from getCommands');
+					throw new \UnexpectedValueException('Plugin capability ' . get_class($capability) . ' failed to return an array from getCommands');
 				}
 				foreach ($newCommands as $command) {
-					if (!$command instanceof Command\BaseCommand) {
-						throw new \UnexpectedValueException('Plugin capability '.get_class($capability).' returned an invalid value, we expected an array of Composer\Command\BaseCommand objects');
+					if (! $command instanceof Command\BaseCommand) {
+						throw new \UnexpectedValueException('Plugin capability ' . get_class($capability) . ' returned an invalid value, we expected an array of Composer\Command\BaseCommand objects');
 					}
 				}
 				$commands = array_merge($commands, $newCommands);

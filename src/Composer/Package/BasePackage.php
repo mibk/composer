@@ -12,8 +12,8 @@
 
 namespace Composer\Package;
 
-use Composer\Repository\RepositoryInterface;
 use Composer\Repository\PlatformRepository;
+use Composer\Repository\RepositoryInterface;
 
 /**
  * Base class for packages providing name storage and default match implementation
@@ -27,31 +27,31 @@ abstract class BasePackage implements PackageInterface
 	 * @internal
 	 */
 	public static $supportedLinkTypes = [
-		'require' => ['description' => 'requires', 'method' => Link::TYPE_REQUIRE],
-		'conflict' => ['description' => 'conflicts', 'method' => Link::TYPE_CONFLICT],
-		'provide' => ['description' => 'provides', 'method' => Link::TYPE_PROVIDE],
-		'replace' => ['description' => 'replaces', 'method' => Link::TYPE_REPLACE],
+		'require'     => ['description' => 'requires', 'method' => Link::TYPE_REQUIRE],
+		'conflict'    => ['description' => 'conflicts', 'method' => Link::TYPE_CONFLICT],
+		'provide'     => ['description' => 'provides', 'method' => Link::TYPE_PROVIDE],
+		'replace'     => ['description' => 'replaces', 'method' => Link::TYPE_REPLACE],
 		'require-dev' => ['description' => 'requires (for development)', 'method' => Link::TYPE_DEV_REQUIRE],
 	];
 
 	public const STABILITY_STABLE = 0;
-	public const STABILITY_RC = 5;
-	public const STABILITY_BETA = 10;
-	public const STABILITY_ALPHA = 15;
-	public const STABILITY_DEV = 20;
+	public const STABILITY_RC     = 5;
+	public const STABILITY_BETA   = 10;
+	public const STABILITY_ALPHA  = 15;
+	public const STABILITY_DEV    = 20;
 
 	public const STABILITIES = [
 		'stable' => self::STABILITY_STABLE,
-		'RC' => self::STABILITY_RC,
-		'beta' => self::STABILITY_BETA,
-		'alpha' => self::STABILITY_ALPHA,
-		'dev' => self::STABILITY_DEV,
+		'RC'     => self::STABILITY_RC,
+		'beta'   => self::STABILITY_BETA,
+		'alpha'  => self::STABILITY_ALPHA,
+		'dev'    => self::STABILITY_DEV,
 	];
 
 	/**
 	 * @deprecated
 	 * @readonly
-	 * @var array<key-of<BasePackage::STABILITIES>, self::STABILITY_*>
+	 * @var            array<key-of<BasePackage::STABILITIES>, self::STABILITY_*>
 	 * @phpstan-ignore property.readOnlyByPhpDocDefaultValue
 	 */
 	public static $stabilities = self::STABILITIES;
@@ -172,7 +172,7 @@ abstract class BasePackage implements PackageInterface
 	 */
 	public function getUniqueName(): string
 	{
-		return $this->getName().'-'.$this->getVersion();
+		return $this->getName() . '-' . $this->getVersion();
 	}
 
 	public function equals(PackageInterface $package): bool
@@ -198,7 +198,7 @@ abstract class BasePackage implements PackageInterface
 
 	public function getPrettyString(): string
 	{
-		return $this->getPrettyName().' '.$this->getPrettyVersion();
+		return $this->getPrettyName() . ' ' . $this->getPrettyVersion();
 	}
 
 	/**
@@ -213,15 +213,15 @@ abstract class BasePackage implements PackageInterface
 		}
 
 		switch ($displayMode) {
-			case PackageInterface::DISPLAY_SOURCE_REF_IF_DEV:
-			case PackageInterface::DISPLAY_SOURCE_REF:
-				$reference = $this->getSourceReference();
-				break;
-			case PackageInterface::DISPLAY_DIST_REF:
-				$reference = $this->getDistReference();
-				break;
-			default:
-				throw new \UnexpectedValueException('Display mode '.$displayMode.' is not supported');
+		case PackageInterface::DISPLAY_SOURCE_REF_IF_DEV:
+		case PackageInterface::DISPLAY_SOURCE_REF:
+			$reference = $this->getSourceReference();
+			break;
+		case PackageInterface::DISPLAY_DIST_REF:
+			$reference = $this->getDistReference();
+			break;
+		default:
+			throw new \UnexpectedValueException('Display mode ' . $displayMode . ' is not supported');
 		}
 
 		if (null === $reference) {
@@ -253,7 +253,7 @@ abstract class BasePackage implements PackageInterface
 	/**
 	 * Build a regexp from a package name, expanding * globs as required
 	 *
-	 * @param  non-empty-string $wrap         Wrap the cleaned string by the given string
+	 * @param  non-empty-string $wrap Wrap the cleaned string by the given string
 	 * @return non-empty-string
 	 */
 	public static function packageNameToRegexp(string $allowPattern, string $wrap = '{^%s$}i'): string
@@ -266,14 +266,14 @@ abstract class BasePackage implements PackageInterface
 	/**
 	 * Build a regexp from package names, expanding * globs as required
 	 *
-	 * @param string[] $packageNames
-	 * @param non-empty-string $wrap
+	 * @param  string[]         $packageNames
+	 * @param  non-empty-string $wrap
 	 * @return non-empty-string
 	 */
 	public static function packageNamesToRegexp(array $packageNames, string $wrap = '{^(?:%s)$}iD'): string
 	{
 		$packageNames = array_map(
-			static function ($packageName): string {
+			static function($packageName): string {
 				return BasePackage::packageNameToRegexp($packageName, '%s');
 			},
 			$packageNames

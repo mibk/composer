@@ -12,27 +12,27 @@
 
 namespace Composer\Downloader;
 
-use Composer\Config;
 use Composer\Cache;
-use Composer\IO\IOInterface;
-use Composer\IO\NullIO;
-use Composer\Exception\IrrecoverableDownloadException;
-use Composer\Package\Comparer\Comparer;
-use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\Config;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
+use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\EventDispatcher\EventDispatcher;
+use Composer\Exception\IrrecoverableDownloadException;
+use Composer\IO\IOInterface;
+use Composer\IO\NullIO;
+use Composer\Package\Comparer\Comparer;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PostFileDownloadEvent;
 use Composer\Plugin\PreFileDownloadEvent;
-use Composer\EventDispatcher\EventDispatcher;
 use Composer\Util\Filesystem;
 use Composer\Util\Http\Response;
-use Composer\Util\Platform;
-use Composer\Util\Silencer;
 use Composer\Util\HttpDownloader;
-use Composer\Util\Url as UrlUtil;
+use Composer\Util\Platform;
 use Composer\Util\ProcessExecutor;
+use Composer\Util\Silencer;
+use Composer\Util\Url as UrlUtil;
 use React\Promise\PromiseInterface;
 
 /**
@@ -125,10 +125,10 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 			throw new \InvalidArgumentException('The given package is missing url information');
 		}
 
-		$cacheKeyGenerator = static function (PackageInterface $package, $key): string {
+		$cacheKeyGenerator = static function(PackageInterface $package, $key): string {
 			$cacheKey = hash('sha1', $key);
 
-			return $package->getName().'/'.$cacheKey.'.'.$package->getDistType();
+			return $package->getName() . '/' . $cacheKey . '.' . $package->getDistType();
 		};
 
 		$retries = 3;
@@ -138,7 +138,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 		foreach ($distUrls as $index => $url) {
 			$processedUrl = $this->processUrl($package, $url);
 			$urls[$index] = [
-				'base' => $url,
+				'base'      => $url,
 				'processed' => $processedUrl,
 				// we use the complete download url here to avoid conflicting entries
 				// from different packages, which would potentially allow a given package
@@ -155,7 +155,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 
 		$accept = null;
 		$reject = null;
-		$download = function () use ($output, $cacheKeyGenerator, $package, $fileName, &$urls, &$accept, &$reject) {
+		$download = function() use ($output, $cacheKeyGenerator, $package, $fileName, &$urls, &$accept, &$reject) {
 			$url = reset($urls);
 			$index = key($urls);
 
@@ -196,7 +196,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 					->then($accept, $reject);
 			}
 
-			return $result->then(function ($result) use ($fileName, $checksum, $url, $package): string {
+			return $result->then(function($result) use ($fileName, $checksum, $url, $package): string {
 				// in case of retry, the first call's Promise chain finally calls this twice at the end,
 				// once with $result being the returned $fileName from $accept, and then once for every
 				// failed request with a null result, which can be skipped.
@@ -205,12 +205,12 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 				}
 
 				if (!file_exists($fileName)) {
-					throw new \UnexpectedValueException($url['base'].' could not be saved to '.$fileName.', make sure the'
-						.' directory is writable and you have internet connectivity');
+					throw new \UnexpectedValueException($url['base'] . ' could not be saved to ' . $fileName . ', make sure the'
+						. ' directory is writable and you have internet connectivity');
 				}
 
 				if ($checksum !== null && $checksum !== '' && hash_file('sha1', $fileName) !== $checksum) {
-					throw new \UnexpectedValueException('The checksum verification of the file failed (downloaded from '.$url['base'].')');
+					throw new \UnexpectedValueException('The checksum verification of the file failed (downloaded from ' . $url['base'] . ')');
 				}
 
 				if ($this->eventDispatcher !== null) {
@@ -222,7 +222,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 			});
 		};
 
-		$accept = function (Response $response) use ($package, $fileName, &$urls): string {
+		$accept = function(Response $response) use ($package, $fileName, &$urls): string {
 			$url = reset($urls);
 			$cacheKey = $url['cacheKey'];
 			$fileSize = @filesize($fileName);
@@ -245,7 +245,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 			return $fileName;
 		};
 
-		$reject = function ($e) use (&$urls, $download, $fileName, $package, &$retries) {
+		$reject = function($e) use (&$urls, $download, $fileName, $package, &$retries) {
 			// clean up
 			if (file_exists($fileName)) {
 				$this->filesystem->unlink($fileName);
@@ -283,10 +283,10 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 			array_shift($urls);
 			if (\count($urls) > 0) {
 				if ($this->io->isDebug()) {
-					$this->io->writeError('    Failed downloading '.$package->getName().': ['.get_class($e).'] '.$e->getCode().': '.$e->getMessage());
-					$this->io->writeError('    Trying the next URL for '.$package->getName());
+					$this->io->writeError('    Failed downloading ' . $package->getName() . ': [' . get_class($e) . '] ' . $e->getCode() . ': ' . $e->getMessage());
+					$this->io->writeError('    Trying the next URL for ' . $package->getName());
 				} else {
-					$this->io->writeError('    Failed downloading '.$package->getName().', trying the next URL ('.$e->getCode().': '.$e->getMessage().')');
+					$this->io->writeError('    Failed downloading ' . $package->getName() . ', trying the next URL (' . $e->getCode() . ': ' . $e->getMessage() . ')');
 				}
 
 				$retries = 3;
@@ -321,8 +321,8 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 
 		$dirsToCleanUp = [
 			$path,
-			$this->config->get('vendor-dir').'/'.explode('/', $package->getPrettyName())[0],
-			$this->config->get('vendor-dir').'/composer/',
+			$this->config->get('vendor-dir') . '/' . explode('/', $package->getPrettyName())[0],
+			$this->config->get('vendor-dir') . '/composer/',
 			$this->config->get('vendor-dir'),
 		];
 
@@ -355,7 +355,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 		// clean up the target directory, unless it contains the vendor dir, as the vendor dir contains
 		// the file to be installed. This is the case when installing with create-project in the current directory
 		// but in that case we ensure the directory is empty already in ProjectInstaller so no need to empty it here.
-		if (false === strpos($this->filesystem->normalizePath($vendorDir), $this->filesystem->normalizePath($path.DIRECTORY_SEPARATOR))) {
+		if (false === strpos($this->filesystem->normalizePath($vendorDir), $this->filesystem->normalizePath($path . DIRECTORY_SEPARATOR))) {
 			$this->filesystem->emptyDirectory($path);
 		}
 		$this->filesystem->ensureDirectoryExists($path);
@@ -412,7 +412,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 
 		$promise = $this->remove($initial, $path, false);
 
-		return $promise->then(function () use ($target, $path): PromiseInterface {
+		return $promise->then(function() use ($target, $path): PromiseInterface {
 			return $this->install($target, $path, false);
 		});
 	}
@@ -427,9 +427,9 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 		}
 		$promise = $this->filesystem->removeDirectoryAsync($path);
 
-		return $promise->then(static function ($result) use ($path): void {
+		return $promise->then(static function($result) use ($path): void {
 			if (!$result) {
-				throw new \RuntimeException('Could not completely delete '.$path.', aborting.');
+				throw new \RuntimeException('Could not completely delete ' . $path . ', aborting.');
 			}
 		});
 	}
@@ -454,8 +454,8 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 	/**
 	 * Gets appendix message to add to the "- Upgrading x" string being output on update
 	 *
-	 * @param  PackageInterface $package package instance
-	 * @param  string           $path    download path
+	 * @param PackageInterface $package package instance
+	 * @param string           $path    download path
 	 */
 	protected function getInstallOperationAppendix(PackageInterface $package, string $path): string
 	{
@@ -498,20 +498,20 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 
 		$targetDir = Filesystem::trimTrailingSlash($path);
 		try {
-			if (is_dir($targetDir.'_compare')) {
-				$this->filesystem->removeDirectory($targetDir.'_compare');
+			if (is_dir($targetDir . '_compare')) {
+				$this->filesystem->removeDirectory($targetDir . '_compare');
 			}
 
-			$promise = $this->download($package, $targetDir.'_compare', null, false);
-			$promise->then(null, function ($ex) use (&$e) {
+			$promise = $this->download($package, $targetDir . '_compare', null, false);
+			$promise->then(null, function($ex) use (&$e) {
 				$e = $ex;
 			});
 			$this->httpDownloader->wait();
 			if ($e !== null) {
 				throw $e;
 			}
-			$promise = $this->install($package, $targetDir.'_compare', false);
-			$promise->then(null, function ($ex) use (&$e) {
+			$promise = $this->install($package, $targetDir . '_compare', false);
+			$promise->then(null, function($ex) use (&$e) {
 				$e = $ex;
 			});
 			$this->process->wait();
@@ -520,11 +520,11 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 			}
 
 			$comparer = new Comparer();
-			$comparer->setSource($targetDir.'_compare');
+			$comparer->setSource($targetDir . '_compare');
 			$comparer->setUpdate($targetDir);
 			$comparer->doCompare();
 			$output = $comparer->getChangedAsString(true);
-			$this->filesystem->removeDirectory($targetDir.'_compare');
+			$this->filesystem->removeDirectory($targetDir . '_compare');
 		} catch (\Exception $e) {
 		}
 
@@ -535,7 +535,7 @@ class FileDownloader implements DownloaderInterface, ChangeReportInterface
 				throw $e;
 			}
 
-			return 'Failed to detect changes: ['.get_class($e).'] '.$e->getMessage();
+			return 'Failed to detect changes: [' . get_class($e) . '] ' . $e->getMessage();
 		}
 
 		$output = trim($output);

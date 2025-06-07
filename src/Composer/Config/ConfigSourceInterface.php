@@ -50,7 +50,7 @@ interface ConfigSourceInterface
 	/**
 	 * Add a property
 	 *
-	 * @param string $name  Name
+	 * @param string          $name  Name
 	 * @param string|string[] $value Value
 	 */
 	public function addProperty(string $name, $value): void;

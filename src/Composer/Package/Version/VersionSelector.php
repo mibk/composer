@@ -12,20 +12,20 @@
 
 namespace Composer\Package\Version;
 
+use Composer\Composer;
 use Composer\Filter\PlatformRequirementFilter\IgnoreAllPlatformRequirementFilter;
 use Composer\Filter\PlatformRequirementFilter\IgnoreListPlatformRequirementFilter;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterInterface;
 use Composer\IO\IOInterface;
-use Composer\Package\BasePackage;
 use Composer\Package\AliasPackage;
-use Composer\Package\PackageInterface;
-use Composer\Composer;
-use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\BasePackage;
 use Composer\Package\Dumper\ArrayDumper;
+use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\PackageInterface;
 use Composer\Pcre\Preg;
-use Composer\Repository\RepositorySet;
 use Composer\Repository\PlatformRepository;
+use Composer\Repository\RepositorySet;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 
@@ -63,17 +63,17 @@ class VersionSelector
 	 * Given a package name and optional version, returns the latest PackageInterface
 	 * that matches.
 	 *
-	 * @param string                                           $targetPackageVersion
-	 * @param PlatformRequirementFilterInterface|bool|string[] $platformRequirementFilter
-	 * @param IOInterface|null                                 $io                        If passed, warnings will be output there in case versions cannot be selected due to platform requirements
-	 * @param callable(PackageInterface):bool|bool             $showWarnings
+	 * @param  string                                           $targetPackageVersion
+	 * @param  PlatformRequirementFilterInterface|bool|string[] $platformRequirementFilter
+	 * @param  IOInterface|null                                 $io If passed, warnings will be output there in case versions cannot be selected due to platform requirements
+	 * @param  callable(PackageInterface): bool|bool            $showWarnings
 	 * @return PackageInterface|false
 	 */
 	public function findBestCandidate(string $packageName, ?string $targetPackageVersion = null, string $preferredStability = 'stable', $platformRequirementFilter = null, int $repoSetFlags = 0, ?IOInterface $io = null, $showWarnings = true)
 	{
 		if (!isset(BasePackage::STABILITIES[$preferredStability])) {
 			// If you get this, maybe you are still relying on the Composer 1.x signature where the 3rd arg was the php version
-			throw new \UnexpectedValueException('Expected a valid stability name as 3rd argument, got '.$preferredStability);
+			throw new \UnexpectedValueException('Expected a valid stability name as 3rd argument, got ' . $preferredStability);
 		}
 
 		if (null === $platformRequirementFilter) {
@@ -87,7 +87,7 @@ class VersionSelector
 		$candidates = $this->repositorySet->findPackages(strtolower($packageName), $constraint, $repoSetFlags);
 
 		$minPriority = BasePackage::STABILITIES[$preferredStability];
-		usort($candidates, static function (PackageInterface $a, PackageInterface $b) use ($minPriority) {
+		usort($candidates, static function(PackageInterface $a, PackageInterface $b) use ($minPriority) {
 			$aPriority = $a->getStabilityPriority();
 			$bPriority = $b->getStabilityPriority();
 
@@ -152,11 +152,11 @@ class VersionSelector
 					$isLatestVersion = !isset($alreadySeenNames[$pkg->getName()]);
 					$alreadySeenNames[$pkg->getName()] = true;
 					if ($io !== null && ($showWarnings === true || (is_callable($showWarnings) && $showWarnings($pkg)))) {
-						$isFirstWarning = !isset($alreadyWarnedNames[$pkg->getName().'/'.$link->getTarget()]);
-						$alreadyWarnedNames[$pkg->getName().'/'.$link->getTarget()] = true;
+						$isFirstWarning = !isset($alreadyWarnedNames[$pkg->getName() . '/' . $link->getTarget()]);
+						$alreadyWarnedNames[$pkg->getName() . '/' . $link->getTarget()] = true;
 						$latest = $isLatestVersion ? "'s latest version" : '';
 						$io->writeError(
-							'<warning>Cannot use '.$pkg->getPrettyName().$latest.' '.$pkg->getPrettyVersion().' as it '.$link->getDescription().' '.$link->getTarget().' '.$link->getPrettyConstraint().' which '.$reason.'.</>',
+							'<warning>Cannot use ' . $pkg->getPrettyName() . $latest . ' ' . $pkg->getPrettyVersion() . ' as it ' . $link->getDescription() . ' ' . $link->getTarget() . ' ' . $link->getPrettyConstraint() . ' which ' . $reason . '.</>',
 							true,
 							$isFirstWarning ? IOInterface::NORMAL : IOInterface::VERBOSE
 						);
@@ -255,7 +255,7 @@ class VersionSelector
 
 		// append stability flag if not default
 		if ($stability !== 'stable') {
-			$version .= '@'.$stability;
+			$version .= '@' . $stability;
 		}
 
 		// 2.1 -> ^2.1

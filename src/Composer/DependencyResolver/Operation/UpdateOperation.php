@@ -83,6 +83,6 @@ class UpdateOperation extends SolverOperation implements OperationInterface
 
 		$actionName = VersionParser::isUpgrade($initialPackage->getVersion(), $targetPackage->getVersion()) ? 'Upgrading' : 'Downgrading';
 
-		return $actionName.' <info>'.$initialPackage->getPrettyName().'</info> (<comment>'.$fromVersion.'</comment> => <comment>'.$toVersion.'</comment>)';
+		return $actionName . ' <info>' . $initialPackage->getPrettyName() . '</info> (<comment>' . $fromVersion . '</comment> => <comment>' . $toVersion . '</comment>)';
 	}
 }

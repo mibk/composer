@@ -14,13 +14,13 @@ namespace Composer\Util;
 
 use Composer\IO\IOInterface;
 use Composer\Pcre\Preg;
-use Seld\Signal\SignalHandler;
-use Symfony\Component\Process\Exception\ProcessSignaledException;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\RuntimeException;
 use React\Promise\Promise;
 use React\Promise\PromiseInterface;
+use Seld\Signal\SignalHandler;
+use Symfony\Component\Process\Exception\ProcessSignaledException;
+use Symfony\Component\Process\Exception\RuntimeException;
 use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
 
 /**
  * @author Robert Schönthal <seroscho@googlemail.com>
@@ -28,11 +28,11 @@ use Symfony\Component\Process\ExecutableFinder;
  */
 class ProcessExecutor
 {
-	private const STATUS_QUEUED = 1;
-	private const STATUS_STARTED = 2;
+	private const STATUS_QUEUED    = 1;
+	private const STATUS_STARTED   = 2;
 	private const STATUS_COMPLETED = 3;
-	private const STATUS_FAILED = 4;
-	private const STATUS_ABORTED = 5;
+	private const STATUS_FAILED    = 4;
+	private const STATUS_ABORTED   = 5;
 
 	private const BUILTIN_CMD_COMMANDS = [
 		'assoc', 'break', 'call', 'cd', 'chdir', 'cls', 'color', 'copy', 'date',
@@ -84,11 +84,11 @@ class ProcessExecutor
 	/**
 	 * runs a process on the commandline
 	 *
-	 * @param  string|non-empty-list<string> $command the command to execute
-	 * @param  mixed   $output  the output will be written into this var if passed by ref
+	 * @param string|non-empty-list<string> $command the command to execute
+	 * @param mixed                         $output  the output will be written into this var if passed by ref
 	 *                          if a callable is passed it will be used as output handler
-	 * @param  null|string $cwd     the working directory
-	 * @return int     statuscode
+	 * @param  null|string $cwd the working directory
+	 * @return int         statuscode
 	 */
 	public function execute($command, &$output = null, ?string $cwd = null): int
 	{
@@ -102,9 +102,9 @@ class ProcessExecutor
 	/**
 	 * runs a process on the commandline in TTY mode
 	 *
-	 * @param  string|non-empty-list<string>  $command the command to execute
-	 * @param  null|string $cwd     the working directory
-	 * @return int     statuscode
+	 * @param  string|non-empty-list<string> $command the command to execute
+	 * @param  null|string                   $cwd     the working directory
+	 * @return int                           statuscode
 	 */
 	public function executeTty($command, ?string $cwd = null): int
 	{
@@ -116,9 +116,9 @@ class ProcessExecutor
 	}
 
 	/**
-	 * @param  string|non-empty-list<string> $command
-	 * @param  array<string, string>|null $env
-	 * @param  mixed   $output
+	 * @param string|non-empty-list<string> $command
+	 * @param array<string, string>|null    $env
+	 * @param mixed                         $output
 	 */
 	private function runProcess($command, ?string $cwd, ?array $env, bool $tty, &$output = null): ?int
 	{
@@ -139,7 +139,7 @@ class ProcessExecutor
 			$process = new Process($command, $cwd, $env, null, static::getTimeout());
 		}
 
-		if (! Platform::isWindows() && $tty) {
+		if (!Platform::isWindows() && $tty) {
 			try {
 				$process->setTty(true);
 			} catch (RuntimeException $e) {
@@ -147,16 +147,16 @@ class ProcessExecutor
 			}
 		}
 
-		$callback = is_callable($output) ? $output : function (string $type, string $buffer): void {
+		$callback = is_callable($output) ? $output : function(string $type, string $buffer): void {
 			$this->outputHandler($type, $buffer);
 		};
 
 		$signalHandler = SignalHandler::create(
 			[SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP],
-			function (string $signal) {
+			function(string $signal) {
 				if ($this->io !== null) {
 					$this->io->writeError(
-						'Received '.$signal.', aborting when child process is done',
+						'Received ' . $signal . ', aborting when child process is done',
 						true,
 						IOInterface::DEBUG
 					);
@@ -185,8 +185,8 @@ class ProcessExecutor
 	}
 
 	/**
-	 * @param  string|non-empty-list<string> $command
-	 * @param  mixed   $output
+	 * @param string|non-empty-list<string> $command
+	 * @param mixed                         $output
 	 */
 	private function doExecute($command, ?string $cwd, bool $tty, &$output = null): int
 	{
@@ -216,8 +216,8 @@ class ProcessExecutor
 	/**
 	 * starts a process on the commandline in async mode
 	 *
-	 * @param  string|list<string> $command the command to execute
-	 * @param  string              $cwd     the working directory
+	 * @param          string|list<string> $command the command to execute
+	 * @param          string              $cwd     the working directory
 	 * @phpstan-return PromiseInterface<Process>
 	 */
 	public function executeAsync($command, ?string $cwd = null): PromiseInterface
@@ -227,19 +227,19 @@ class ProcessExecutor
 		}
 
 		$job = [
-			'id' => $this->idGen++,
-			'status' => self::STATUS_QUEUED,
+			'id'      => $this->idGen++,
+			'status'  => self::STATUS_QUEUED,
 			'command' => $command,
-			'cwd' => $cwd,
+			'cwd'     => $cwd,
 		];
 
-		$resolver = static function ($resolve, $reject) use (&$job): void {
+		$resolver = static function($resolve, $reject) use (&$job): void {
 			$job['status'] = ProcessExecutor::STATUS_QUEUED;
 			$job['resolve'] = $resolve;
 			$job['reject'] = $reject;
 		};
 
-		$canceler = static function () use (&$job): void {
+		$canceler = static function() use (&$job): void {
 			if ($job['status'] === ProcessExecutor::STATUS_QUEUED) {
 				$job['status'] = ProcessExecutor::STATUS_ABORTED;
 			}
@@ -260,7 +260,7 @@ class ProcessExecutor
 		};
 
 		$promise = new Promise($resolver, $canceler);
-		$promise = $promise->then(function () use (&$job) {
+		$promise = $promise->then(function() use (&$job) {
 			if ($job['process']->isSuccessful()) {
 				$job['status'] = ProcessExecutor::STATUS_COMPLETED;
 			} else {
@@ -270,7 +270,7 @@ class ProcessExecutor
 			$this->markJobDone();
 
 			return $job['process'];
-		}, function ($e) use (&$job): void {
+		}, function($e) use (&$job): void {
 			$job['status'] = ProcessExecutor::STATUS_FAILED;
 
 			$this->markJobDone();
@@ -359,7 +359,7 @@ class ProcessExecutor
 	}
 
 	/**
-	 * @param  ?int $index job id
+	 * @param ?int $index job id
 	 */
 	public function wait($index = null): void
 	{
@@ -384,7 +384,7 @@ class ProcessExecutor
 	 * @internal
 	 *
 	 * @param  ?int $index job id
-	 * @return int         number of active (queued or started) jobs
+	 * @return int  number of active (queued or started) jobs
 	 */
 	public function countActiveJobs($index = null): int
 	{
@@ -453,7 +453,7 @@ class ProcessExecutor
 	}
 
 	/**
-	 * @param  int  $timeout the timeout in seconds
+	 * @param int $timeout the timeout in seconds
 	 */
 	public static function setTimeout(int $timeout): void
 	{
@@ -481,8 +481,8 @@ class ProcessExecutor
 			return;
 		}
 
-		$commandString = is_string($command) ? $command : implode(' ', array_map(self::class.'::escape', $command));
-		$safeCommand = Preg::replaceCallback('{://(?P<user>[^:/\s]+):(?P<password>[^@\s/]+)@}i', static function ($m): string {
+		$commandString = is_string($command) ? $command : implode(' ', array_map(self::class . '::escape', $command));
+		$safeCommand = Preg::replaceCallback('{://(?P<user>[^:/\s]+):(?P<password>[^@\s/]+)@}i', static function($m): string {
 			// if the username looks like a long (12char+) hex string, or a modern github token (e.g. ghp_xxx) we obfuscate that
 			if (Preg::isMatch('{^([a-f0-9]{12,}|gh[a-z]_[a-zA-Z0-9_]+)$}', $m['user'])) {
 				return '://***:***@';
@@ -491,10 +491,10 @@ class ProcessExecutor
 				return '://***:***@';
 			}
 
-			return '://'.$m['user'].':***@';
+			return '://' . $m['user'] . ':***@';
 		}, $commandString);
 		$safeCommand = Preg::replace("{--password (.*[^\\\\]\') }", '--password \'***\' ', $safeCommand);
-		$this->io->writeError('Executing'.($async ? ' async' : '').' command ('.($cwd ?: 'CWD').'): '.$safeCommand);
+		$this->io->writeError('Executing' . ($async ? ' async' : '') . ' command (' . ($cwd ?: 'CWD') . '): ' . $safeCommand);
 	}
 
 	/**
@@ -517,14 +517,14 @@ class ProcessExecutor
 		}
 
 		if (!Platform::isWindows()) {
-			return "'".str_replace("'", "'\\''", $argument)."'";
+			return "'" . str_replace("'", "'\\''", $argument) . "'";
 		}
 
 		// New lines break cmd.exe command parsing
 		// and special chars like the fullwidth quote can be used to break out
 		// of parameter encoding via "Best Fit" encoding conversion
 		$argument = strtr($argument, [
-			"\n" => ' ',
+			"\n"       => ' ',
 			"\u{ff02}" => '"',
 			"\u{02ba}" => '"',
 			"\u{301d}" => '"',
@@ -549,7 +549,7 @@ class ProcessExecutor
 		}
 
 		if ($quote) {
-			$argument = '"'.Preg::replace('/(\\\\*)$/', '$1$1', $argument).'"';
+			$argument = '"' . Preg::replace('/(\\\\*)$/', '$1$1', $argument) . '"';
 		}
 
 		if ($meta) {

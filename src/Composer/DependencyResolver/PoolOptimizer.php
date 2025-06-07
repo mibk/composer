@@ -16,8 +16,8 @@ use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
 use Composer\Package\Version\VersionParser;
 use Composer\Semver\CompilingMatcher;
-use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\Constraint\MultiConstraint;
 use Composer\Semver\Intervals;
 
@@ -184,7 +184,6 @@ class PoolOptimizer
 		$packageIdenticalDefinitionLookup = [];
 
 		foreach ($pool->getPackages() as $package) {
-
 			// If that package was already marked irremovable, we can skip
 			// the entire process for it
 			if (isset($this->irremovablePackages[$package->id])) {
@@ -204,14 +203,14 @@ class PoolOptimizer
 					$groupHashParts = [];
 
 					if (CompilingMatcher::match($requireConstraint, Constraint::OP_EQ, $package->getVersion())) {
-						$groupHashParts[] = 'require:' . (string) $requireConstraint;
+						$groupHashParts[] = 'require:' . (string)$requireConstraint;
 					}
 
 					if (\count($package->getReplaces()) > 0) {
 						foreach ($package->getReplaces() as $link) {
 							if (CompilingMatcher::match($link->getConstraint(), Constraint::OP_EQ, $package->getVersion())) {
 								// Use the same hash part as the regular require hash because that's what the replacement does
-								$groupHashParts[] = 'require:' . (string) $link->getConstraint();
+								$groupHashParts[] = 'require:' . (string)$link->getConstraint();
 							}
 						}
 					}
@@ -219,7 +218,7 @@ class PoolOptimizer
 					if (isset($this->conflictConstraintsPerPackage[$packageName])) {
 						foreach ($this->conflictConstraintsPerPackage[$packageName] as $conflictConstraint) {
 							if (CompilingMatcher::match($conflictConstraint, Constraint::OP_EQ, $package->getVersion())) {
-								$groupHashParts[] = 'conflict:' . (string) $conflictConstraint;
+								$groupHashParts[] = 'conflict:' . (string)$conflictConstraint;
 							}
 						}
 					}
@@ -265,10 +264,10 @@ class PoolOptimizer
 		$hash = '';
 
 		$hashRelevantLinks = [
-			'requires' => $package->getRequires(),
+			'requires'  => $package->getRequires(),
 			'conflicts' => $package->getConflicts(),
-			'replaces' => $package->getReplaces(),
-			'provides' => $package->getProvides(),
+			'replaces'  => $package->getReplaces(),
+			'provides'  => $package->getProvides(),
 		];
 
 		foreach ($hashRelevantLinks as $key => $links) {
@@ -311,7 +310,7 @@ class PoolOptimizer
 	}
 
 	/**
-	 * @param array<string, array<string, array<string, list<BasePackage>>>> $identicalDefinitionsPerPackage
+	 * @param array<string, array<string, array<string, list<BasePackage>>>>              $identicalDefinitionsPerPackage
 	 * @param array<int, array<string, array{groupHash: string, dependencyHash: string}>> $packageIdenticalDefinitionLookup
 	 */
 	private function keepPackage(BasePackage $package, array $identicalDefinitionsPerPackage, array $packageIdenticalDefinitionLookup): void

@@ -14,14 +14,14 @@ namespace Composer\Repository\Vcs;
 
 use Composer\Cache;
 use Composer\Config;
+use Composer\Downloader\TransportException;
+use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
 use Composer\Pcre\Preg;
-use Composer\Util\ProcessExecutor;
 use Composer\Util\Filesystem;
-use Composer\Util\Url;
+use Composer\Util\ProcessExecutor;
 use Composer\Util\Svn as SvnUtil;
-use Composer\IO\IOInterface;
-use Composer\Downloader\TransportException;
+use Composer\Util\Url;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -83,7 +83,7 @@ class SvnDriver extends VcsDriver
 			$this->baseUrl = substr($this->url, 0, $pos);
 		}
 
-		$this->cache = new Cache($this->io, $this->config->get('cache-repo-dir').'/'.Preg::replace('{[^a-z0-9.]}i', '-', Url::sanitize($this->baseUrl)));
+		$this->cache = new Cache($this->io, $this->config->get('cache-repo-dir') . '/' . Preg::replace('{[^a-z0-9.]}i', '-', Url::sanitize($this->baseUrl)));
 		$this->cache->setReadOnly($this->config->get('cache-read-only'));
 
 		$this->getBranches();
@@ -136,12 +136,12 @@ class SvnDriver extends VcsDriver
 	public function getComposerInformation(string $identifier): ?array
 	{
 		if (!isset($this->infoCache[$identifier])) {
-			if ($this->shouldCache($identifier) && $res = $this->cache->read($identifier.'.json')) {
+			if ($this->shouldCache($identifier) && $res = $this->cache->read($identifier . '.json')) {
 				// old cache files had '' stored instead of null due to af3783b5f40bae32a23e353eaf0a00c9b8ce82e2, so we make sure here that we always return null or array
 				// and fix outdated invalid cache files
 				if ($res === '""') {
 					$res = 'null';
-					$this->cache->write($identifier.'.json', json_encode(null));
+					$this->cache->write($identifier . '.json', json_encode(null));
 				}
 
 				return $this->infoCache[$identifier] = JsonFile::parseJson($res);
@@ -159,7 +159,7 @@ class SvnDriver extends VcsDriver
 			}
 
 			if ($this->shouldCache($identifier)) {
-				$this->cache->write($identifier.'.json', json_encode($composer));
+				$this->cache->write($identifier . '.json', json_encode($composer));
 			}
 
 			$this->infoCache[$identifier] = $composer;
@@ -186,7 +186,7 @@ class SvnDriver extends VcsDriver
 		}
 
 		try {
-			$resource = $path.$file;
+			$resource = $path . $file;
 			$output = $this->execute(['svn', 'cat'], $this->baseUrl . $resource . $rev);
 			if ('' === trim($output)) {
 				return null;
@@ -373,7 +373,7 @@ class SvnDriver extends VcsDriver
 	 * if necessary.
 	 *
 	 * @param  non-empty-list<string> $command The svn command to run.
-	 * @param  string            $url     The SVN URL.
+	 * @param  string                 $url     The SVN URL.
 	 * @throws \RuntimeException
 	 */
 	protected function execute(array $command, string $url): string
@@ -387,11 +387,11 @@ class SvnDriver extends VcsDriver
 			return $this->util->execute($command, $url);
 		} catch (\RuntimeException $e) {
 			if (null === $this->util->binaryVersion()) {
-				throw new \RuntimeException('Failed to load '.$this->url.', svn was not found, check that it is installed and in your PATH env.' . "\n\n" . $this->process->getErrorOutput());
+				throw new \RuntimeException('Failed to load ' . $this->url . ', svn was not found, check that it is installed and in your PATH env.' . "\n\n" . $this->process->getErrorOutput());
 			}
 
 			throw new \RuntimeException(
-				'Repository '.$this->url.' could not be processed, '.$e->getMessage()
+				'Repository ' . $this->url . ' could not be processed, ' . $e->getMessage()
 			);
 		}
 	}
@@ -400,7 +400,7 @@ class SvnDriver extends VcsDriver
 	 * Build the identifier respecting "package-path" config option
 	 *
 	 * @param string $baseDir  The path to trunk/branch/tag
-	 * @param int $revision The revision mark to add to identifier
+	 * @param int    $revision The revision mark to add to identifier
 	 */
 	protected function buildIdentifier(string $baseDir, int $revision): string
 	{

@@ -12,13 +12,13 @@
 
 namespace Composer\Repository\Vcs;
 
-use Composer\Config;
 use Composer\Cache;
+use Composer\Config;
+use Composer\IO\IOInterface;
 use Composer\Pcre\Preg;
+use Composer\Util\Filesystem;
 use Composer\Util\Hg as HgUtils;
 use Composer\Util\ProcessExecutor;
-use Composer\Util\Filesystem;
-use Composer\IO\IOInterface;
 use Composer\Util\Url;
 
 /**
@@ -54,7 +54,7 @@ class HgDriver extends VcsDriver
 			$fs->ensureDirectoryExists($cacheDir);
 
 			if (!is_writable(dirname($this->repoDir))) {
-				throw new \RuntimeException('Can not clone '.$this->url.' to access package information. The "'.$cacheDir.'" directory is not writable by the current user.');
+				throw new \RuntimeException('Can not clone ' . $this->url . ' to access package information. The "' . $cacheDir . '" directory is not writable by the current user.');
 			}
 
 			// Ensure we are allowed to use this URL by config
@@ -65,14 +65,14 @@ class HgDriver extends VcsDriver
 			// update the repo if it is a valid hg repository
 			if (is_dir($this->repoDir) && 0 === $this->process->execute(['hg', 'summary'], $output, $this->repoDir)) {
 				if (0 !== $this->process->execute(['hg', 'pull'], $output, $this->repoDir)) {
-					$this->io->writeError('<error>Failed to update '.$this->url.', package information from this repository may be outdated ('.$this->process->getErrorOutput().')</error>');
+					$this->io->writeError('<error>Failed to update ' . $this->url . ', package information from this repository may be outdated (' . $this->process->getErrorOutput() . ')</error>');
 				}
 			} else {
 				// clean up directory and do a fresh clone into it
 				$fs->removeDirectory($this->repoDir);
 
 				$repoDir = $this->repoDir;
-				$command = static function ($url) use ($repoDir): array {
+				$command = static function($url) use ($repoDir): array {
 					return ['hg', 'clone', '--noupdate', '--', $url, $repoDir];
 				};
 

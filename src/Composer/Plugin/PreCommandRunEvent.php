@@ -35,8 +35,8 @@ class PreCommandRunEvent extends Event
 	/**
 	 * Constructor.
 	 *
-	 * @param string         $name    The event name
-	 * @param string         $command The command about to be executed
+	 * @param string $name    The event name
+	 * @param string $command The command about to be executed
 	 */
 	public function __construct(string $name, InputInterface $input, string $command)
 	{

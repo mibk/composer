@@ -12,18 +12,18 @@
 
 namespace Composer\Command;
 
-use Composer\Factory;
-use Composer\Json\JsonFile;
-use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Input\InputInterface;
 use Composer\Console\Input\InputArgument;
 use Composer\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use Composer\Factory;
+use Composer\Json\JsonFile;
+use Composer\Plugin\CommandEvent;
+use Composer\Plugin\PluginEvents;
 use Composer\Repository\CompositeRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryInterface;
-use Composer\Plugin\CommandEvent;
-use Composer\Plugin\PluginEvents;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Robert Schönthal <seroscho@googlemail.com>
@@ -50,7 +50,7 @@ The search command searches for packages by its name
 Read more at https://getcomposer.org/doc/03-cli.md#search
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -113,7 +113,7 @@ EOT
 
 				$link = $result['url'] ?? null;
 				if ($link !== null) {
-					$io->write('<href='.OutputFormatter::escape($link).'>'.$result['name'].'</>'. str_repeat(' ', $nameLength - strlen($result['name'])) . $warning . $description);
+					$io->write('<href=' . OutputFormatter::escape($link) . '>' . $result['name'] . '</>' . str_repeat(' ', $nameLength - strlen($result['name'])) . $warning . $description);
 				} else {
 					$io->write(str_pad($result['name'], $nameLength, ' ') . $warning . $description);
 				}

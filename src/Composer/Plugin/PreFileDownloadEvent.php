@@ -55,7 +55,7 @@ class PreFileDownloadEvent extends Event
 	/**
 	 * Constructor.
 	 *
-	 * @param string           $name           The event name
+	 * @param string           $name The event name
 	 * @param mixed            $context
 	 * @param non-empty-string $processedUrl
 	 */

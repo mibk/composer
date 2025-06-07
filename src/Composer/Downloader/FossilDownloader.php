@@ -12,11 +12,11 @@
 
 namespace Composer\Downloader;
 
-use Composer\Util\Platform;
-use React\Promise\PromiseInterface;
 use Composer\Package\PackageInterface;
 use Composer\Pcre\Preg;
+use Composer\Util\Platform;
 use Composer\Util\ProcessExecutor;
+use React\Promise\PromiseInterface;
 use RuntimeException;
 
 /**
@@ -43,7 +43,7 @@ class FossilDownloader extends VcsDownloader
 		$repoFile = $path . '.fossil';
 		$realPath = Platform::realpath($path);
 
-		$this->io->writeError("Cloning ".$package->getSourceReference());
+		$this->io->writeError("Cloning " . $package->getSourceReference());
 		$this->execute(['fossil', 'clone', '--', $url, $repoFile]);
 		$this->execute(['fossil', 'open', '--nested', '--', $repoFile], $realPath);
 		$this->execute(['fossil', 'update', '--', (string) $package->getSourceReference()], $realPath);
@@ -59,10 +59,10 @@ class FossilDownloader extends VcsDownloader
 		// Ensure we are allowed to use this URL by config
 		$this->config->prohibitUrlByConfig($url, $this->io);
 
-		$this->io->writeError(" Updating to ".$target->getSourceReference());
+		$this->io->writeError(" Updating to " . $target->getSourceReference());
 
 		if (!$this->hasMetadataRepository($path)) {
-			throw new \RuntimeException('The .fslckout file is missing from '.$path.', see https://getcomposer.org/commit-deps for more information');
+			throw new \RuntimeException('The .fslckout file is missing from ' . $path . ', see https://getcomposer.org/commit-deps for more information');
 		}
 
 		$realPath = Platform::realpath($path);
@@ -109,7 +109,7 @@ class FossilDownloader extends VcsDownloader
 	}
 
 	/**
-	 * @param non-empty-list<string> $command
+	 * @param  non-empty-list<string> $command
 	 * @throws \RuntimeException
 	 */
 	private function execute(array $command, ?string $cwd = null, ?string &$output = null): void

@@ -13,8 +13,8 @@
 namespace Composer\Script;
 
 use Composer\Composer;
-use Composer\IO\IOInterface;
 use Composer\EventDispatcher\Event as BaseEvent;
+use Composer\IO\IOInterface;
 
 /**
  * The script event class
@@ -47,12 +47,12 @@ class Event extends BaseEvent
 	/**
 	 * Constructor.
 	 *
-	 * @param string $name The event name
-	 * @param Composer $composer The composer object
-	 * @param IOInterface $io The IOInterface object
-	 * @param bool $devMode Whether or not we are in dev mode
-	 * @param array<string|int|float|bool|null> $args Arguments passed by the user
-	 * @param mixed[] $flags Optional flags to pass data not as argument
+	 * @param string                            $name     The event name
+	 * @param Composer                          $composer The composer object
+	 * @param IOInterface                       $io       The IOInterface object
+	 * @param bool                              $devMode  Whether or not we are in dev mode
+	 * @param array<string|int|float|bool|null> $args     Arguments passed by the user
+	 * @param mixed[]                           $flags    Optional flags to pass data not as argument
 	 */
 	public function __construct(string $name, Composer $composer, IOInterface $io, bool $devMode = false, array $args = [], array $flags = [])
 	{

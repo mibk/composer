@@ -13,17 +13,17 @@
 namespace Composer\Downloader;
 
 use Composer\Config;
+use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\UninstallOperation;
+use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\IO\IOInterface;
 use Composer\Package\Dumper\ArrayDumper;
 use Composer\Package\PackageInterface;
 use Composer\Package\Version\VersionGuesser;
 use Composer\Package\Version\VersionParser;
-use Composer\Util\ProcessExecutor;
-use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
+use Composer\Util\ProcessExecutor;
 use React\Promise\PromiseInterface;
-use Composer\DependencyResolver\Operation\UpdateOperation;
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -63,7 +63,7 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 	public function download(PackageInterface $package, string $path, ?PackageInterface $prevPackage = null): PromiseInterface
 	{
 		if (!$package->getSourceReference()) {
-			throw new \InvalidArgumentException('Package '.$package->getPrettyName().' is missing reference information');
+			throw new \InvalidArgumentException('Package ' . $package->getPrettyName() . ' is missing reference information');
 		}
 
 		$urls = $this->prepareUrls($package->getSourceUrls());
@@ -77,7 +77,7 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 					throw $e;
 				}
 				if ($this->io->isDebug()) {
-					$this->io->writeError('Failed: ['.get_class($e).'] '.$e->getMessage());
+					$this->io->writeError('Failed: [' . get_class($e) . '] ' . $e->getMessage());
 				} elseif (count($urls)) {
 					$this->io->writeError('    Failed, trying the next URL');
 				}
@@ -126,10 +126,10 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 	public function install(PackageInterface $package, string $path): PromiseInterface
 	{
 		if (!$package->getSourceReference()) {
-			throw new \InvalidArgumentException('Package '.$package->getPrettyName().' is missing reference information');
+			throw new \InvalidArgumentException('Package ' . $package->getPrettyName() . ' is missing reference information');
 		}
 
-		$this->io->writeError("  - " . InstallOperation::format($package).': ', false);
+		$this->io->writeError("  - " . InstallOperation::format($package) . ': ', false);
 
 		$urls = $this->prepareUrls($package->getSourceUrls());
 		while ($url = array_shift($urls)) {
@@ -142,7 +142,7 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 					throw $e;
 				}
 				if ($this->io->isDebug()) {
-					$this->io->writeError('Failed: ['.get_class($e).'] '.$e->getMessage());
+					$this->io->writeError('Failed: [' . get_class($e) . '] ' . $e->getMessage());
 				} elseif (count($urls)) {
 					$this->io->writeError('    Failed, trying the next URL');
 				}
@@ -161,10 +161,10 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 	public function update(PackageInterface $initial, PackageInterface $target, string $path): PromiseInterface
 	{
 		if (!$target->getSourceReference()) {
-			throw new \InvalidArgumentException('Package '.$target->getPrettyName().' is missing reference information');
+			throw new \InvalidArgumentException('Package ' . $target->getPrettyName() . ' is missing reference information');
 		}
 
-		$this->io->writeError("  - " . UpdateOperation::format($initial, $target).': ', false);
+		$this->io->writeError("  - " . UpdateOperation::format($initial, $target) . ': ', false);
 
 		$urls = $this->prepareUrls($target->getSourceUrls());
 
@@ -181,7 +181,7 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 					throw $exception;
 				}
 				if ($this->io->isDebug()) {
-					$this->io->writeError('Failed: ['.get_class($exception).'] '.$exception->getMessage());
+					$this->io->writeError('Failed: [' . get_class($exception) . '] ' . $exception->getMessage());
 				} elseif (count($urls)) {
 					$this->io->writeError('    Failed, trying the next URL');
 				}
@@ -200,14 +200,14 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 			}
 
 			if ('' !== trim($logs)) {
-				$logs = implode("\n", array_map(static function ($line): string {
+				$logs = implode("\n", array_map(static function($line): string {
 					return '      ' . $line;
 				}, explode("\n", $logs)));
 
 				// escape angle brackets for proper output in the console
 				$logs = str_replace('<', '\<', $logs);
 
-				$this->io->writeError('    '.$message);
+				$this->io->writeError('    ' . $message);
 				$this->io->writeError($logs);
 			}
 		}
@@ -228,9 +228,9 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 
 		$promise = $this->filesystem->removeDirectoryAsync($path);
 
-		return $promise->then(static function (bool $result) use ($path) {
+		return $promise->then(static function(bool $result) use ($path) {
 			if (!$result) {
-				throw new \RuntimeException('Could not completely delete '.$path.', aborting.');
+				throw new \RuntimeException('Could not completely delete ' . $path . ', aborting.');
 			}
 		});
 	}
@@ -255,10 +255,10 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 	/**
 	 * Prompt the user to check if changes should be stashed/removed or the operation aborted
 	 *
-	 * @param  bool              $update  if true (update) the changes can be stashed and reapplied after an update,
+	 * @param bool $update if true (update) the changes can be stashed and reapplied after an update,
 	 *                                    if false (remove) the changes should be assumed to be lost if the operation is not aborted
 	 *
-	 * @throws \RuntimeException in case the operation must be aborted
+	 * @throws         \RuntimeException in case the operation must be aborted
 	 * @phpstan-return PromiseInterface<void|null>
 	 */
 	protected function cleanChanges(PackageInterface $package, string $path, bool $update): PromiseInterface
@@ -283,10 +283,10 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 	/**
 	 * Downloads data needed to run an install/update later
 	 *
-	 * @param PackageInterface      $package     package instance
-	 * @param string                $path        download path
-	 * @param string                $url         package url
-	 * @param PackageInterface|null $prevPackage previous package (in case of an update)
+	 * @param          PackageInterface      $package     package instance
+	 * @param          string                $path        download path
+	 * @param          string                $url         package url
+	 * @param          PackageInterface|null $prevPackage previous package (in case of an update)
 	 * @phpstan-return PromiseInterface<void|null>
 	 */
 	abstract protected function doDownload(PackageInterface $package, string $path, string $url, ?PackageInterface $prevPackage = null): PromiseInterface;
@@ -294,9 +294,9 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 	/**
 	 * Downloads specific package into specific folder.
 	 *
-	 * @param PackageInterface $package package instance
-	 * @param string           $path    download path
-	 * @param string           $url     package url
+	 * @param          PackageInterface $package package instance
+	 * @param          string           $path    download path
+	 * @param          string           $url     package url
 	 * @phpstan-return PromiseInterface<void|null>
 	 */
 	abstract protected function doInstall(PackageInterface $package, string $path, string $url): PromiseInterface;
@@ -304,10 +304,10 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 	/**
 	 * Updates specific package in specific folder from initial to target version.
 	 *
-	 * @param PackageInterface $initial initial package
-	 * @param PackageInterface $target  updated package
-	 * @param string           $path    download path
-	 * @param string           $url     package url
+	 * @param          PackageInterface $initial initial package
+	 * @param          PackageInterface $target  updated package
+	 * @param          string           $path    download path
+	 * @param          string           $url     package url
 	 * @phpstan-return PromiseInterface<void|null>
 	 */
 	abstract protected function doUpdate(PackageInterface $initial, PackageInterface $target, string $path, string $url): PromiseInterface;
@@ -315,9 +315,9 @@ abstract class VcsDownloader implements DownloaderInterface, ChangeReportInterfa
 	/**
 	 * Fetches the commit logs between two commits
 	 *
-	 * @param  string $fromReference the source reference
-	 * @param  string $toReference   the target reference
-	 * @param  string $path          the package path
+	 * @param string $fromReference the source reference
+	 * @param string $toReference   the target reference
+	 * @param string $path          the package path
 	 */
 	abstract protected function getCommitLogs(string $fromReference, string $toReference, string $path): string;
 

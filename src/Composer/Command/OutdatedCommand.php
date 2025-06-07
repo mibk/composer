@@ -12,10 +12,10 @@
 
 namespace Composer\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
 use Composer\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\ArrayInput;
 use Composer\Console\Input\InputOption;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -62,13 +62,13 @@ The color coding (or signage if you have ANSI colors disabled) for dependency ve
 Read more at https://getcomposer.org/doc/03-cli.md#outdated
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$args = [
-			'command' => 'show',
+			'command'  => 'show',
 			'--latest' => true,
 		];
 		if ($input->getOption('no-interaction')) {

@@ -55,7 +55,7 @@ class PackageSorter
 	 */
 	public static function sortPackagesAlphabetically(array $packages): array
 	{
-		usort($packages, static function (PackageInterface $a, PackageInterface $b) {
+		usort($packages, static function(PackageInterface $a, PackageInterface $b) {
 			return $a->getName() <=> $b->getName();
 		});
 
@@ -87,7 +87,7 @@ class PackageSorter
 		}
 		$computing = [];
 		$computed = [];
-		$computeImportance = static function ($name) use (&$computeImportance, &$computing, &$computed, $usageList, $weights) {
+		$computeImportance = static function($name) use (&$computeImportance, &$computing, &$computed, $usageList, $weights) {
 			// reusing computed importance
 			if (isset($computed[$name])) {
 				return $computed[$name];
@@ -121,7 +121,7 @@ class PackageSorter
 			$weightedPackages[] = ['name' => $name, 'weight' => $weight, 'index' => $index];
 		}
 
-		usort($weightedPackages, static function (array $a, array $b): int {
+		usort($weightedPackages, static function(array $a, array $b): int {
 			if ($a['weight'] !== $b['weight']) {
 				return $a['weight'] - $b['weight'];
 			}

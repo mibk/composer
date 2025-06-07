@@ -12,9 +12,9 @@
 
 namespace Composer\Package\Version;
 
-use Composer\Package\PackageInterface;
-use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\Dumper\ArrayDumper;
+use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\PackageInterface;
 use Composer\Pcre\Preg;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
@@ -75,7 +75,7 @@ class VersionBumper
 
 		$major = Preg::replace('{^(\d+).*}', '$1', $version);
 		$versionWithoutSuffix = Preg::replace('{(?:\.(?:0|9999999))+(-dev)?$}', '', $version);
-		$newPrettyConstraint = '^'.$versionWithoutSuffix;
+		$newPrettyConstraint = '^' . $versionWithoutSuffix;
 
 		// not a simple stable version, abort
 		if (!Preg::isMatch('{^\^\d+(\.\d+)*$}', $newPrettyConstraint)) {
@@ -85,9 +85,9 @@ class VersionBumper
 		$pattern = '{
 			(?<=,|\ |\||^) # leading separator
 			(?P<constraint>
-				\^v?'.$major.'(?:\.\d+)* # e.g. ^2.anything
-				| ~v?'.$major.'(?:\.\d+){1,3} # e.g. ~2.2 or ~2.2.2 or ~2.2.2.2
-				| v?'.$major.'(?:\.[*x])+ # e.g. 2.* or 2.*.* or 2.x.x.x etc
+				\^v?' . $major . '(?:\.\d+)* # e.g. ^2.anything
+				| ~v?' . $major . '(?:\.\d+){1,3} # e.g. ~2.2 or ~2.2.2 or ~2.2.2.2
+				| v?' . $major . '(?:\.[*x])+ # e.g. 2.* or 2.*.* or 2.x.x.x etc
 				| >=v?\d(?:\.\d+)* # e.g. >=2 or >=1.2 etc
 				| \* # full wildcard
 			)
@@ -105,11 +105,11 @@ class VersionBumper
 					// take as many version bits from the current version as we have in the constraint to bump it without making it more specific
 					$versionBits = explode('.', $versionWithoutSuffix);
 					$versionBits = array_pad($versionBits, substr_count($match[0], '.') + 1, '0');
-					$replacement = '~'.implode('.', array_slice($versionBits, 0, substr_count($match[0], '.') + 1));
+					$replacement = '~' . implode('.', array_slice($versionBits, 0, substr_count($match[0], '.') + 1));
 				} elseif ($match[0] === '*' || str_starts_with($match[0], '>=')) {
-					$replacement = '>='.$versionWithoutSuffix.$suffix;
+					$replacement = '>=' . $versionWithoutSuffix . $suffix;
 				} else {
-					$replacement = $newPrettyConstraint.$suffix;
+					$replacement = $newPrettyConstraint . $suffix;
 				}
 				$modified = substr_replace($modified, $replacement, $match[1], Platform::strlen($match[0]));
 			}

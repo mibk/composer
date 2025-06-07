@@ -55,7 +55,7 @@ class Silencer
 	/**
 	 * Calls a specified function while silencing warnings and below.
 	 *
-	 * @param  callable   $callable Function to execute.
+	 * @param  callable   $callable   Function to execute.
 	 * @param  mixed      $parameters Function to execute.
 	 * @throws \Exception Any exceptions from the callback are rethrown.
 	 * @return mixed      Return value of the callback.

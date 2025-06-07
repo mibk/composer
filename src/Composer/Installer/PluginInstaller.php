@@ -14,10 +14,10 @@ namespace Composer\Installer;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
-use Composer\PartialComposer;
-use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Package\PackageInterface;
+use Composer\PartialComposer;
 use Composer\Plugin\PluginManager;
+use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Util\Filesystem;
 use Composer\Util\Platform;
 use React\Promise\PromiseInterface;
@@ -68,7 +68,7 @@ class PluginInstaller extends LibraryInstaller
 	{
 		$extra = $package->getExtra();
 		if (empty($extra['class'])) {
-			throw new \UnexpectedValueException('Error while installing '.$package->getPrettyName().', composer-plugin packages should have a class defined in their extra key to be usable.');
+			throw new \UnexpectedValueException('Error while installing ' . $package->getPrettyName() . ', composer-plugin packages should have a class defined in their extra key to be usable.');
 		}
 
 		return parent::download($package, $prevPackage);
@@ -80,11 +80,11 @@ class PluginInstaller extends LibraryInstaller
 	public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
 	{
 		$promise = parent::install($repo, $package);
-		if (!$promise instanceof PromiseInterface) {
+		if (! $promise instanceof PromiseInterface) {
 			$promise = \React\Promise\resolve(null);
 		}
 
-		return $promise->then(function () use ($package, $repo): void {
+		return $promise->then(function() use ($package, $repo): void {
 			try {
 				Platform::workaroundFilesystemIssues();
 				$this->getPluginManager()->registerPackage($package, true);
@@ -100,11 +100,11 @@ class PluginInstaller extends LibraryInstaller
 	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
 	{
 		$promise = parent::update($repo, $initial, $target);
-		if (!$promise instanceof PromiseInterface) {
+		if (! $promise instanceof PromiseInterface) {
 			$promise = \React\Promise\resolve(null);
 		}
 
-		return $promise->then(function () use ($initial, $target, $repo): void {
+		return $promise->then(function() use ($initial, $target, $repo): void {
 			try {
 				Platform::workaroundFilesystemIssues();
 				$this->getPluginManager()->deactivatePackage($initial);
@@ -124,14 +124,14 @@ class PluginInstaller extends LibraryInstaller
 
 	private function rollbackInstall(\Exception $e, InstalledRepositoryInterface $repo, PackageInterface $package): void
 	{
-		$this->io->writeError('Plugin initialization failed ('.$e->getMessage().'), uninstalling plugin');
+		$this->io->writeError('Plugin initialization failed (' . $e->getMessage() . '), uninstalling plugin');
 		parent::uninstall($repo, $package);
 		throw $e;
 	}
 
 	protected function getPluginManager(): PluginManager
 	{
-		assert($this->composer instanceof Composer, new \LogicException(self::class.' should be initialized with a fully loaded Composer instance.'));
+		assert($this->composer instanceof Composer, new \LogicException(self::class . ' should be initialized with a fully loaded Composer instance.'));
 		$pluginManager = $this->composer->getPluginManager();
 
 		return $pluginManager;

@@ -12,9 +12,9 @@
 
 namespace Composer\Repository;
 
-use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Advisory\PartialSecurityAdvisory;
 use Composer\Advisory\SecurityAdvisory;
+use Composer\Semver\Constraint\ConstraintInterface;
 
 /**
  * Repositories that allow fetching security advisory data

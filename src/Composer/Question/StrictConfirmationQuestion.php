@@ -33,8 +33,8 @@ class StrictConfirmationQuestion extends Question
 	/**
 	 * Constructor.s
 	 *
-	 * @param string $question         The question to ask to the user
-	 * @param bool   $default          The default answer to return, true or false
+	 * @param string           $question         The question to ask to the user
+	 * @param bool             $default          The default answer to return, true or false
 	 * @param non-empty-string $trueAnswerRegex  A regex to match the "yes" answer
 	 * @param non-empty-string $falseAnswerRegex A regex to match the "no" answer
 	 */
@@ -57,7 +57,7 @@ class StrictConfirmationQuestion extends Question
 		$trueRegex = $this->trueAnswerRegex;
 		$falseRegex = $this->falseAnswerRegex;
 
-		return static function ($answer) use ($default, $trueRegex, $falseRegex) {
+		return static function($answer) use ($default, $trueRegex, $falseRegex) {
 			if (is_bool($answer)) {
 				return $answer;
 			}
@@ -82,7 +82,7 @@ class StrictConfirmationQuestion extends Question
 	 */
 	private function getDefaultValidator(): callable
 	{
-		return static function ($answer): bool {
+		return static function($answer): bool {
 			if (!is_bool($answer)) {
 				throw new InvalidArgumentException('Please answer yes, y, no, or n.');
 			}

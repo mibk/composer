@@ -51,14 +51,14 @@ class ClassMapGenerator
 	/**
 	 * Iterate over all files in the given directory searching for classes
 	 *
-	 * @param \Traversable<\SplFileInfo>|string|array<\SplFileInfo> $path The path to search in or an iterator
-	 * @param non-empty-string|null                                 $excluded     Regex that matches file paths to be excluded from the classmap
-	 * @param ?IOInterface                                          $io           IO object
-	 * @param null|string                                           $namespace    Optional namespace prefix to filter by
-	 * @param null|'psr-0'|'psr-4'|'classmap'                       $autoloadType psr-0|psr-4 Optional autoload standard to use mapping rules
-	 * @param array<non-empty-string, true>                         $scannedFiles
-	 * @return array<class-string, non-empty-string> A class map array
-	 * @throws \RuntimeException When the path is neither an existing file nor directory
+	 * @param  \Traversable<\SplFileInfo>|string|array<\SplFileInfo> $path         The path to search in or an iterator
+	 * @param  non-empty-string|null                                 $excluded     Regex that matches file paths to be excluded from the classmap
+	 * @param  ?IOInterface                                          $io           IO object
+	 * @param  null|string                                           $namespace    Optional namespace prefix to filter by
+	 * @param  null|'psr-0'|'psr-4'|'classmap'                       $autoloadType psr-0|psr-4 Optional autoload standard to use mapping rules
+	 * @param  array<non-empty-string, true>                         $scannedFiles
+	 * @return array<class-string, non-empty-string>                 A class map array
+	 * @throws \RuntimeException                                     When the path is neither an existing file nor directory
 	 */
 	public static function createMap($path, ?string $excluded = null, ?IOInterface $io = null, ?string $namespace = null, ?string $autoloadType = null, array &$scannedFiles = []): array
 	{
@@ -81,13 +81,13 @@ class ClassMapGenerator
 			foreach ($classMap->getAmbiguousClasses() as $class => $paths) {
 				if (count($paths) > 1) {
 					$io->writeError(
-						'<warning>Warning: Ambiguous class resolution, "'.$class.'"'.
-						' was found '. (count($paths) + 1) .'x: in "'.$classMap->getClassPath($class).'" and "'. implode('", "', $paths) .'", the first will be used.</warning>'
+						'<warning>Warning: Ambiguous class resolution, "' . $class . '"' .
+							' was found ' . (count($paths) + 1) . 'x: in "' . $classMap->getClassPath($class) . '" and "' . implode('", "', $paths) . '", the first will be used.</warning>'
 					);
 				} else {
 					$io->writeError(
-						'<warning>Warning: Ambiguous class resolution, "'.$class.'"'.
-						' was found in both "'.$classMap->getClassPath($class).'" and "'. implode('", "', $paths) .'", the first will be used.</warning>'
+						'<warning>Warning: Ambiguous class resolution, "' . $class . '"' .
+							' was found in both "' . $classMap->getClassPath($class) . '" and "' . implode('", "', $paths) . '", the first will be used.</warning>'
 					);
 				}
 			}

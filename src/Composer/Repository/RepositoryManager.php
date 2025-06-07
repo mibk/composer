@@ -12,9 +12,9 @@
 
 namespace Composer\Repository;
 
-use Composer\IO\IOInterface;
 use Composer\Config;
 use Composer\EventDispatcher\EventDispatcher;
+use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Util\HttpDownloader;
 use Composer\Util\ProcessExecutor;
@@ -124,11 +124,11 @@ class RepositoryManager
 	public function createRepository(string $type, array $config, ?string $name = null): RepositoryInterface
 	{
 		if (!isset($this->repositoryClasses[$type])) {
-			throw new \InvalidArgumentException('Repository type is not registered: '.$type);
+			throw new \InvalidArgumentException('Repository type is not registered: ' . $type);
 		}
 
 		if (isset($config['packagist']) && false === $config['packagist']) {
-			$this->io->writeError('<warning>Repository "'.$name.'" ('.json_encode($config).') has a packagist key which should be in its own repository definition</warning>');
+			$this->io->writeError('<warning>Repository "' . $name . '" (' . json_encode($config) . ') has a packagist key which should be in its own repository definition</warning>');
 		}
 
 		$class = $this->repositoryClasses[$type];
@@ -150,7 +150,7 @@ class RepositoryManager
 	/**
 	 * Stores repository class for a specific installation type.
 	 *
-	 * @param string $type  installation type
+	 * @param string                            $type  installation type
 	 * @param class-string<RepositoryInterface> $class class name of the repo implementation
 	 */
 	public function setRepositoryClass(string $type, $class): void

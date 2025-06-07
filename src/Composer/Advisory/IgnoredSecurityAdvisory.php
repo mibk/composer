@@ -46,5 +46,4 @@ class IgnoredSecurityAdvisory extends SecurityAdvisory
 
 		return $data;
 	}
-
 }

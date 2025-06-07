@@ -12,6 +12,7 @@
 
 namespace Composer\Command;
 
+use Composer\Advisory\Auditor;
 use Composer\Composer;
 use Composer\Config;
 use Composer\Console\Application;
@@ -22,18 +23,17 @@ use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterInterface;
 use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
-use Composer\Plugin\PreCommandRunEvent;
 use Composer\Package\Version\VersionParser;
 use Composer\Plugin\PluginEvents;
-use Composer\Advisory\Auditor;
+use Composer\Plugin\PreCommandRunEvent;
 use Composer\Util\Platform;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Completion\CompletionInput;
 use Symfony\Component\Console\Completion\CompletionSuggestions;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Terminal;
 
 /**
@@ -60,19 +60,19 @@ abstract class BaseCommand extends Command
 	public function getApplication(): Application
 	{
 		$application = parent::getApplication();
-		if (!$application instanceof Application) {
-			throw new \RuntimeException('Composer commands can only work with an '.Application::class.' instance set');
+		if (! $application instanceof Application) {
+			throw new \RuntimeException('Composer commands can only work with an ' . Application::class . ' instance set');
 		}
 
 		return $application;
 	}
 
 	/**
-	 * @param  bool              $required       Should be set to false, or use `requireComposer` instead
-	 * @param  bool|null         $disablePlugins If null, reads --no-plugins as default
-	 * @param  bool|null         $disableScripts If null, reads --no-scripts as default
-	 * @throws \RuntimeException
-	 * @return Composer|null
+	 * @param      bool      $required       Should be set to false, or use `requireComposer` instead
+	 * @param      bool|null $disablePlugins If null, reads --no-plugins as default
+	 * @param      bool|null $disableScripts If null, reads --no-scripts as default
+	 * @throws     \RuntimeException
+	 * @return     Composer|null
 	 * @deprecated since Composer 2.3.0 use requireComposer or tryComposer depending on whether you have $required set to true or false
 	 */
 	public function getComposer(bool $required = true, ?bool $disablePlugins = null, ?bool $disableScripts = null)
@@ -89,8 +89,8 @@ abstract class BaseCommand extends Command
 	 *
 	 * Use this instead of getComposer if you absolutely need an instance
 	 *
-	 * @param bool|null $disablePlugins If null, reads --no-plugins as default
-	 * @param bool|null $disableScripts If null, reads --no-scripts as default
+	 * @param  bool|null $disablePlugins If null, reads --no-plugins as default
+	 * @param  bool|null $disableScripts If null, reads --no-scripts as default
 	 * @throws \RuntimeException
 	 */
 	public function requireComposer(?bool $disablePlugins = null, ?bool $disableScripts = null): Composer
@@ -102,8 +102,8 @@ abstract class BaseCommand extends Command
 				assert($this->composer instanceof Composer);
 			} else {
 				throw new \RuntimeException(
-					'Could not create a Composer\Composer instance, you must inject '.
-					'one if this command is not used with a Composer\Console\Application instance'
+					'Could not create a Composer\Composer instance, you must inject ' .
+						'one if this command is not used with a Composer\Console\Application instance'
 				);
 			}
 		}
@@ -253,12 +253,12 @@ abstract class BaseCommand extends Command
 		}
 
 		$envOptions = [
-			'COMPOSER_NO_AUDIT' => ['no-audit'],
-			'COMPOSER_NO_DEV' => ['no-dev', 'update-no-dev'],
-			'COMPOSER_PREFER_STABLE' => ['prefer-stable'],
-			'COMPOSER_PREFER_LOWEST' => ['prefer-lowest'],
-			'COMPOSER_MINIMAL_CHANGES' => ['minimal-changes'],
-			'COMPOSER_WITH_DEPENDENCIES' => ['with-dependencies'],
+			'COMPOSER_NO_AUDIT'              => ['no-audit'],
+			'COMPOSER_NO_DEV'                => ['no-dev', 'update-no-dev'],
+			'COMPOSER_PREFER_STABLE'         => ['prefer-stable'],
+			'COMPOSER_PREFER_LOWEST'         => ['prefer-lowest'],
+			'COMPOSER_MINIMAL_CHANGES'       => ['minimal-changes'],
+			'COMPOSER_WITH_DEPENDENCIES'     => ['with-dependencies'],
 			'COMPOSER_WITH_ALL_DEPENDENCIES' => ['with-all-dependencies'],
 		];
 		foreach ($envOptions as $envName => $optionNames) {
@@ -272,7 +272,7 @@ abstract class BaseCommand extends Command
 		}
 
 		if (true === $input->hasOption('ignore-platform-reqs')) {
-			if (!$input->getOption('ignore-platform-reqs') && (bool) Platform::getEnv('COMPOSER_IGNORE_PLATFORM_REQS')) {
+			if (!$input->getOption('ignore-platform-reqs') && (bool)Platform::getEnv('COMPOSER_IGNORE_PLATFORM_REQS')) {
 				$input->setOption('ignore-platform-reqs', true);
 
 				$io->writeError('<warning>COMPOSER_IGNORE_PLATFORM_REQS is set. You may experience unexpected errors.</warning>');
@@ -284,7 +284,7 @@ abstract class BaseCommand extends Command
 			if (0 === count($input->getOption('ignore-platform-req')) && is_string($ignorePlatformReqEnv) && '' !== $ignorePlatformReqEnv) {
 				$input->setOption('ignore-platform-req', explode(',', $ignorePlatformReqEnv));
 
-				$io->writeError('<warning>COMPOSER_IGNORE_PLATFORM_REQ is set to ignore '.$ignorePlatformReqEnv.'. You may experience unexpected errors.</warning>');
+				$io->writeError('<warning>COMPOSER_IGNORE_PLATFORM_REQ is set to ignore ' . $ignorePlatformReqEnv . '. You may experience unexpected errors.</warning>');
 			}
 		}
 
@@ -294,7 +294,7 @@ abstract class BaseCommand extends Command
 	/**
 	 * Calls {@see Factory::create()} with the given arguments, taking into account flags and default states for disabling scripts and plugins
 	 *
-	 * @param  mixed    $config either a configuration array or a filename to read from, if null it will read from
+	 * @param mixed $config either a configuration array or a filename to read from, if null it will read from
 	 *                          the default filename
 	 * @return Composer
 	 */
@@ -325,16 +325,16 @@ abstract class BaseCommand extends Command
 		$preferDist = false;
 
 		switch ($config->get('preferred-install')) {
-			case 'source':
-				$preferSource = true;
-				break;
-			case 'dist':
-				$preferDist = true;
-				break;
-			case 'auto':
-			default:
-				// noop
-				break;
+		case 'source':
+			$preferSource = true;
+			break;
+		case 'dist':
+			$preferDist = true;
+			break;
+		case 'auto':
+		default:
+			// noop
+			break;
 		}
 
 		if (!$input->hasOption('prefer-dist') || !$input->hasOption('prefer-source')) {
@@ -349,18 +349,18 @@ abstract class BaseCommand extends Command
 				throw new \InvalidArgumentException('--prefer-dist can not be used together with --prefer-install');
 			}
 			switch ($input->getOption('prefer-install')) {
-				case 'dist':
-					$input->setOption('prefer-dist', true);
-					break;
-				case 'source':
-					$input->setOption('prefer-source', true);
-					break;
-				case 'auto':
-					$preferDist = false;
-					$preferSource = false;
-					break;
-				default:
-					throw new \UnexpectedValueException('--prefer-install accepts one of "dist", "source" or "auto", got '.$input->getOption('prefer-install'));
+			case 'dist':
+				$input->setOption('prefer-dist', true);
+				break;
+			case 'source':
+				$input->setOption('prefer-source', true);
+				break;
+			case 'auto':
+				$preferDist = false;
+				$preferSource = false;
+				break;
+			default:
+				throw new \UnexpectedValueException('--prefer-install accepts one of "dist", "source" or "auto", got ' . $input->getOption('prefer-install'));
 			}
 		}
 
@@ -401,7 +401,7 @@ abstract class BaseCommand extends Command
 		$requirements = $this->normalizeRequirements($requirements);
 		foreach ($requirements as $requirement) {
 			if (!isset($requirement['version'])) {
-				throw new \UnexpectedValueException('Option '.$requirement['name'] .' is missing a version constraint, use e.g. '.$requirement['name'].':^1.0');
+				throw new \UnexpectedValueException('Option ' . $requirement['name'] . ' is missing a version constraint, use e.g. ' . $requirement['name'] . ':^1.0');
 			}
 			$requires[$requirement['name']] = $requirement['version'];
 		}
@@ -452,18 +452,18 @@ abstract class BaseCommand extends Command
 
 	/**
 	 * @internal
-	 * @param 'format'|'audit-format' $optName
+	 * @param  'format'|'audit-format' $optName
 	 * @return Auditor::FORMAT_*
 	 */
 	protected function getAuditFormat(InputInterface $input, string $optName = 'audit-format'): string
 	{
 		if (!$input->hasOption($optName)) {
-			throw new \LogicException('This should not be called on a Command which has no '.$optName.' option defined.');
+			throw new \LogicException('This should not be called on a Command which has no ' . $optName . ' option defined.');
 		}
 
 		$val = $input->getOption($optName);
 		if (!in_array($val, Auditor::FORMATS, true)) {
-			throw new \InvalidArgumentException('--'.$optName.' must be one of '.implode(', ', Auditor::FORMATS).'.');
+			throw new \InvalidArgumentException('--' . $optName . ' must be one of ' . implode(', ', Auditor::FORMATS) . '.');
 		}
 
 		return $val;

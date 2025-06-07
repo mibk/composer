@@ -13,15 +13,15 @@
 namespace Composer\Repository\Vcs;
 
 use Composer\Cache;
-use Composer\Downloader\TransportException;
 use Composer\Config;
+use Composer\Downloader\TransportException;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
 use Composer\Pcre\Preg;
-use Composer\Util\ProcessExecutor;
-use Composer\Util\HttpDownloader;
 use Composer\Util\Filesystem;
 use Composer\Util\Http\Response;
+use Composer\Util\HttpDownloader;
+use Composer\Util\ProcessExecutor;
 
 /**
  * A driver implementation for driver with authentication interaction.
@@ -52,11 +52,11 @@ abstract class VcsDriver implements VcsDriverInterface
 	/**
 	 * Constructor.
 	 *
-	 * @param array{url: string}&array<string, mixed>           $repoConfig     The repository configuration
-	 * @param IOInterface     $io             The IO instance
-	 * @param Config          $config         The composer configuration
-	 * @param HttpDownloader  $httpDownloader Remote Filesystem, injectable for mocking
-	 * @param ProcessExecutor $process        Process instance, injectable for mocking
+	 * @param array{url: string}&array<string, mixed> $repoConfig     The repository configuration
+	 * @param IOInterface                             $io             The IO instance
+	 * @param Config                                  $config         The composer configuration
+	 * @param HttpDownloader                          $httpDownloader Remote Filesystem, injectable for mocking
+	 * @param ProcessExecutor                         $process        Process instance, injectable for mocking
 	 */
 	final public function __construct(array $repoConfig, IOInterface $io, Config $config, HttpDownloader $httpDownloader, ProcessExecutor $process)
 	{

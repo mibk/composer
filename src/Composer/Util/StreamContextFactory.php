@@ -12,8 +12,8 @@
 
 namespace Composer\Util;
 
-use Composer\Composer;
 use Composer\CaBundle\CaBundle;
+use Composer\Composer;
 use Composer\Downloader\TransportException;
 use Composer\Repository\PlatformRepository;
 use Composer\Util\Http\ProxyManager;
@@ -30,19 +30,19 @@ final class StreamContextFactory
 	/**
 	 * Creates a context supporting HTTP proxies
 	 *
-	 * @param non-empty-string $url URL the context is to be used for
+	 * @param         non-empty-string $url URL the context is to be used for
 	 * @phpstan-param array{http?: array{follow_location?: int, max_redirects?: int, header?: string|array<string>}} $defaultOptions
-	 * @param  mixed[]           $defaultOptions Options to merge with the default
-	 * @param  mixed[]           $defaultParams  Parameters to specify on the context
-	 * @throws \RuntimeException if https proxy required and OpenSSL uninstalled
-	 * @return resource          Default context
+	 * @param         mixed[]           $defaultOptions Options to merge with the default
+	 * @param         mixed[]           $defaultParams  Parameters to specify on the context
+	 * @throws        \RuntimeException if https proxy required and OpenSSL uninstalled
+	 * @return        resource          Default context
 	 */
 	public static function getContext(string $url, array $defaultOptions = [], array $defaultParams = [])
 	{
 		$options = ['http' => [
 			// specify defaults again to try and work better with curlwrappers enabled
 			'follow_location' => 1,
-			'max_redirects' => 20,
+			'max_redirects'   => 20,
 		]];
 
 		$options = array_replace_recursive($options, self::initOptions($url, $defaultOptions));
@@ -57,11 +57,11 @@ final class StreamContextFactory
 	}
 
 	/**
-	 * @param non-empty-string $url
-	 * @param mixed[] $options
-	 * @param bool    $forCurl When true, will not add proxy values as these are handled separately
+	 * @param          non-empty-string $url
+	 * @param          mixed[]          $options
+	 * @param          bool             $forCurl When true, will not add proxy values as these are handled separately
 	 * @phpstan-return array{http: array{header: string[], proxy?: string, request_fulluri: bool}, ssl?: mixed[]}
-	 * @return array formatted as a stream context array
+	 * @return         array formatted as a stream context array
 	 */
 	public static function initOptions(string $url, array $options, bool $forCurl = false): array
 	{
@@ -108,7 +108,7 @@ final class StreamContextFactory
 
 		if ($forCurl) {
 			$curl = curl_version();
-			$httpVersion = 'cURL '.$curl['version'];
+			$httpVersion = 'cURL ' . $curl['version'];
 		} else {
 			$httpVersion = 'streams';
 		}
@@ -122,7 +122,7 @@ final class StreamContextFactory
 				function_exists('php_uname') ? php_uname('r') : 'Unknown',
 				$phpVersion,
 				$httpVersion,
-				$platformPhpVersion ? '; Platform-PHP '.$platformPhpVersion : '',
+				$platformPhpVersion ? '; Platform-PHP ' . $platformPhpVersion : '',
 				Platform::getEnv('CI') ? '; CI' : ''
 			);
 		}
@@ -189,10 +189,10 @@ final class StreamContextFactory
 		 */
 		$defaults = [
 			'ssl' => [
-				'ciphers' => $ciphers,
-				'verify_peer' => true,
-				'verify_depth' => 7,
-				'SNI_enabled' => true,
+				'ciphers'           => $ciphers,
+				'verify_peer'       => true,
+				'verify_depth'      => 7,
+				'SNI_enabled'       => true,
 				'capture_peer_cert' => true,
 			],
 		];
@@ -237,7 +237,7 @@ final class StreamContextFactory
 	 *
 	 * This method fixes the array by moving the content-type header to the end
 	 *
-	 * @link https://bugs.php.net/bug.php?id=61548
+	 * @link   https://bugs.php.net/bug.php?id=61548
 	 * @param  string|string[] $header
 	 * @return string[]
 	 */
@@ -246,7 +246,7 @@ final class StreamContextFactory
 		if (!is_array($header)) {
 			$header = explode("\r\n", $header);
 		}
-		uasort($header, static function ($el): int {
+		uasort($header, static function($el): int {
 			return stripos($el, 'content-type') === 0 ? 1 : -1;
 		});
 

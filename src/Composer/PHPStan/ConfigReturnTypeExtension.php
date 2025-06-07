@@ -14,7 +14,6 @@ namespace Composer\PHPStan;
 
 use Composer\Config;
 use Composer\Json\JsonFile;
-use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\ParametersAcceptorSelector;
@@ -32,6 +31,7 @@ use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\TypeUtils;
 use PHPStan\Type\UnionType;
+use PhpParser\Node\Expr\MethodCall;
 
 final class ConfigReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
@@ -78,7 +78,7 @@ final class ConfigReturnTypeExtension implements DynamicMethodReturnTypeExtensio
 		}
 		if ($strings !== []) {
 			$types = [];
-			foreach($strings as $string) {
+			foreach ($strings as $string) {
 				if (!isset($this->properties[$string->getValue()])) {
 					return null;
 				}
@@ -100,92 +100,92 @@ final class ConfigReturnTypeExtension implements DynamicMethodReturnTypeExtensio
 			$types = [];
 			foreach ((array) $def['type'] as $type) {
 				switch ($type) {
-					case 'integer':
-						if (in_array($path, ['process-timeout', 'cache-ttl', 'cache-files-ttl', 'cache-files-maxsize'], true)) {
-							$types[] = IntegerRangeType::createAllGreaterThanOrEqualTo(0);
-						} else {
-							$types[] = new IntegerType();
-						}
-						break;
+				case 'integer':
+					if (in_array($path, ['process-timeout', 'cache-ttl', 'cache-files-ttl', 'cache-files-maxsize'], true)) {
+						$types[] = IntegerRangeType::createAllGreaterThanOrEqualTo(0);
+					} else {
+						$types[] = new IntegerType();
+					}
+					break;
 
-					case 'string':
-						if ($path === 'cache-files-maxsize') {
-							// passthru, skip as it is always converted to int
-						} elseif ($path === 'discard-changes') {
-							$types[] = new ConstantStringType('stash');
-						} elseif ($path === 'use-parent-dir') {
-							$types[] = new ConstantStringType('prompt');
-						} elseif ($path === 'store-auths') {
-							$types[] = new ConstantStringType('prompt');
-						} elseif ($path === 'platform-check') {
-							$types[] = new ConstantStringType('php-only');
-						} elseif ($path === 'github-protocols') {
-							$types[] = new UnionType([new ConstantStringType('git'), new ConstantStringType('https'), new ConstantStringType('ssh'), new ConstantStringType('http')]);
-						} elseif (str_starts_with($path, 'preferred-install')) {
-							$types[] = new UnionType([new ConstantStringType('source'), new ConstantStringType('dist'), new ConstantStringType('auto')]);
-						} else {
-							$types[] = new StringType();
-						}
-						break;
+				case 'string':
+					if ($path === 'cache-files-maxsize') {
+						// passthru, skip as it is always converted to int
+					} elseif ($path === 'discard-changes') {
+						$types[] = new ConstantStringType('stash');
+					} elseif ($path === 'use-parent-dir') {
+						$types[] = new ConstantStringType('prompt');
+					} elseif ($path === 'store-auths') {
+						$types[] = new ConstantStringType('prompt');
+					} elseif ($path === 'platform-check') {
+						$types[] = new ConstantStringType('php-only');
+					} elseif ($path === 'github-protocols') {
+						$types[] = new UnionType([new ConstantStringType('git'), new ConstantStringType('https'), new ConstantStringType('ssh'), new ConstantStringType('http')]);
+					} elseif (str_starts_with($path, 'preferred-install')) {
+						$types[] = new UnionType([new ConstantStringType('source'), new ConstantStringType('dist'), new ConstantStringType('auto')]);
+					} else {
+						$types[] = new StringType();
+					}
+					break;
 
-					case 'boolean':
-						if ($path === 'platform.additionalProperties') {
-							$types[] = new ConstantBooleanType(false);
-						} else {
-							$types[] = new BooleanType();
-						}
-						break;
+				case 'boolean':
+					if ($path === 'platform.additionalProperties') {
+						$types[] = new ConstantBooleanType(false);
+					} else {
+						$types[] = new BooleanType();
+					}
+					break;
 
-					case 'object':
-						$addlPropType = null;
-						if (isset($def['additionalProperties'])) {
-							$addlPropType = $this->parseType($def['additionalProperties'], $path.'.additionalProperties');
-						}
+				case 'object':
+					$addlPropType = null;
+					if (isset($def['additionalProperties'])) {
+						$addlPropType = $this->parseType($def['additionalProperties'], $path . '.additionalProperties');
+					}
 
-						if (isset($def['properties'])) {
-							$keyNames = [];
-							$valTypes = [];
-							$optionalKeys = [];
-							$propIndex = 0;
-							foreach ($def['properties'] as $propName => $propdef) {
-								$keyNames[] = new ConstantStringType($propName);
-								$valType = $this->parseType($propdef, $path.'.'.$propName);
-								if (!isset($def['required']) || !in_array($propName, $def['required'], true)) {
-									$valType = TypeCombinator::addNull($valType);
-									$optionalKeys[] = $propIndex;
-								}
-								$valTypes[] = $valType;
-								$propIndex++;
+					if (isset($def['properties'])) {
+						$keyNames = [];
+						$valTypes = [];
+						$optionalKeys = [];
+						$propIndex = 0;
+						foreach ($def['properties'] as $propName => $propdef) {
+							$keyNames[] = new ConstantStringType($propName);
+							$valType = $this->parseType($propdef, $path . '.' . $propName);
+							if (!isset($def['required']) || !in_array($propName, $def['required'], true)) {
+								$valType = TypeCombinator::addNull($valType);
+								$optionalKeys[] = $propIndex;
 							}
-
-							if ($addlPropType !== null) {
-								$types[] = new ArrayType(TypeCombinator::union(new StringType(), ...$keyNames), TypeCombinator::union($addlPropType, ...$valTypes));
-							} else {
-								$types[] = new ConstantArrayType($keyNames, $valTypes, [0], $optionalKeys);
-							}
-						} else {
-							$types[] = new ArrayType(new StringType(), $addlPropType ?? new MixedType());
-						}
-						break;
-
-					case 'array':
-						if (isset($def['items'])) {
-							$valType = $this->parseType($def['items'], $path.'.items');
-						} else {
-							$valType = new MixedType();
+							$valTypes[] = $valType;
+							$propIndex++;
 						}
 
-						$types[] = new ArrayType(new IntegerType(), $valType);
-						break;
+						if ($addlPropType !== null) {
+							$types[] = new ArrayType(TypeCombinator::union(new StringType(), ...$keyNames), TypeCombinator::union($addlPropType, ...$valTypes));
+						} else {
+							$types[] = new ConstantArrayType($keyNames, $valTypes, [0], $optionalKeys);
+						}
+					} else {
+						$types[] = new ArrayType(new StringType(), $addlPropType ?? new MixedType());
+					}
+					break;
 
-					default:
-						$types[] = new MixedType();
+				case 'array':
+					if (isset($def['items'])) {
+						$valType = $this->parseType($def['items'], $path . '.items');
+					} else {
+						$valType = new MixedType();
+					}
+
+					$types[] = new ArrayType(new IntegerType(), $valType);
+					break;
+
+				default:
+					$types[] = new MixedType();
 				}
 			}
 
 			$type = TypeCombinator::union(...$types);
 		} elseif (isset($def['enum'])) {
-			$type = TypeCombinator::union(...array_map(static function (string $value): ConstantStringType {
+			$type = TypeCombinator::union(...array_map(static function(string $value): ConstantStringType {
 				return new ConstantStringType($value);
 			}, $def['enum']));
 		} else {

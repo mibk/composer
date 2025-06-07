@@ -12,14 +12,14 @@
 
 namespace Composer\Repository;
 
-use Composer\Factory;
-use Composer\IO\IOInterface;
 use Composer\Config;
 use Composer\EventDispatcher\EventDispatcher;
+use Composer\Factory;
+use Composer\IO\IOInterface;
+use Composer\Json\JsonFile;
 use Composer\Pcre\Preg;
 use Composer\Util\HttpDownloader;
 use Composer\Util\ProcessExecutor;
-use Composer\Json\JsonFile;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -61,7 +61,7 @@ class RepositoryFactory
 	}
 
 	/**
-	 * @param  array<string, mixed> $repoConfig
+	 * @param array<string, mixed> $repoConfig
 	 */
 	public static function createRepo(IOInterface $io, Config $config, array $repoConfig, ?RepositoryManager $rm = null): RepositoryInterface
 	{
@@ -100,8 +100,8 @@ class RepositoryFactory
 	}
 
 	/**
-	 * @param  EventDispatcher   $eventDispatcher
-	 * @param  HttpDownloader    $httpDownloader
+	 * @param EventDispatcher $eventDispatcher
+	 * @param HttpDownloader  $httpDownloader
 	 */
 	public static function manager(IOInterface $io, Config $config, ?HttpDownloader $httpDownloader = null, ?EventDispatcher $eventDispatcher = null, ?ProcessExecutor $process = null): RepositoryManager
 	{
@@ -158,10 +158,10 @@ class RepositoryFactory
 				throw new \UnexpectedValueException('"repositories" should be an array of repository definitions, only a single repository was given');
 			}
 			if (!is_array($repo)) {
-				throw new \UnexpectedValueException('Repository "'.$index.'" ('.json_encode($repo).') should be an array, '.gettype($repo).' given');
+				throw new \UnexpectedValueException('Repository "' . $index . '" (' . json_encode($repo) . ') should be an array, ' . gettype($repo) . ' given');
 			}
 			if (!isset($repo['type'])) {
-				throw new \UnexpectedValueException('Repository "'.$index.'" ('.json_encode($repo).') must have a type defined');
+				throw new \UnexpectedValueException('Repository "' . $index . '" (' . json_encode($repo) . ') must have a type defined');
 			}
 
 			$name = self::generateRepositoryName($index, $repo, $repos);
@@ -176,8 +176,8 @@ class RepositoryFactory
 	}
 
 	/**
-	 * @param int|string $index
-	 * @param array{url?: string} $repo
+	 * @param int|string               $index
+	 * @param array{url?: string}      $repo
 	 * @param array<int|string, mixed> $existingRepos
 	 */
 	public static function generateRepositoryName($index, array $repo, array $existingRepos): string

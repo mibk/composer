@@ -15,7 +15,7 @@ namespace Composer\DependencyResolver;
 use Composer\Repository\RepositorySet;
 
 /**
- * @author Nils Adermann <naderman@naderman.de>
+ * @author     Nils Adermann <naderman@naderman.de>
  * @implements \IteratorAggregate<Rule>
  * @internal
  * @final
@@ -125,7 +125,7 @@ class RuleSet implements \IteratorAggregate, \Countable
 	}
 
 	/**
-	 * @param  self::TYPE_*|array<self::TYPE_*> $types
+	 * @param self::TYPE_*|array<self::TYPE_*> $types
 	 */
 	public function getIteratorFor($types): RuleSetIterator
 	{
@@ -179,7 +179,7 @@ class RuleSet implements \IteratorAggregate, \Countable
 		foreach ($this->rules as $type => $rules) {
 			$string .= str_pad(self::TYPES[$type], 8, ' ') . ": ";
 			foreach ($rules as $rule) {
-				$string .= ($repositorySet !== null && $request !== null && $pool !== null ? $rule->getPrettyString($repositorySet, $request, $pool, $isVerbose) : $rule)."\n";
+				$string .= ($repositorySet !== null && $request !== null && $pool !== null ? $rule->getPrettyString($repositorySet, $request, $pool, $isVerbose) : $rule) . "\n";
 			}
 			$string .= "\n\n";
 		}

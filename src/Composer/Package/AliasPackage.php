@@ -12,8 +12,8 @@
 
 namespace Composer\Package;
 
-use Composer\Semver\Constraint\Constraint;
 use Composer\Package\Version\VersionParser;
+use Composer\Semver\Constraint\Constraint;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -29,7 +29,7 @@ class AliasPackage extends BasePackage
 	/** @var bool */
 	protected $rootPackageAlias = false;
 	/**
-	 * @var string
+	 * @var         string
 	 * @phpstan-var 'stable'|'RC'|'beta'|'alpha'|'dev'
 	 */
 	protected $stability;
@@ -219,7 +219,7 @@ class AliasPackage extends BasePackage
 
 	public function __toString(): string
 	{
-		return parent::__toString().' ('.($this->rootPackageAlias ? 'root ' : ''). 'alias of '.$this->aliasOf->getVersion().')';
+		return parent::__toString() . ' (' . ($this->rootPackageAlias ? 'root ' : '') . 'alias of ' . $this->aliasOf->getVersion() . ')';
 	}
 
 	/***************************************

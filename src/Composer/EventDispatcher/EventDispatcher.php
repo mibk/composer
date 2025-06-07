@@ -12,31 +12,31 @@
 
 namespace Composer\EventDispatcher;
 
+use Composer\Autoload\ClassLoader;
+use Composer\Composer;
+use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Transaction;
-use Composer\Installer\InstallerEvent;
 use Composer\IO\BufferIO;
 use Composer\IO\ConsoleIO;
 use Composer\IO\IOInterface;
-use Composer\Composer;
+use Composer\Installer\BinaryInstaller;
+use Composer\Installer\InstallerEvent;
+use Composer\Installer\PackageEvent;
 use Composer\PartialComposer;
 use Composer\Pcre\Preg;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PreCommandRunEvent;
-use Composer\Util\Platform;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\Repository\RepositoryInterface;
 use Composer\Script;
-use Composer\Installer\PackageEvent;
-use Composer\Installer\BinaryInstaller;
-use Composer\Util\ProcessExecutor;
 use Composer\Script\Event as ScriptEvent;
-use Composer\Autoload\ClassLoader;
+use Composer\Util\Platform;
+use Composer\Util\ProcessExecutor;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\PhpExecutableFinder;
 
 /**
  * The Event Dispatcher.
@@ -85,7 +85,7 @@ class EventDispatcher
 		$this->eventStack = [];
 		$this->skipScripts = array_values(array_filter(
 			array_map('trim', explode(',', (string) Platform::getEnv('COMPOSER_SKIP_SCRIPTS'))),
-			function ($val) {
+			function($val) {
 				return $val !== '';
 			}
 		));
@@ -107,7 +107,7 @@ class EventDispatcher
 	 * Dispatch an event
 	 *
 	 * @param  string|null $eventName The event name, required if no $event is provided
-	 * @param  Event       $event An event instance, required if no $eventName is provided
+	 * @param  Event       $event     An event instance, required if no $eventName is provided
 	 * @return int         return code of the executed script if any, for php scripts a false return
 	 *                          value is changed to 1, anything else to 0
 	 */
@@ -115,7 +115,7 @@ class EventDispatcher
 	{
 		if (null === $event) {
 			if (null === $eventName) {
-				throw new \InvalidArgumentException('If no $event is passed in to '.__METHOD__.' you have to pass in an $eventName, got null.');
+				throw new \InvalidArgumentException('If no $event is passed in to ' . __METHOD__ . ' you have to pass in an $eventName, got null.');
 			}
 			$event = new Event($eventName);
 		}
@@ -129,7 +129,7 @@ class EventDispatcher
 	 * @param  string               $eventName      The constant in ScriptEvents
 	 * @param  array<int, mixed>    $additionalArgs Arguments passed by the user
 	 * @param  array<string, mixed> $flags          Optional flags to pass data not as argument
-	 * @return int                                  return code of the executed script if any, for php scripts a false return
+	 * @return int                  return code of the executed script if any, for php scripts a false return
 	 *                                              value is changed to 1, anything else to 0
 	 */
 	public function dispatchScript(string $eventName, bool $devMode = false, array $additionalArgs = [], array $flags = []): int
@@ -179,9 +179,9 @@ class EventDispatcher
 	/**
 	 * Triggers the listeners of an event.
 	 *
-	 * @param  Event                        $event The event object to pass to the event handlers/listeners.
+	 * @param  Event $event The event object to pass to the event handlers/listeners.
 	 * @throws \RuntimeException|\Exception
-	 * @return int                          return code of the executed script if any, for php scripts a false return
+	 * @return int return code of the executed script if any, for php scripts a false return
 	 *                                            value is changed to 1, anything else to 0
 	 */
 	protected function doDispatch(Event $event)
@@ -195,7 +195,7 @@ class EventDispatcher
 			} elseif ($event instanceof PreCommandRunEvent) {
 				$details = $event->getCommand();
 			}
-			$this->io->writeError('Dispatching <info>'.$event->getName().'</info>'.($details ? ' ('.$details.')' : '').' event');
+			$this->io->writeError('Dispatching <info>' . $event->getName() . '</info>' . ($details ? ' (' . $details . ')' : '') . ' event');
 		}
 
 		$listeners = $this->getListeners($event);
@@ -220,10 +220,10 @@ class EventDispatcher
 					if (!is_callable($callable)) {
 						$className = is_object($callable[0]) ? get_class($callable[0]) : $callable[0];
 
-						throw new \RuntimeException('Subscriber '.$className.'::'.$callable[1].' for event '.$event->getName().' is not callable, make sure the function is defined and public');
+						throw new \RuntimeException('Subscriber ' . $className . '::' . $callable[1] . ' for event ' . $event->getName() . ' is not callable, make sure the function is defined and public');
 					}
 					if (is_array($callable) && (is_string($callable[0]) || is_object($callable[0])) && is_string($callable[1])) {
-						$this->io->writeError(sprintf('> %s: %s', $formattedEventNameWithArgs, (is_object($callable[0]) ? get_class($callable[0]) : $callable[0]).'->'.$callable[1]), true, IOInterface::VERBOSE);
+						$this->io->writeError(sprintf('> %s: %s', $formattedEventNameWithArgs, (is_object($callable[0]) ? get_class($callable[0]) : $callable[0]) . '->' . $callable[1]), true, IOInterface::VERBOSE);
 					}
 					$return = false === $callable($event) ? 1 : 0;
 				} elseif ($this->isComposerScript($callable)) {
@@ -241,16 +241,16 @@ class EventDispatcher
 					}
 					$flags = $event->getFlags();
 					if (isset($flags['script-alias-input'])) {
-						$argsString = implode(' ', array_map(static function ($arg) { return ProcessExecutor::escape($arg); }, $script));
+						$argsString = implode(' ', array_map(static function($arg) { return ProcessExecutor::escape($arg); }, $script));
 						$flags['script-alias-input'] = $argsString . ' ' . $flags['script-alias-input'];
 						unset($argsString);
 					}
 					if (strpos($callable, '@composer ') === 0) {
 						$exec = $this->getPhpExecCommand() . ' ' . ProcessExecutor::escape(Platform::getEnv('COMPOSER_BINARY')) . ' ' . implode(' ', $args);
 						if (0 !== ($exitCode = $this->executeTty($exec))) {
-							$this->io->writeError(sprintf('<error>Script %s handling the %s event returned with error code '.$exitCode.'</error>', $callable, $event->getName()), true, IOInterface::QUIET);
+							$this->io->writeError(sprintf('<error>Script %s handling the %s event returned with error code ' . $exitCode . '</error>', $callable, $event->getName()), true, IOInterface::QUIET);
 
-							throw new ScriptExecutionException('Error Output: '.$this->process->getErrorOutput(), $exitCode);
+							throw new ScriptExecutionException('Error Output: ' . $this->process->getErrorOutput(), $exitCode);
 						}
 					} else {
 						if (!$this->getListeners(new Event($scriptName))) {
@@ -272,11 +272,11 @@ class EventDispatcher
 					$methodName = substr($callable, strpos($callable, '::') + 2);
 
 					if (!class_exists($className)) {
-						$this->io->writeError('<warning>Class '.$className.' is not autoloadable, can not call '.$event->getName().' script</warning>', true, IOInterface::QUIET);
+						$this->io->writeError('<warning>Class ' . $className . ' is not autoloadable, can not call ' . $event->getName() . ' script</warning>', true, IOInterface::QUIET);
 						continue;
 					}
 					if (!is_callable($callable)) {
-						$this->io->writeError('<warning>Method '.$callable.' is not callable, can not call '.$event->getName().' script</warning>', true, IOInterface::QUIET);
+						$this->io->writeError('<warning>Method ' . $callable . ' is not callable, can not call ' . $event->getName() . ' script</warning>', true, IOInterface::QUIET);
 						continue;
 					}
 
@@ -284,21 +284,21 @@ class EventDispatcher
 						$return = false === $this->executeEventPhpScript($className, $methodName, $event) ? 1 : 0;
 					} catch (\Exception $e) {
 						$message = "Script %s handling the %s event terminated with an exception";
-						$this->io->writeError('<error>'.sprintf($message, $callable, $event->getName()).'</error>', true, IOInterface::QUIET);
+						$this->io->writeError('<error>' . sprintf($message, $callable, $event->getName()) . '</error>', true, IOInterface::QUIET);
 						throw $e;
 					}
 				} elseif ($this->isCommandClass($callable)) {
 					$className = $callable;
 					if (!class_exists($className)) {
-						$this->io->writeError('<warning>Class '.$className.' is not autoloadable, can not call '.$event->getName().' script</warning>', true, IOInterface::QUIET);
+						$this->io->writeError('<warning>Class ' . $className . ' is not autoloadable, can not call ' . $event->getName() . ' script</warning>', true, IOInterface::QUIET);
 						continue;
 					}
 					if (!is_a($className, Command::class, true)) {
-						$this->io->writeError('<warning>Class '.$className.' does not extend '.Command::class.', can not call '.$event->getName().' script</warning>', true, IOInterface::QUIET);
+						$this->io->writeError('<warning>Class ' . $className . ' does not extend ' . Command::class . ', can not call ' . $event->getName() . ' script</warning>', true, IOInterface::QUIET);
 						continue;
 					}
-					if (defined('Composer\Script\ScriptEvents::'.str_replace('-', '_', strtoupper($event->getName())))) {
-						$this->io->writeError('<warning>You cannot bind '.$event->getName().' to a Command class, use a non-reserved name</warning>', true, IOInterface::QUIET);
+					if (defined('Composer\Script\ScriptEvents::' . str_replace('-', '_', strtoupper($event->getName())))) {
+						$this->io->writeError('<warning>You cannot bind ' . $event->getName() . ' to a Command class, use a non-reserved name</warning>', true, IOInterface::QUIET);
 						continue;
 					}
 
@@ -312,7 +312,7 @@ class EventDispatcher
 					$app->add($cmd);
 					$app->setDefaultCommand((string) $cmd->getName(), true);
 					try {
-						$args = implode(' ', array_map(static function ($arg) { return ProcessExecutor::escape($arg); }, $additionalArgs));
+						$args = implode(' ', array_map(static function($arg) { return ProcessExecutor::escape($arg); }, $additionalArgs));
 						// reusing the output from $this->io is mostly needed for tests, but generally speaking
 						// it does not hurt to keep the same stream as the current Application
 						if ($this->io instanceof ConsoleIO) {
@@ -327,7 +327,7 @@ class EventDispatcher
 						$return = $app->run(new StringInput($event->getFlags()['script-alias-input'] ?? $args), $output);
 					} catch (\Exception $e) {
 						$message = "Script %s handling the %s event terminated with an exception";
-						$this->io->writeError('<error>'.sprintf($message, $callable, $event->getName()).'</error>', true, IOInterface::QUIET);
+						$this->io->writeError('<error>' . sprintf($message, $callable, $event->getName()) . '</error>', true, IOInterface::QUIET);
 						throw $e;
 					}
 				} else {
@@ -340,7 +340,7 @@ class EventDispatcher
 						if (str_contains($callable, '@additional_args')) {
 							$exec = str_replace('@additional_args', $args, $callable);
 						} else {
-							$exec = $callable . ($args === '' ? '' : ' '.$args);
+							$exec = $callable . ($args === '' ? '' : ' ' . $args);
 						}
 					}
 
@@ -349,8 +349,8 @@ class EventDispatcher
 					} elseif (
 						// do not output the command being run when using `composer exec` as it is fairly obvious the user is running it
 						$event->getName() !== '__exec_command'
-						// do not output the command being run when using `composer <script-name>` as it is also fairly obvious the user is running it
-						&& ($event->getFlags()['script-alias-input'] ?? null) === null
+							// do not output the command being run when using `composer <script-name>` as it is also fairly obvious the user is running it
+							&& ($event->getFlags()['script-alias-input'] ?? null) === null
 					) {
 						$this->io->writeError(sprintf('> %s', $exec));
 					}
@@ -358,9 +358,9 @@ class EventDispatcher
 					$possibleLocalBinaries = $this->composer->getPackage()->getBinaries();
 					if (count($possibleLocalBinaries) > 0) {
 						foreach ($possibleLocalBinaries as $localExec) {
-							if (Preg::isMatch('{\b'.preg_quote($callable).'$}', $localExec)) {
+							if (Preg::isMatch('{\b' . preg_quote($callable) . '$}', $localExec)) {
 								$caller = BinaryInstaller::determineBinaryCaller($localExec);
-								$exec = Preg::replace('{^'.preg_quote($callable).'}', $caller . ' ' . $localExec, $exec);
+								$exec = Preg::replace('{^' . preg_quote($callable) . '}', $caller . ' ' . $localExec, $exec);
 								break;
 							}
 						}
@@ -379,7 +379,7 @@ class EventDispatcher
 					if (strpos($exec, '@php ') === 0) {
 						$pathAndArgs = substr($exec, 5);
 						if (Platform::isWindows()) {
-							$pathAndArgs = Preg::replaceCallback('{^\S+}', static function ($path) {
+							$pathAndArgs = Preg::replaceCallback('{^\S+}', static function($path) {
 								return str_replace('/', '\\', $path[0]);
 							}, $pathAndArgs);
 						}
@@ -409,7 +409,7 @@ class EventDispatcher
 						}
 
 						if (Platform::isWindows()) {
-							$exec = Preg::replaceCallback('{^\S+}', static function ($path) {
+							$exec = Preg::replaceCallback('{^\S+}', static function($path) {
 								return str_replace('/', '\\', $path[0]);
 							}, $exec);
 						}
@@ -423,9 +423,9 @@ class EventDispatcher
 					}
 
 					if (0 !== ($exitCode = $this->executeTty($exec))) {
-						$this->io->writeError(sprintf('<error>Script %s handling the %s event returned with error code '.$exitCode.'</error>', $callable, $event->getName()), true, IOInterface::QUIET);
+						$this->io->writeError(sprintf('<error>Script %s handling the %s event returned with error code ' . $exitCode . '</error>', $callable, $event->getName()), true, IOInterface::QUIET);
 
-						throw new ScriptExecutionException('Error Output: '.$this->process->getErrorOutput(), $exitCode);
+						throw new ScriptExecutionException('Error Output: ' . $this->process->getErrorOutput(), $exitCode);
 					}
 				}
 
@@ -476,7 +476,7 @@ class EventDispatcher
 		$finder = new PhpExecutableFinder();
 		$phpPath = $finder->find(false);
 		if (!$phpPath) {
-			throw new \RuntimeException('Failed to locate PHP binary to execute '.$phpPath);
+			throw new \RuntimeException('Failed to locate PHP binary to execute ' . $phpPath);
 		}
 		$phpArgs = $finder->findArguments();
 		$phpArgs = $phpArgs ? ' ' . implode(' ', $phpArgs) : '';
@@ -488,7 +488,7 @@ class EventDispatcher
 	}
 
 	/**
-	 * @param Event  $event      Event invoking the PHP callable
+	 * @param Event $event Event invoking the PHP callable
 	 *
 	 * @return mixed
 	 */
@@ -584,7 +584,7 @@ class EventDispatcher
 	/**
 	 * Finds all listeners defined as scripts in the package
 	 *
-	 * @param  Event $event Event object
+	 * @param  Event    $event Event object
 	 * @return string[] Listeners
 	 */
 	protected function getScriptListeners(Event $event): array
@@ -597,7 +597,7 @@ class EventDispatcher
 		}
 
 		if (in_array($event->getName(), $this->skipScripts, true)) {
-			$this->io->writeError('Skipped script listeners for <info>'.$event->getName().'</info> because of COMPOSER_SKIP_SCRIPTS', true, IOInterface::VERBOSE);
+			$this->io->writeError('Skipped script listeners for <info>' . $event->getName() . '</info> because of COMPOSER_SKIP_SCRIPTS', true, IOInterface::VERBOSE);
 
 			return [];
 		}
@@ -685,8 +685,8 @@ class EventDispatcher
 		if (is_dir($binDir)) {
 			$binDir = realpath($binDir);
 			$pathValue = (string) Platform::getEnv($pathEnv);
-			if (!Preg::isMatch('{(^|'.PATH_SEPARATOR.')'.preg_quote($binDir).'($|'.PATH_SEPARATOR.')}', $pathValue)) {
-				Platform::putEnv($pathEnv, $binDir.PATH_SEPARATOR.$pathValue);
+			if (!Preg::isMatch('{(^|' . PATH_SEPARATOR . ')' . preg_quote($binDir) . '($|' . PATH_SEPARATOR . ')}', $pathValue)) {
+				Platform::putEnv($pathEnv, $binDir . PATH_SEPARATOR . $pathValue);
 			}
 		}
 	}
@@ -697,13 +697,13 @@ class EventDispatcher
 	private function getCallbackIdentifier($cb): string
 	{
 		if (is_string($cb)) {
-			return 'fn:'.$cb;
+			return 'fn:' . $cb;
 		}
 		if (is_object($cb)) {
-			return 'obj:'.spl_object_hash($cb);
+			return 'obj:' . spl_object_hash($cb);
 		}
 		if (is_array($cb)) {
-			return 'array:'.(is_string($cb[0]) ? $cb[0] : get_class($cb[0]) .'#'.spl_object_hash($cb[0])).'::'.$cb[1];
+			return 'array:' . (is_string($cb[0]) ? $cb[0] : get_class($cb[0]) . '#' . spl_object_hash($cb[0])) . '::' . $cb[1];
 		}
 
 		// not great but also do not want to break everything here

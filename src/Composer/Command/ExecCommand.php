@@ -12,10 +12,10 @@
 
 namespace Composer\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Davey Shafik <me@daveyshafik.com>
@@ -32,7 +32,7 @@ class ExecCommand extends BaseCommand
 			->setDescription('Executes a vendored binary/script')
 			->setDefinition([
 				new InputOption('list', 'l', InputOption::VALUE_NONE),
-				new InputArgument('binary', InputArgument::OPTIONAL, 'The binary to run, e.g. phpunit', null, function () {
+				new InputArgument('binary', InputArgument::OPTIONAL, 'The binary to run, e.g. phpunit', null, function() {
 					return $this->getBinaries(false);
 				}),
 				new InputArgument(
@@ -48,7 +48,7 @@ Executes a vendored binary/script.
 Read more at https://getcomposer.org/doc/03-cli.md#exec
 EOT
 			)
-		;
+			;
 	}
 
 	protected function interact(InputInterface $input, OutputInterface $output): void
@@ -115,7 +115,7 @@ EOT
 			try {
 				chdir($this->getApplication()->getInitialWorkingDirectory());
 			} catch (\Exception $e) {
-				throw new \RuntimeException('Could not switch back to working directory "'.$this->getApplication()->getInitialWorkingDirectory().'"', 0, $e);
+				throw new \RuntimeException('Could not switch back to working directory "' . $this->getApplication()->getInitialWorkingDirectory() . '"', 0, $e);
 			}
 		}
 
@@ -132,7 +132,7 @@ EOT
 		$bins = glob($binDir . '/*');
 		$localBins = $composer->getPackage()->getBinaries();
 		if ($forDisplay) {
-			$localBins = array_map(static function ($e) {
+			$localBins = array_map(static function($e) {
 				return "$e (local)";
 			}, $localBins);
 		}
@@ -140,7 +140,7 @@ EOT
 		$binaries = [];
 		foreach (array_merge($bins, $localBins) as $bin) {
 			// skip .bat copies
-			if (isset($previousBin) && $bin === $previousBin.'.bat') {
+			if (isset($previousBin) && $bin === $previousBin . '.bat') {
 				continue;
 			}
 

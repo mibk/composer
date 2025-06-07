@@ -132,21 +132,21 @@ abstract class BaseIO implements IOInterface
 
 		foreach ($githubOauth as $domain => $token) {
 			if ($domain !== 'github.com' && !in_array($domain, $config->get('github-domains'), true)) {
-				$this->debug($domain.' is not in the configured github-domains, adding it implicitly as authentication is configured for this domain');
+				$this->debug($domain . ' is not in the configured github-domains, adding it implicitly as authentication is configured for this domain');
 				$config->merge(['config' => ['github-domains' => array_merge($config->get('github-domains'), [$domain])]], 'implicit-due-to-auth');
 			}
 
 			// allowed chars for GH tokens are from https://github.blog/changelog/2021-03-04-authentication-token-format-updates/
 			// plus dots which were at some point used for GH app integration tokens
 			if (!Preg::isMatch('{^[.A-Za-z0-9_]+$}', $token)) {
-				throw new \UnexpectedValueException('Your github oauth token for '.$domain.' contains invalid characters: "'.$token.'"');
+				throw new \UnexpectedValueException('Your github oauth token for ' . $domain . ' contains invalid characters: "' . $token . '"');
 			}
 			$this->checkAndSetAuthentication($domain, $token, 'x-oauth-basic');
 		}
 
 		foreach ($gitlabOauth as $domain => $token) {
 			if ($domain !== 'gitlab.com' && !in_array($domain, $config->get('gitlab-domains'), true)) {
-				$this->debug($domain.' is not in the configured gitlab-domains, adding it implicitly as authentication is configured for this domain');
+				$this->debug($domain . ' is not in the configured gitlab-domains, adding it implicitly as authentication is configured for this domain');
 				$config->merge(['config' => ['gitlab-domains' => array_merge($config->get('gitlab-domains'), [$domain])]], 'implicit-due-to-auth');
 			}
 
@@ -156,7 +156,7 @@ abstract class BaseIO implements IOInterface
 
 		foreach ($gitlabToken as $domain => $token) {
 			if ($domain !== 'gitlab.com' && !in_array($domain, $config->get('gitlab-domains'), true)) {
-				$this->debug($domain.' is not in the configured gitlab-domains, adding it implicitly as authentication is configured for this domain');
+				$this->debug($domain . ' is not in the configured gitlab-domains, adding it implicitly as authentication is configured for this domain');
 				$config->merge(['config' => ['gitlab-domains' => array_merge($config->get('gitlab-domains'), [$domain])]], 'implicit-due-to-auth');
 			}
 
@@ -186,10 +186,10 @@ abstract class BaseIO implements IOInterface
 			$sslOptions = array_filter(
 				[
 					'local_cert' => $cred['local_cert'] ?? null,
-					'local_pk' => $cred['local_pk'] ?? null,
+					'local_pk'   => $cred['local_pk'] ?? null,
 					'passphrase' => $cred['passphrase'] ?? null,
 				],
-				static function (?string $value): bool { return $value !== null; }
+				static function(?string $value): bool { return $value !== null; }
 			);
 			if (!isset($sslOptions['local_cert'])) {
 				$this->writeError(
@@ -200,7 +200,7 @@ abstract class BaseIO implements IOInterface
 				);
 				continue;
 			}
-			$this->checkAndSetAuthentication($domain, 'client-certificate', (string)json_encode($sslOptions));
+			$this->checkAndSetAuthentication($domain, 'client-certificate', (string) json_encode($sslOptions));
 		}
 
 		// setup process timeout
@@ -272,7 +272,7 @@ abstract class BaseIO implements IOInterface
 	}
 
 	/**
-	 * @param mixed|LogLevel::* $level
+	 * @param mixed|LogLevel::*  $level
 	 * @param string|\Stringable $message
 	 */
 	public function log($level, $message, array $context = []): void
@@ -280,20 +280,20 @@ abstract class BaseIO implements IOInterface
 		$message = (string) $message;
 
 		if ($context !== []) {
-			$json = Silencer::call('json_encode', $context, JSON_INVALID_UTF8_IGNORE|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+			$json = Silencer::call('json_encode', $context, JSON_INVALID_UTF8_IGNORE | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 			if ($json !== false) {
 				$message .= ' ' . $json;
 			}
 		}
 
 		if (in_array($level, [LogLevel::EMERGENCY, LogLevel::ALERT, LogLevel::CRITICAL, LogLevel::ERROR])) {
-			$this->writeError('<error>'.$message.'</error>');
+			$this->writeError('<error>' . $message . '</error>');
 		} elseif ($level === LogLevel::WARNING) {
-			$this->writeError('<warning>'.$message.'</warning>');
+			$this->writeError('<warning>' . $message . '</warning>');
 		} elseif ($level === LogLevel::NOTICE) {
-			$this->writeError('<info>'.$message.'</info>', true, self::VERBOSE);
+			$this->writeError('<info>' . $message . '</info>', true, self::VERBOSE);
 		} elseif ($level === LogLevel::INFO) {
-			$this->writeError('<info>'.$message.'</info>', true, self::VERY_VERBOSE);
+			$this->writeError('<info>' . $message . '</info>', true, self::VERY_VERBOSE);
 		} else {
 			$this->writeError($message, true, self::DEBUG);
 		}

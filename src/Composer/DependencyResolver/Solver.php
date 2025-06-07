@@ -24,7 +24,7 @@ use Composer\Package\BasePackage;
 class Solver
 {
 	private const BRANCH_LITERALS = 0;
-	private const BRANCH_LEVEL = 1;
+	private const BRANCH_LEVEL    = 1;
 
 	/** @var PolicyInterface */
 	protected $policy;
@@ -299,7 +299,7 @@ class Solver
 
 			if ($newLevel <= 0 || $newLevel >= $level) {
 				throw new SolverBugException(
-					"Trying to revert to invalid level ".$newLevel." from level ".$level."."
+					"Trying to revert to invalid level " . $newLevel . " from level " . $level . "."
 				);
 			}
 

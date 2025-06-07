@@ -12,12 +12,12 @@
 
 namespace Composer\Util;
 
-use Composer\Package\Loader\ArrayLoader;
-use Composer\Package\Loader\ValidatingArrayLoader;
-use Composer\Package\Loader\InvalidPackageException;
-use Composer\Json\JsonValidationException;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
+use Composer\Json\JsonValidationException;
+use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\Loader\InvalidPackageException;
+use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Pcre\Preg;
 use Composer\Spdx\SpdxLicenses;
 use Seld\JsonLint\DuplicateKeyException;
@@ -86,7 +86,7 @@ class ConfigValidator
 				$jsonParser->parse((string) file_get_contents($file), JsonParser::DETECT_KEY_CONFLICTS);
 			} catch (DuplicateKeyException $e) {
 				$details = $e->getDetails();
-				$warnings[] = 'Key '.$details['key'].' is a duplicate in '.$file.' at line '.$details['line'];
+				$warnings[] = 'Key ' . $details['key'] . ' is a duplicate in ' . $file . ' at line ' . $details['line'];
 			}
 		}
 
@@ -109,12 +109,12 @@ class ConfigValidator
 				if ($spdxLicense && $spdxLicense[3]) {
 					if (Preg::isMatch('{^[AL]?GPL-[123](\.[01])?\+$}i', $license)) {
 						$warnings[] = sprintf(
-							'License "%s" is a deprecated SPDX license identifier, use "'.str_replace('+', '', $license).'-or-later" instead',
+							'License "%s" is a deprecated SPDX license identifier, use "' . str_replace('+', '', $license) . '-or-later" instead',
 							$license
 						);
 					} elseif (Preg::isMatch('{^[AL]?GPL-[123](\.[01])?$}i', $license)) {
 						$warnings[] = sprintf(
-							'License "%s" is a deprecated SPDX license identifier, use "'.$license.'-only" or "'.$license.'-or-later" instead',
+							'License "%s" is a deprecated SPDX license identifier, use "' . $license . '-only" or "' . $license . '-or-later" instead',
 							$license
 						);
 					} else {
@@ -152,7 +152,7 @@ class ConfigValidator
 
 			if (!empty($requireOverrides)) {
 				$plural = (count($requireOverrides) > 1) ? 'are' : 'is';
-				$warnings[] = implode(', ', array_keys($requireOverrides)). " {$plural} required both in require and require-dev, this can lead to unexpected behavior";
+				$warnings[] = implode(', ', array_keys($requireOverrides)) . " {$plural} required both in require and require-dev, this can lead to unexpected behavior";
 			}
 		}
 
@@ -163,7 +163,7 @@ class ConfigValidator
 					if (isset($manifest[$requireType])) {
 						foreach ($manifest[$linkType] as $provide => $constraint) {
 							if (isset($manifest[$requireType][$provide])) {
-								$warnings[] = 'The package ' . $provide . ' in '.$requireType.' is also listed in '.$linkType.' which satisfies the requirement. Remove it from '.$linkType.' if you wish to install it.';
+								$warnings[] = 'The package ' . $provide . ' in ' . $requireType . ' is also listed in ' . $linkType . ' which satisfies the requirement. Remove it from ' . $linkType . ' if you wish to install it.';
 							}
 						}
 					}

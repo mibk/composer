@@ -18,7 +18,7 @@ namespace Composer\DependencyResolver;
  * SplDoublyLinkedList only allows deleting a particular offset and has no
  * method to set the internal iterator to a particular offset.
  *
- * @author Nils Adermann <naderman@naderman.de>
+ * @author  Nils Adermann <naderman@naderman.de>
  * @extends \SplDoublyLinkedList<RuleWatchNode>
  */
 class RuleWatchChain extends \SplDoublyLinkedList

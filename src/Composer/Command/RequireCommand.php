@@ -12,38 +12,38 @@
 
 namespace Composer\Command;
 
-use Composer\DependencyResolver\Request;
-use Composer\Package\AliasPackage;
-use Composer\Package\CompletePackageInterface;
-use Composer\Package\Loader\RootPackageLoader;
-use Composer\Package\Locker;
-use Composer\Package\PackageInterface;
-use Composer\Package\Version\VersionBumper;
-use Composer\Package\Version\VersionSelector;
-use Composer\Pcre\Preg;
-use Composer\Repository\RepositorySet;
-use Composer\Util\Filesystem;
-use Composer\Util\PackageSorter;
-use Seld\Signal\SignalHandler;
-use Symfony\Component\Console\Input\InputInterface;
+use Composer\Advisory\Auditor;
 use Composer\Console\Input\InputArgument;
 use Composer\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use Composer\DependencyResolver\Request;
 use Composer\Factory;
+use Composer\IO\IOInterface;
 use Composer\Installer;
 use Composer\Installer\InstallerEvents;
 use Composer\Json\JsonFile;
 use Composer\Json\JsonManipulator;
-use Composer\Package\Version\VersionParser;
-use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
+use Composer\Package\CompletePackageInterface;
+use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\Loader\RootPackageLoader;
+use Composer\Package\Locker;
+use Composer\Package\PackageInterface;
+use Composer\Package\Version\VersionBumper;
+use Composer\Package\Version\VersionParser;
+use Composer\Package\Version\VersionSelector;
+use Composer\Pcre\Preg;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
 use Composer\Repository\CompositeRepository;
 use Composer\Repository\PlatformRepository;
-use Composer\IO\IOInterface;
-use Composer\Advisory\Auditor;
+use Composer\Repository\RepositorySet;
+use Composer\Util\Filesystem;
+use Composer\Util\PackageSorter;
 use Composer\Util\Silencer;
+use Seld\Signal\SignalHandler;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Jérémy Romey <jeremy@free-agent.fr>
@@ -124,7 +124,7 @@ If you do not want to install the new dependencies immediately you can call it w
 Read more at https://getcomposer.org/doc/03-cli.md#require-r
 EOT
 			)
-		;
+			;
 	}
 
 	/**
@@ -141,12 +141,12 @@ EOT
 
 		$this->newlyCreated = !file_exists($this->file);
 		if ($this->newlyCreated && !file_put_contents($this->file, "{\n}\n")) {
-			$io->writeError('<error>'.$this->file.' could not be created.</error>');
+			$io->writeError('<error>' . $this->file . ' could not be created.</error>');
 
 			return 1;
 		}
 		if (!Filesystem::isReadable($this->file)) {
-			$io->writeError('<error>'.$this->file.' is not readable.</error>');
+			$io->writeError('<error>' . $this->file . ' is not readable.</error>');
 
 			return 1;
 		}
@@ -160,8 +160,8 @@ EOT
 		$this->composerBackup = file_get_contents($this->json->getPath());
 		$this->lockBackup = file_exists($this->lock) ? file_get_contents($this->lock) : null;
 
-		$signalHandler = SignalHandler::create([SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP], function (string $signal, SignalHandler $handler) {
-			$this->getIO()->writeError('Received '.$signal.', aborting', true, IOInterface::DEBUG);
+		$signalHandler = SignalHandler::create([SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP], function(string $signal, SignalHandler $handler) {
+			$this->getIO()->writeError('Received ' . $signal . ', aborting', true, IOInterface::DEBUG);
 			$this->revertComposerFile();
 			$handler->exitWithLastSignal();
 		});
@@ -169,7 +169,7 @@ EOT
 		// check for writability by writing to the file as is_writable can not be trusted on network-mounts
 		// see https://github.com/composer/composer/issues/8231 and https://bugs.php.net/bug.php?id=68926
 		if (!is_writable($this->file) && false === Silencer::call('file_put_contents', $this->file, $this->composerBackup)) {
-			$io->writeError('<error>'.$this->file.' is not writable.</error>');
+			$io->writeError('<error>' . $this->file . ' is not writable.</error>');
 
 			return 1;
 		}
@@ -223,7 +223,7 @@ EOT
 			if ($this->newlyCreated) {
 				$this->revertComposerFile();
 
-				throw new \RuntimeException('No composer.json present in the current directory ('.$this->file.'), this may be the cause of the following exception.', 0, $e);
+				throw new \RuntimeException('No composer.json present in the current directory (' . $this->file . '), this may be the cause of the following exception.', 0, $e);
 			}
 
 			throw $e;
@@ -255,7 +255,7 @@ EOT
 				$plural2 = count($requirements) > 1 ? 'are' : 'is';
 				$plural3 = count($requirements) > 1 ? 'they are' : 'it is';
 				$pkgDevTags = array_unique(array_merge(...$devPackages));
-				$io->warning('The package'.$plural.' you required '.$plural2.' recommended to be placed in require-dev (because '.$plural3.' tagged as "'.implode('", "', $pkgDevTags).'") but you did not use --dev.');
+				$io->warning('The package' . $plural . ' you required ' . $plural2 . ' recommended to be placed in require-dev (because ' . $plural3 . ' tagged as "' . implode('", "', $pkgDevTags) . '") but you did not use --dev.');
 				if ($io->askConfirmation('<info>Do you want to re-run the command with --dev?</> [<comment>yes</>]? ')) {
 					$input->setOption('dev', true);
 				}
@@ -328,7 +328,7 @@ EOT
 			$this->updateFile($this->json, $requirements, $requireKey, $removeKey, $sortPackages);
 		}
 
-		$io->writeError('<info>'.$this->file.' has been '.($this->newlyCreated ? 'created' : 'updated').'</info>');
+		$io->writeError('<info>' . $this->file . ' has been ' . ($this->newlyCreated ? 'created' : 'updated') . '</info>');
 
 		if ($input->getOption('no-update')) {
 			return 0;
@@ -358,7 +358,7 @@ EOT
 	}
 
 	/**
-	 * @param array<string, string> $newRequirements
+	 * @param  array<string, string> $newRequirements
 	 * @return string[]
 	 */
 	private function getInconsistentRequireKeys(array $newRequirements, string $requireKey): array
@@ -401,9 +401,9 @@ EOT
 	}
 
 	/**
-	 * @param array<string, string> $requirements
-	 * @param 'require'|'require-dev' $requireKey
-	 * @param 'require'|'require-dev' $removeKey
+	 * @param  array<string, string>   $requirements
+	 * @param  'require'|'require-dev' $requireKey
+	 * @param  'require'|'require-dev' $removeKey
 	 * @throws \Exception
 	 */
 	private function doUpdate(InputInterface $input, OutputInterface $output, IOInterface $io, array $requirements, string $requireKey, string $removeKey): int
@@ -413,14 +413,14 @@ EOT
 		$composer = $this->requireComposer();
 
 		$this->dependencyResolutionCompleted = false;
-		$composer->getEventDispatcher()->addListener(InstallerEvents::PRE_OPERATIONS_EXEC, function (): void {
+		$composer->getEventDispatcher()->addListener(InstallerEvents::PRE_OPERATIONS_EXEC, function(): void {
 			$this->dependencyResolutionCompleted = true;
 		}, 10000);
 
 		if ($input->getOption('dry-run')) {
 			$rootPackage = $composer->getPackage();
 			$links = [
-				'require' => $rootPackage->getRequires(),
+				'require'     => $rootPackage->getRequires(),
 				'require-dev' => $rootPackage->getDevRequires(),
 			];
 			$loader = new ArrayLoader();
@@ -458,7 +458,7 @@ EOT
 			$flags .= ' --with-dependencies';
 		}
 
-		$io->writeError('<info>Running composer update '.implode(' ', array_keys($requirements)).$flags.'</info>');
+		$io->writeError('<info>Running composer update ' . implode(' ', array_keys($requirements)) . $flags . '</info>');
 
 		$commandEvent = new CommandEvent(PluginEvents::COMMAND, 'require', $input, $output);
 		$composer->getEventDispatcher()->dispatch($commandEvent->getName(), $commandEvent);
@@ -487,7 +487,7 @@ EOT
 			->setAudit(!$input->getOption('no-audit'))
 			->setAuditFormat($this->getAuditFormat($input))
 			->setMinimalUpdate($input->getOption('minimal-changes'))
-		;
+			;
 
 		// if no lock is present, or the file is brand new, we do not do a
 		// partial update as this is not supported by the Installer
@@ -500,7 +500,7 @@ EOT
 			if ($status === Installer::ERROR_DEPENDENCY_RESOLUTION_FAILED) {
 				foreach ($this->normalizeRequirements($input->getArgument('packages')) as $req) {
 					if (!isset($req['version'])) {
-						$io->writeError('You can also try re-running composer require with an explicit version constraint, e.g. "composer require '.$req['name'].':*" to figure out if any version is installable, or "composer require '.$req['name'].':^2.1" if you know which you need.');
+						$io->writeError('You can also try re-running composer require with an explicit version constraint, e.g. "composer require ' . $req['name'] . ':*" to figure out if any version is installable, or "composer require ' . $req['name'] . ':^2.1" if you know which you need.');
 						break;
 					}
 				}
@@ -527,7 +527,7 @@ EOT
 				$package = $package->getAliasOf();
 			}
 
-			if (!$package instanceof PackageInterface) {
+			if (! $package instanceof PackageInterface) {
 				continue;
 			}
 
@@ -543,7 +543,7 @@ EOT
 			));
 
 			if (Preg::isMatch('{^dev-(?!main$|master$|trunk$|latest$)}', $requirements[$packageName])) {
-				$this->getIO()->warning('Version '.$requirements[$packageName].' looks like it may be a feature branch which is unlikely to keep working in the long run and may be in an unstable state');
+				$this->getIO()->warning('Version ' . $requirements[$packageName] . ' looks like it may be a feature branch which is unlikely to keep working in the long run and may be in an unstable state');
 				if ($this->getIO()->isInteractive() && !$this->getIO()->askConfirmation('Are you sure you want to use this constraint (<comment>Y</comment>) or would you rather abort (<comment>n</comment>) the whole operation [<comment>Y,n</comment>]? ')) {
 					$this->revertComposerFile();
 
@@ -556,7 +556,7 @@ EOT
 			$this->updateFile($this->json, $requirements, $requireKey, $removeKey, $sortPackages);
 			if ($locker->isLocked() && $composer->getConfig()->get('lock')) {
 				$stabilityFlags = RootPackageLoader::extractStabilityFlags($requirements, $composer->getPackage()->getMinimumStability(), []);
-				$locker->updateHash($this->json, function (array $lockData) use ($stabilityFlags) {
+				$locker->updateHash($this->json, function(array $lockData) use ($stabilityFlags) {
 					foreach ($stabilityFlags as $packageName => $flag) {
 						$lockData['stability-flags'][$packageName] = $flag;
 					}
@@ -623,7 +623,7 @@ EOT
 		$io = $this->getIO();
 
 		if ($this->newlyCreated) {
-			$io->writeError("\n".'<error>Installation failed, deleting '.$this->file.'.</error>');
+			$io->writeError("\n" . '<error>Installation failed, deleting ' . $this->file . '.</error>');
 			unlink($this->json->getPath());
 			if (file_exists($this->lock)) {
 				unlink($this->lock);
@@ -631,9 +631,9 @@ EOT
 		} else {
 			$msg = ' to its ';
 			if ($this->lockBackup) {
-				$msg = ' and '.$this->lock.' to their ';
+				$msg = ' and ' . $this->lock . ' to their ';
 			}
-			$io->writeError("\n".'<error>Installation failed, reverting '.$this->file.$msg.'original content.</error>');
+			$io->writeError("\n" . '<error>Installation failed, reverting ' . $this->file . $msg . 'original content.</error>');
 			file_put_contents($this->json->getPath(), $this->composerBackup);
 			if ($this->lockBackup) {
 				file_put_contents($this->lock, $this->lockBackup);

@@ -18,8 +18,8 @@ namespace Composer\Util\Http;
 class CurlResponse extends Response
 {
 	/**
-	 * @see https://www.php.net/curl_getinfo
-	 * @var array
+	 * @see         https://www.php.net/curl_getinfo
+	 * @var         array
 	 * @phpstan-var CurlInfo
 	 */
 	private $curlInfo;

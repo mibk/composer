@@ -12,8 +12,8 @@
 
 namespace Composer\Repository;
 
-use Composer\Package\PackageInterface;
 use Composer\Package\BasePackage;
+use Composer\Package\PackageInterface;
 use Composer\Semver\Constraint\ConstraintInterface;
 
 /**
@@ -26,8 +26,8 @@ use Composer\Semver\Constraint\ConstraintInterface;
 interface RepositoryInterface extends \Countable
 {
 	public const SEARCH_FULLTEXT = 0;
-	public const SEARCH_NAME = 1;
-	public const SEARCH_VENDOR = 2;
+	public const SEARCH_NAME     = 1;
+	public const SEARCH_VENDOR   = 2;
 
 	/**
 	 * Checks if specified package registered (installed).
@@ -72,7 +72,7 @@ interface RepositoryInterface extends \Countable
 	 * - The namesFound returned are names which should be considered as canonically found in this repository, that should not be looked up in any further lower priority repositories
 	 *
 	 * @param ConstraintInterface[]                          $packageNameMap        package names pointing to constraints
-	 * @param array<string, int>        $acceptableStabilities array of stability => BasePackage::STABILITY_* value
+	 * @param array<string, int>                             $acceptableStabilities array of stability => BasePackage::STABILITY_* value
 	 * @param array<string, BasePackage::STABILITY_*>        $stabilityFlags        an array of package name => BasePackage::STABILITY_* value
 	 * @param array<string, array<string, PackageInterface>> $alreadyLoaded         an array of package name => package version => package
 	 *
@@ -91,7 +91,7 @@ interface RepositoryInterface extends \Countable
 	 * @param int     $mode  a set of SEARCH_* constants to search on, implementations should do a best effort only, default is SEARCH_FULLTEXT
 	 * @param ?string $type  The type of package to search for. Defaults to all types of packages
 	 *
-	 * @return array[] an array of array('name' => '...', 'description' => '...'|null, 'abandoned' => 'string'|true|unset) For SEARCH_VENDOR the name will be in "vendor" form
+	 * @return         array[] an array of array('name' => '...', 'description' => '...'|null, 'abandoned' => 'string'|true|unset) For SEARCH_VENDOR the name will be in "vendor" form
 	 * @phpstan-return list<array{name: string, description: ?string, abandoned?: string|true, url?: string}>
 	 */
 	public function search(string $query, int $mode = 0, ?string $type = null);
@@ -103,7 +103,7 @@ interface RepositoryInterface extends \Countable
 	 *
 	 * @param string $packageName package name which must be provided
 	 *
-	 * @return array[] an array with the provider name as key and value of array('name' => '...', 'description' => '...', 'type' => '...')
+	 * @return         array[] an array with the provider name as key and value of array('name' => '...', 'description' => '...', 'type' => '...')
 	 * @phpstan-return array<string, array{name: string, description: string|null, type: string}>
 	 */
 	public function getProviders(string $packageName);

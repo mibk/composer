@@ -22,7 +22,7 @@ final class GithubActionError
 	 */
 	protected $io;
 
-	public function __construct(IOInterface  $io)
+	public function __construct(IOInterface $io)
 	{
 		$this->io = $io;
 	}
@@ -34,12 +34,12 @@ final class GithubActionError
 
 			if ($file && $line) {
 				$file = $this->escapeProperty($file);
-				$this->io->write("::error file=". $file .",line=". $line ."::". $message);
+				$this->io->write("::error file=" . $file . ",line=" . $line . "::" . $message);
 			} elseif ($file) {
 				$file = $this->escapeProperty($file);
-				$this->io->write("::error file=". $file ."::". $message);
+				$this->io->write("::error file=" . $file . "::" . $message);
 			} else {
-				$this->io->write("::error ::". $message);
+				$this->io->write("::error ::" . $message);
 			}
 		}
 	}

@@ -12,13 +12,13 @@
 
 namespace Composer\Command;
 
+use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
 use Composer\Script\Event as ScriptEvent;
 use Composer\Script\ScriptEvents;
-use Composer\Util\ProcessExecutor;
 use Composer\Util\Platform;
+use Composer\Util\ProcessExecutor;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
-use Composer\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -51,8 +51,8 @@ class RunScriptCommand extends BaseCommand
 			->setAliases(['run'])
 			->setDescription('Runs the scripts defined in composer.json')
 			->setDefinition([
-				new InputArgument('script', InputArgument::OPTIONAL, 'Script name to run.', null, function () {
-					return array_map(static function ($script) { return $script['name']; }, $this->getScripts());
+				new InputArgument('script', InputArgument::OPTIONAL, 'Script name to run.', null, function() {
+					return array_map(static function($script) { return $script['name']; }, $this->getScripts());
 				}),
 				new InputArgument('args', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, ''),
 				new InputOption('timeout', null, InputOption::VALUE_REQUIRED, 'Sets script timeout in seconds, or 0 for never.'),
@@ -69,7 +69,7 @@ The <info>run-script</info> command runs scripts defined in composer.json:
 Read more at https://getcomposer.org/doc/03-cli.md#run-script-run
 EOT
 			)
-		;
+			;
 	}
 
 	protected function interact(InputInterface $input, OutputInterface $output): void
@@ -111,7 +111,7 @@ EOT
 		}
 
 		if (!in_array($script, $this->scriptEvents)) {
-			if (defined('Composer\Script\ScriptEvents::'.str_replace('-', '_', strtoupper($script)))) {
+			if (defined('Composer\Script\ScriptEvents::' . str_replace('-', '_', strtoupper($script)))) {
 				throw new \InvalidArgumentException(sprintf('Script "%s" cannot be run with this command', $script));
 			}
 		}
@@ -150,7 +150,7 @@ EOT
 		$io->writeError('<info>scripts:</info>');
 		$table = [];
 		foreach ($scripts as $script) {
-			$table[] = ['  '.$script['name'], $script['description']];
+			$table[] = ['  ' . $script['name'], $script['description']];
 		}
 
 		$this->renderTable($table, $output);

@@ -16,7 +16,7 @@ use Composer\CaBundle\CaBundle;
 use Composer\Pcre\Preg;
 
 /**
- * @author Chris Smith <chris@cs278.org>
+ * @author     Chris Smith <chris@cs278.org>
  * @deprecated Use composer/ca-bundle and composer/composer 2.2 if you still need PHP 5 compatibility, this class will be removed in Composer 3.0
  */
 final class TlsHelper
@@ -77,14 +77,15 @@ final class TlsHelper
 		if (isset($info['extensions']['subjectAltName'])) {
 			$subjectAltNames = Preg::split('{\s*,\s*}', $info['extensions']['subjectAltName']);
 			$subjectAltNames = array_filter(
-				array_map(static function ($name): ?string {
+				array_map(static function($name): ?string
+				{
 					if (0 === strpos($name, 'DNS:')) {
 						return strtolower(ltrim(substr($name, 4)));
 					}
 
 					return null;
 				}, $subjectAltNames),
-				function (?string $san) {
+				function(?string $san) {
 					return $san !== null;
 				}
 			);
@@ -92,7 +93,7 @@ final class TlsHelper
 		}
 
 		return [
-			'cn' => $commonName,
+			'cn'  => $commonName,
 			'san' => $subjectAltNames,
 		];
 	}
@@ -175,7 +176,7 @@ final class TlsHelper
 
 		if (0 === $wildcards) {
 			// Literal match.
-			return static function ($hostname) use ($certName): bool {
+			return static function($hostname) use ($certName): bool {
 				return $hostname === $certName;
 			};
 		}
@@ -199,7 +200,7 @@ final class TlsHelper
 			$wildcardRegex = str_replace('\\*', '[a-z0-9-]+', $wildcardRegex);
 			$wildcardRegex = "{^{$wildcardRegex}$}";
 
-			return static function ($hostname) use ($wildcardRegex): bool {
+			return static function($hostname) use ($wildcardRegex): bool {
 				return Preg::isMatch($wildcardRegex, $hostname);
 			};
 		}

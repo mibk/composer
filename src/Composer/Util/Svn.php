@@ -70,7 +70,7 @@ class Svn
 	private static $version;
 
 	/**
-	 * @param ProcessExecutor          $process
+	 * @param ProcessExecutor $process
 	 */
 	public function __construct(string $url, IOInterface $io, Config $config, ?ProcessExecutor $process = null)
 	{
@@ -91,10 +91,10 @@ class Svn
 	 * if necessary.
 	 *
 	 * @param non-empty-list<string> $command SVN command to run
-	 * @param string  $url     SVN url
-	 * @param ?string $cwd     Working directory
-	 * @param ?string $path    Target for a checkout
-	 * @param bool    $verbose Output all output to the user
+	 * @param string                 $url     SVN url
+	 * @param ?string                $cwd     Working directory
+	 * @param ?string                $path    Target for a checkout
+	 * @param bool                   $verbose Output all output to the user
 	 *
 	 * @throws \RuntimeException
 	 */
@@ -111,9 +111,9 @@ class Svn
 	 * if necessary.
 	 *
 	 * @param non-empty-list<string> $command SVN command to run
-	 * @param string $path    Path argument passed thru to the command
-	 * @param string $cwd     Working directory
-	 * @param bool   $verbose Output all output to the user
+	 * @param string                 $path    Path argument passed thru to the command
+	 * @param string                 $cwd     Working directory
+	 * @param bool                   $verbose Output all output to the user
 	 *
 	 * @throws \RuntimeException
 	 */
@@ -133,7 +133,7 @@ class Svn
 
 		$output = null;
 		$io = $this->io;
-		$handler = static function ($type, $buffer) use (&$output, $io, $verbose) {
+		$handler = static function($type, $buffer) use (&$output, $io, $verbose) {
 			if ($type !== 'out') {
 				return null;
 			}
@@ -172,7 +172,7 @@ class Svn
 		}
 
 		throw new \RuntimeException(
-			'wrong credentials provided ('.$fullOutput.')'
+			'wrong credentials provided (' . $fullOutput . ')'
 		);
 	}
 
@@ -213,8 +213,8 @@ class Svn
 	 * A method to create the svn commands run.
 	 *
 	 * @param non-empty-list<string> $cmd  Usually 'svn ls' or something like that.
-	 * @param string $url  Repo URL.
-	 * @param string $path Target for a checkout
+	 * @param string                 $url  Repo URL.
+	 * @param string                 $path Target for a checkout
 	 *
 	 * @return non-empty-list<string>
 	 */

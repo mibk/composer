@@ -12,8 +12,8 @@
 
 namespace Composer\Repository;
 
-use Composer\Package\PackageInterface;
 use Composer\Package\BasePackage;
+use Composer\Package\PackageInterface;
 use Composer\Pcre\Preg;
 
 /**
@@ -39,22 +39,22 @@ class FilterRepository implements RepositoryInterface, AdvisoryProviderInterface
 	{
 		if (isset($options['only'])) {
 			if (!is_array($options['only'])) {
-				throw new \InvalidArgumentException('"only" key for repository '.$repo->getRepoName().' should be an array');
+				throw new \InvalidArgumentException('"only" key for repository ' . $repo->getRepoName() . ' should be an array');
 			}
 			$this->only = BasePackage::packageNamesToRegexp($options['only']);
 		}
 		if (isset($options['exclude'])) {
 			if (!is_array($options['exclude'])) {
-				throw new \InvalidArgumentException('"exclude" key for repository '.$repo->getRepoName().' should be an array');
+				throw new \InvalidArgumentException('"exclude" key for repository ' . $repo->getRepoName() . ' should be an array');
 			}
 			$this->exclude = BasePackage::packageNamesToRegexp($options['exclude']);
 		}
 		if ($this->exclude && $this->only) {
-			throw new \InvalidArgumentException('Only one of "only" and "exclude" can be specified for repository '.$repo->getRepoName());
+			throw new \InvalidArgumentException('Only one of "only" and "exclude" can be specified for repository ' . $repo->getRepoName());
 		}
 		if (isset($options['canonical'])) {
 			if (!is_bool($options['canonical'])) {
-				throw new \InvalidArgumentException('"canonical" key for repository '.$repo->getRepoName().' should be a boolean');
+				throw new \InvalidArgumentException('"canonical" key for repository ' . $repo->getRepoName() . ' should be a boolean');
 			}
 			$this->canonical = $options['canonical'];
 		}
@@ -190,7 +190,7 @@ class FilterRepository implements RepositoryInterface, AdvisoryProviderInterface
 
 	public function hasSecurityAdvisories(): bool
 	{
-		if (!$this->repo instanceof AdvisoryProviderInterface) {
+		if (! $this->repo instanceof AdvisoryProviderInterface) {
 			return false;
 		}
 
@@ -202,7 +202,7 @@ class FilterRepository implements RepositoryInterface, AdvisoryProviderInterface
 	 */
 	public function getSecurityAdvisories(array $packageConstraintMap, bool $allowPartialAdvisories = false): array
 	{
-		if (!$this->repo instanceof AdvisoryProviderInterface) {
+		if (! $this->repo instanceof AdvisoryProviderInterface) {
 			return ['namesFound' => [], 'advisories' => []];
 		}
 

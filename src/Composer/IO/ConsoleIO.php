@@ -59,11 +59,11 @@ class ConsoleIO extends BaseIO
 		$this->output = $output;
 		$this->helperSet = $helperSet;
 		$this->verbosityMap = [
-			self::QUIET => OutputInterface::VERBOSITY_QUIET,
-			self::NORMAL => OutputInterface::VERBOSITY_NORMAL,
-			self::VERBOSE => OutputInterface::VERBOSITY_VERBOSE,
+			self::QUIET        => OutputInterface::VERBOSITY_QUIET,
+			self::NORMAL       => OutputInterface::VERBOSITY_NORMAL,
+			self::VERBOSE      => OutputInterface::VERBOSITY_VERBOSE,
 			self::VERY_VERBOSE => OutputInterface::VERBOSITY_VERY_VERBOSE,
-			self::DEBUG => OutputInterface::VERBOSITY_DEBUG,
+			self::DEBUG        => OutputInterface::VERBOSITY_DEBUG,
 		];
 	}
 
@@ -164,7 +164,7 @@ class ConsoleIO extends BaseIO
 		if (null !== $this->startTime) {
 			$memoryUsage = memory_get_usage() / 1024 / 1024;
 			$timeSpent = microtime(true) - $this->startTime;
-			$messages = array_map(static function ($message) use ($memoryUsage, $timeSpent): string {
+			$messages = array_map(static function($message) use ($memoryUsage, $timeSpent): string {
 				return sprintf('[%.1fMiB/%.2fs] %s', $memoryUsage, $timeSpent, $message);
 			}, (array) $messages);
 		}

@@ -12,14 +12,14 @@
 
 namespace Composer\Repository\Vcs;
 
-use Composer\Pcre\Preg;
-use Composer\Util\ProcessExecutor;
-use Composer\Util\Filesystem;
-use Composer\Util\Url;
-use Composer\Util\Git as GitUtil;
-use Composer\IO\IOInterface;
 use Composer\Cache;
 use Composer\Config;
+use Composer\IO\IOInterface;
+use Composer\Pcre\Preg;
+use Composer\Util\Filesystem;
+use Composer\Util\Git as GitUtil;
+use Composer\Util\ProcessExecutor;
+use Composer\Util\Url;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -43,7 +43,7 @@ class GitDriver extends VcsDriver
 		if (Filesystem::isLocalPath($this->url)) {
 			$this->url = Preg::replace('{[\\/]\.git/?$}', '', $this->url);
 			if (!is_dir($this->url)) {
-				throw new \RuntimeException('Failed to read package information from '.$this->url.' as the path does not exist');
+				throw new \RuntimeException('Failed to read package information from ' . $this->url . ' as the path does not exist');
 			}
 			$this->repoDir = $this->url;
 			$cacheUrl = realpath($this->url);
@@ -60,19 +60,19 @@ class GitDriver extends VcsDriver
 			$fs->ensureDirectoryExists(dirname($this->repoDir));
 
 			if (!is_writable(dirname($this->repoDir))) {
-				throw new \RuntimeException('Can not clone '.$this->url.' to access package information. The "'.dirname($this->repoDir).'" directory is not writable by the current user.');
+				throw new \RuntimeException('Can not clone ' . $this->url . ' to access package information. The "' . dirname($this->repoDir) . '" directory is not writable by the current user.');
 			}
 
 			if (Preg::isMatch('{^ssh://[^@]+@[^:]+:[^0-9]+}', $this->url)) {
-				throw new \InvalidArgumentException('The source URL '.$this->url.' is invalid, ssh URLs should have a port number after ":".'."\n".'Use ssh://git@example.com:22/path or just git@example.com:path if you do not want to provide a password or custom port.');
+				throw new \InvalidArgumentException('The source URL ' . $this->url . ' is invalid, ssh URLs should have a port number after ":".' . "\n" . 'Use ssh://git@example.com:22/path or just git@example.com:path if you do not want to provide a password or custom port.');
 			}
 
 			$gitUtil = new GitUtil($this->io, $this->config, $this->process, $fs);
 			if (!$gitUtil->syncMirror($this->url, $this->repoDir)) {
 				if (!is_dir($this->repoDir)) {
-					throw new \RuntimeException('Failed to clone '.$this->url.' to read package information from it');
+					throw new \RuntimeException('Failed to clone ' . $this->url . ' to read package information from it');
 				}
-				$this->io->writeError('<error>Failed to update '.$this->url.', package information from this repository may be outdated</error>');
+				$this->io->writeError('<error>Failed to update ' . $this->url . ', package information from this repository may be outdated</error>');
 			}
 
 			$cacheUrl = $this->url;
@@ -81,7 +81,7 @@ class GitDriver extends VcsDriver
 		$this->getTags();
 		$this->getBranches();
 
-		$this->cache = new Cache($this->io, $this->config->get('cache-repo-dir').'/'.Preg::replace('{[^a-z0-9.]}i', '-', Url::sanitize($cacheUrl)));
+		$this->cache = new Cache($this->io, $this->config->get('cache-repo-dir') . '/' . Preg::replace('{[^a-z0-9.]}i', '-', Url::sanitize($cacheUrl)));
 		$this->cache->setReadOnly($this->config->get('cache-read-only'));
 	}
 
@@ -150,7 +150,7 @@ class GitDriver extends VcsDriver
 			throw new \RuntimeException('Invalid git identifier detected. Identifier must not start with a -, given: ' . $identifier);
 		}
 
-		$this->process->execute(['git', 'show', $identifier.':'.$file], $content, $this->repoDir);
+		$this->process->execute(['git', 'show', $identifier . ':' . $file], $content, $this->repoDir);
 
 		if (trim($content) === '') {
 			return null;
@@ -166,7 +166,7 @@ class GitDriver extends VcsDriver
 	{
 		$this->process->execute(['git', '-c', 'log.showSignature=false', 'log', '-1', '--format=%at', $identifier], $output, $this->repoDir);
 
-		return new \DateTimeImmutable('@'.trim($output), new \DateTimeZone('UTC'));
+		return new \DateTimeImmutable('@' . trim($output), new \DateTimeZone('UTC'));
 	}
 
 	/**

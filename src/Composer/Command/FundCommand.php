@@ -12,6 +12,7 @@
 
 namespace Composer\Command;
 
+use Composer\Console\Input\InputOption;
 use Composer\Json\JsonFile;
 use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
@@ -21,7 +22,6 @@ use Composer\Repository\CompositeRepository;
 use Composer\Semver\Constraint\MatchAllConstraint;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -37,7 +37,7 @@ class FundCommand extends BaseCommand
 			->setDefinition([
 				new InputOption('format', 'f', InputOption::VALUE_REQUIRED, 'Format of the output: text or json', 'text', ['text', 'json']),
 			])
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -62,11 +62,11 @@ class FundCommand extends BaseCommand
 		// collect funding data from default branches
 		foreach ($result['packages'] as $package) {
 			if (
-				!$package instanceof AliasPackage
-				&& $package instanceof CompletePackageInterface
-				&& $package->isDefaultBranch()
-				&& $package->getFunding()
-				&& isset($packagesToLoad[$package->getName()])
+				! $package instanceof AliasPackage
+					&& $package instanceof CompletePackageInterface
+					&& $package->isDefaultBranch()
+					&& $package->getFunding()
+					&& isset($packagesToLoad[$package->getName()])
 			) {
 				$fundings = $this->insertFundingData($fundings, $package);
 				unset($packagesToLoad[$package->getName()]);
@@ -128,7 +128,7 @@ class FundCommand extends BaseCommand
 	}
 
 	/**
-	 * @param mixed[] $fundings
+	 * @param  mixed[] $fundings
 	 * @return mixed[]
 	 */
 	private function insertFundingData(array $fundings, CompletePackageInterface $package): array
@@ -141,7 +141,7 @@ class FundCommand extends BaseCommand
 			}
 			$url = $fundingOption['url'];
 			if (!empty($fundingOption['type']) && $fundingOption['type'] === 'github' && Preg::isMatch('{^https://github.com/([^/]+)$}', $url, $match)) {
-				$url = 'https://github.com/sponsors/'.$match[1];
+				$url = 'https://github.com/sponsors/' . $match[1];
 			}
 			$fundings[$vendor][$url][] = $packageName;
 		}

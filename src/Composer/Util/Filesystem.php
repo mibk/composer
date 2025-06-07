@@ -132,8 +132,8 @@ class Filesystem
 	 * Uses the process component if proc_open is enabled on the PHP
 	 * installation.
 	 *
-	 * @throws \RuntimeException
-	 * @return PromiseInterface
+	 * @throws         \RuntimeException
+	 * @return         PromiseInterface
 	 * @phpstan-return PromiseInterface<bool>
 	 */
 	public function removeDirectoryAsync(string $directory)
@@ -151,7 +151,7 @@ class Filesystem
 
 		$promise = $this->getProcess()->executeAsync($cmd);
 
-		return $promise->then(function ($process) use ($directory) {
+		return $promise->then(function($process) use ($directory) {
 			// clear stat cache because external processes aren't tracked by the php stat cache
 			clearstatcache();
 
@@ -187,7 +187,7 @@ class Filesystem
 		}
 
 		if (Preg::isMatch('{^(?:[a-z]:)?[/\\\\]+$}i', $directory)) {
-			throw new \RuntimeException('Aborting an attempted deletion of '.$directory.', this was probably not intended, if it is a real use case please report it.');
+			throw new \RuntimeException('Aborting an attempted deletion of ' . $directory . ', this was probably not intended, if it is a real use case please report it.');
 		}
 
 		if (!\function_exists('proc_open') && $fallbackToPhp) {
@@ -249,16 +249,16 @@ class Filesystem
 		if (!is_dir($directory)) {
 			if (file_exists($directory)) {
 				throw new \RuntimeException(
-					$directory.' exists and is not a directory.'
+					$directory . ' exists and is not a directory.'
 				);
 			}
 
 			if (is_link($directory) && !@$this->unlinkImplementation($directory)) {
-				throw new \RuntimeException('Could not delete symbolic link '.$directory.': '.(error_get_last()['message'] ?? ''));
+				throw new \RuntimeException('Could not delete symbolic link ' . $directory . ': ' . (error_get_last()['message'] ?? ''));
 			}
 
 			if (!@mkdir($directory, 0777, true)) {
-				$e = new \RuntimeException($directory.' does not exist and could not be created: '.(error_get_last()['message'] ?? ''));
+				$e = new \RuntimeException($directory . ' does not exist and could not be created: ' . (error_get_last()['message'] ?? ''));
 
 				// in pathological cases with paths like path/to/broken-symlink/../foo is_dir will fail to detect path/to/foo
 				// but normalizing the ../ away first makes it work so we attempt this just in case, and if it still fails we
@@ -269,7 +269,8 @@ class Filesystem
 					try {
 						$this->ensureDirectoryExists($normalized);
 						return;
-					} catch (\Throwable $ignoredEx) {}
+					} catch (\Throwable $ignoredEx) {
+					}
 				}
 
 				throw $e;
@@ -295,7 +296,7 @@ class Filesystem
 
 			if (!$unlinked) {
 				$error = error_get_last();
-				$message = 'Could not delete '.$path.': ' . ($error['message'] ?? '');
+				$message = 'Could not delete ' . $path . ': ' . ($error['message'] ?? '');
 				if (Platform::isWindows()) {
 					$message .= "\nThis can be due to an antivirus or the Windows Search Indexer locking the file while they are analyzed";
 				}
@@ -325,7 +326,7 @@ class Filesystem
 
 			if (!$deleted) {
 				$error = error_get_last();
-				$message = 'Could not delete '.$path.': ' . ($error['message'] ?? '');
+				$message = 'Could not delete ' . $path . ': ' . ($error['message'] ?? '');
 				if (Platform::isWindows()) {
 					$message .= "\nThis can be due to an antivirus or the Windows Search Indexer locking the file while they are analyzed";
 				}
@@ -456,8 +457,8 @@ class Filesystem
 	/**
 	 * Returns the shortest path from $from to $to
 	 *
-	 * @param  bool                      $directories if true, the source/target are considered to be directories
-	 * @param  bool                      $preferRelative if true, relative paths will be preferred even if longer
+	 * @param  bool $directories    if true, the source/target are considered to be directories
+	 * @param  bool $preferRelative if true, relative paths will be preferred even if longer
 	 * @throws \InvalidArgumentException
 	 * @return string
 	 */
@@ -475,11 +476,11 @@ class Filesystem
 		}
 
 		if (\dirname($from) === \dirname($to)) {
-			return './'.basename($to);
+			return './' . basename($to);
 		}
 
 		$commonPath = $to;
-		while (strpos($from.'/', $commonPath.'/') !== 0 && '/' !== $commonPath && !Preg::isMatch('{^[A-Z]:/?$}i', $commonPath)) {
+		while (strpos($from . '/', $commonPath . '/') !== 0 && '/' !== $commonPath && !Preg::isMatch('{^[A-Z]:/?$}i', $commonPath)) {
 			$commonPath = strtr(\dirname($commonPath), '\\', '/');
 		}
 
@@ -508,8 +509,8 @@ class Filesystem
 	/**
 	 * Returns PHP code that, when executed in $from, will return the path to $to
 	 *
-	 * @param  bool                      $directories if true, the source/target are considered to be directories
-	 * @param  bool                      $preferRelative if true, relative paths will be preferred even if longer
+	 * @param  bool $directories    if true, the source/target are considered to be directories
+	 * @param  bool $preferRelative if true, relative paths will be preferred even if longer
 	 * @throws \InvalidArgumentException
 	 * @return string
 	 */
@@ -527,7 +528,7 @@ class Filesystem
 		}
 
 		$commonPath = $to;
-		while (strpos($from.'/', $commonPath.'/') !== 0 && '/' !== $commonPath && !Preg::isMatch('{^[A-Z]:/?$}i', $commonPath) && '.' !== $commonPath) {
+		while (strpos($from . '/', $commonPath . '/') !== 0 && '/' !== $commonPath && !Preg::isMatch('{^[A-Z]:/?$}i', $commonPath) && '.' !== $commonPath) {
 			$commonPath = strtr(\dirname($commonPath), '\\', '/');
 		}
 
@@ -537,10 +538,10 @@ class Filesystem
 		}
 
 		$commonPath = rtrim($commonPath, '/') . '/';
-		if (str_starts_with($to, $from.'/')) {
-			return '__DIR__ . '.var_export((string) substr($to, \strlen($from)), true);
+		if (str_starts_with($to, $from . '/')) {
+			return '__DIR__ . ' . var_export((string) substr($to, \strlen($from)), true);
 		}
-		$sourcePathDepth = substr_count((string) substr($from, \strlen($commonPath)), '/') + (int) $directories;
+		$sourcePathDepth = substr_count((string) substr($from, \strlen($commonPath)), '/') + (int)$directories;
 
 		// allow top level /foo & /bar dirs to be addressed relatively as this is common in Docker setups
 		if (!$preferRelative && '/' === $commonPath && $sourcePathDepth > 1) {
@@ -548,9 +549,9 @@ class Filesystem
 		}
 
 		if ($staticCode) {
-			$commonPathCode = "__DIR__ . '".str_repeat('/..', $sourcePathDepth)."'";
+			$commonPathCode = "__DIR__ . '" . str_repeat('/..', $sourcePathDepth) . "'";
 		} else {
-			$commonPathCode = str_repeat('dirname(', $sourcePathDepth).'__DIR__'.str_repeat(')', $sourcePathDepth);
+			$commonPathCode = str_repeat('dirname(', $sourcePathDepth) . '__DIR__' . str_repeat(')', $sourcePathDepth);
 		}
 		$relTarget = (string) substr($to, \strlen($commonPath));
 
@@ -571,7 +572,7 @@ class Filesystem
 	 * Returns size of a file or directory specified by path. If a directory is
 	 * given, its size will be computed recursively.
 	 *
-	 * @param  string            $path Path to the file or directory
+	 * @param  string $path Path to the file or directory
 	 * @throws \RuntimeException
 	 * @return int
 	 */
@@ -630,11 +631,11 @@ class Filesystem
 		}
 
 		// ensure c: is normalized to C:
-		$prefix = Preg::replaceCallback('{(^|://)[a-z]:$}i', static function (array $m) {
+		$prefix = Preg::replaceCallback('{(^|://)[a-z]:$}i', static function(array $m) {
 			return strtoupper($m[0]);
 		}, $prefix);
 
-		return $prefix.$absolute.implode('/', $parts);
+		return $prefix . $absolute . implode('/', $parts);
 	}
 
 	/**
@@ -923,9 +924,9 @@ class Filesystem
 	{
 		if (!file_exists($target) || !file_exists($source) || !$this->filesAreEqual($source, $target)) {
 			$sourceHandle = fopen($source, 'r');
-			assert($sourceHandle !== false, 'Could not open "'.$source.'" for reading.');
+			assert($sourceHandle !== false, 'Could not open "' . $source . '" for reading.');
 			$targetHandle = fopen($target, 'w+');
-			assert($targetHandle !== false, 'Could not open "'.$target.'" for writing.');
+			assert($targetHandle !== false, 'Could not open "' . $target . '" for writing.');
 
 			stream_copy_to_stream($sourceHandle, $targetHandle);
 			fclose($sourceHandle);
@@ -948,9 +949,9 @@ class Filesystem
 
 		// Check if content is different
 		$aHandle = fopen($a, 'rb');
-		assert($aHandle !== false, 'Could not open "'.$a.'" for reading.');
+		assert($aHandle !== false, 'Could not open "' . $a . '" for reading.');
 		$bHandle = fopen($b, 'rb');
-		assert($bHandle !== false, 'Could not open "'.$b.'" for reading.');
+		assert($bHandle !== false, 'Could not open "' . $b . '" for reading.');
 
 		$result = true;
 		while (!feof($aHandle)) {

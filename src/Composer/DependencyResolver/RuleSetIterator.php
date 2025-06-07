@@ -13,7 +13,7 @@
 namespace Composer\DependencyResolver;
 
 /**
- * @author Nils Adermann <naderman@naderman.de>
+ * @author     Nils Adermann <naderman@naderman.de>
  * @implements \Iterator<RuleSet::TYPE_*|-1, Rule>
  */
 class RuleSetIterator implements \Iterator

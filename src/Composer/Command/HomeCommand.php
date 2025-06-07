@@ -12,14 +12,14 @@
 
 namespace Composer\Command;
 
-use Composer\Package\CompletePackageInterface;
-use Composer\Repository\RepositoryInterface;
-use Composer\Repository\RootPackageRepository;
-use Composer\Repository\RepositoryFactory;
-use Composer\Util\Platform;
-use Composer\Util\ProcessExecutor;
 use Composer\Console\Input\InputArgument;
 use Composer\Console\Input\InputOption;
+use Composer\Package\CompletePackageInterface;
+use Composer\Repository\RepositoryFactory;
+use Composer\Repository\RepositoryInterface;
+use Composer\Repository\RootPackageRepository;
+use Composer\Util\Platform;
+use Composer\Util\ProcessExecutor;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -84,12 +84,12 @@ EOT
 
 			if (!$packageExists) {
 				$return = 1;
-				$io->writeError('<warning>Package '.$packageName.' not found</warning>');
+				$io->writeError('<warning>Package ' . $packageName . ' not found</warning>');
 			}
 
 			if (!$handled) {
 				$return = 1;
-				$io->writeError('<warning>'.($input->getOption('homepage') ? 'Invalid or missing homepage' : 'Invalid or missing repository URL').' for '.$packageName.'</warning>');
+				$io->writeError('<warning>' . ($input->getOption('homepage') ? 'Invalid or missing homepage' : 'Invalid or missing repository URL') . ' for ' . $packageName . '</warning>');
 			}
 		}
 
@@ -155,8 +155,8 @@ EOT
 		if ($composer) {
 			return array_merge(
 				[new RootPackageRepository(clone $composer->getPackage())], // root package
-				[$composer->getRepositoryManager()->getLocalRepository()], // installed packages
-				$composer->getRepositoryManager()->getRepositories() // remotes
+				[$composer->getRepositoryManager()->getLocalRepository()],  // installed packages
+				$composer->getRepositoryManager()->getRepositories()        // remotes
 			);
 		}
 

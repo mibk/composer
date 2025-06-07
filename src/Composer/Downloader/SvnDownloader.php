@@ -14,9 +14,9 @@ namespace Composer\Downloader;
 
 use Composer\Package\PackageInterface;
 use Composer\Pcre\Preg;
-use Composer\Util\Svn as SvnUtil;
 use Composer\Repository\VcsRepository;
 use Composer\Util\ProcessExecutor;
+use Composer\Util\Svn as SvnUtil;
 use React\Promise\PromiseInterface;
 
 /**
@@ -58,7 +58,7 @@ class SvnDownloader extends VcsDownloader
 			}
 		}
 
-		$this->io->writeError(" Checking out ".$package->getSourceReference());
+		$this->io->writeError(" Checking out " . $package->getSourceReference());
 		$this->execute($package, $url, ['svn', 'co'], sprintf("%s/%s", $url, $ref), null, $path);
 
 		return \React\Promise\resolve(null);
@@ -73,7 +73,7 @@ class SvnDownloader extends VcsDownloader
 		$ref = $target->getSourceReference();
 
 		if (!$this->hasMetadataRepository($path)) {
-			throw new \RuntimeException('The .svn directory is missing from '.$path.', see https://getcomposer.org/commit-deps for more information');
+			throw new \RuntimeException('The .svn directory is missing from ' . $path . ', see https://getcomposer.org/commit-deps for more information');
 		}
 
 		$util = new SvnUtil($url, $this->io, $this->config, $this->process);
@@ -106,11 +106,11 @@ class SvnDownloader extends VcsDownloader
 	 * Execute an SVN command and try to fix up the process with credentials
 	 * if necessary.
 	 *
-	 * @param  string            $baseUrl Base URL of the repository
+	 * @param  string                 $baseUrl Base URL of the repository
 	 * @param  non-empty-list<string> $command SVN command to run
-	 * @param  string            $url     SVN url
-	 * @param  string            $cwd     Working directory
-	 * @param  string            $path    Target for a checkout
+	 * @param  string                 $url     SVN url
+	 * @param  string                 $cwd     Working directory
+	 * @param  string                 $path    Target for a checkout
 	 * @throws \RuntimeException
 	 */
 	protected function execute(PackageInterface $package, string $baseUrl, array $command, string $url, ?string $cwd = null, ?string $path = null): string
@@ -121,7 +121,7 @@ class SvnDownloader extends VcsDownloader
 			return $util->execute($command, $url, $cwd, $path, $this->io->isVerbose());
 		} catch (\RuntimeException $e) {
 			throw new \RuntimeException(
-				$package->getPrettyName().' could not be downloaded, '.$e->getMessage()
+				$package->getPrettyName() . ' could not be downloaded, ' . $e->getMessage()
 			);
 		}
 	}
@@ -143,17 +143,17 @@ class SvnDownloader extends VcsDownloader
 			return parent::cleanChanges($package, $path, $update);
 		}
 
-		$changes = array_map(static function ($elem): string {
-			return '    '.$elem;
+		$changes = array_map(static function($elem): string {
+			return '    ' . $elem;
 		}, Preg::split('{\s*\r?\n\s*}', $changes));
 		$countChanges = count($changes);
-		$this->io->writeError(sprintf('    <error>'.$package->getPrettyName().' has modified file%s:</error>', $countChanges === 1 ? '' : 's'));
+		$this->io->writeError(sprintf('    <error>' . $package->getPrettyName() . ' has modified file%s:</error>', $countChanges === 1 ? '' : 's'));
 		$this->io->writeError(array_slice($changes, 0, 10));
 		if ($countChanges > 10) {
 			$remainingChanges = $countChanges - 10;
 			$this->io->writeError(
 				sprintf(
-					'    <info>'.$remainingChanges.' more file%s modified, choose "v" to view the full list</info>',
+					'    <info>' . $remainingChanges . ' more file%s modified, choose "v" to view the full list</info>',
 					$remainingChanges === 1 ? '' : 's'
 				)
 			);
@@ -161,26 +161,26 @@ class SvnDownloader extends VcsDownloader
 
 		while (true) {
 			switch ($this->io->ask('    <info>Discard changes [y,n,v,?]?</info> ', '?')) {
-				case 'y':
-					$this->discardChanges($path);
-					break 2;
+			case 'y':
+				$this->discardChanges($path);
+				break 2;
 
-				case 'n':
-					throw new \RuntimeException('Update aborted');
+			case 'n':
+				throw new \RuntimeException('Update aborted');
 
-				case 'v':
-					$this->io->writeError($changes);
-					break;
+			case 'v':
+				$this->io->writeError($changes);
+				break;
 
-				case '?':
-				default:
-					$this->io->writeError([
-						'    y - discard changes and apply the '.($update ? 'update' : 'uninstall'),
-						'    n - abort the '.($update ? 'update' : 'uninstall').' and let you manually clean things up',
-						'    v - view modified files',
-						'    ? - print help',
-					]);
-					break;
+			case '?':
+			default:
+				$this->io->writeError([
+					'    y - discard changes and apply the ' . ($update ? 'update' : 'uninstall'),
+					'    n - abort the ' . ($update ? 'update' : 'uninstall') . ' and let you manually clean things up',
+					'    v - view modified files',
+					'    ? - print help',
+				]);
+				break;
 			}
 		}
 
@@ -206,7 +206,7 @@ class SvnDownloader extends VcsDownloader
 				$baseUrl = $matches[1];
 			} else {
 				throw new \RuntimeException(
-					'Unable to determine svn url for path '. $path
+					'Unable to determine svn url for path ' . $path
 				);
 			}
 
@@ -214,7 +214,7 @@ class SvnDownloader extends VcsDownloader
 			$fromRevision = Preg::replace('{.*@(\d+)$}', '$1', $fromReference);
 			$toRevision = Preg::replace('{.*@(\d+)$}', '$1', $toReference);
 
-			$command = ['svn', 'log', '-r', $fromRevision.':'.$toRevision, '--incremental'];
+			$command = ['svn', 'log', '-r', $fromRevision . ':' . $toRevision, '--incremental'];
 
 			$util = new SvnUtil($baseUrl, $this->io, $this->config, $this->process);
 			$util->setCacheCredentials($this->cacheCredentials);
@@ -222,7 +222,7 @@ class SvnDownloader extends VcsDownloader
 				return $util->executeLocal($command, $path, null, $this->io->isVerbose());
 			} catch (\RuntimeException $e) {
 				throw new \RuntimeException(
-					'Failed to execute ' . implode(' ', $command) . "\n\n".$e->getMessage()
+					'Failed to execute ' . implode(' ', $command) . "\n\n" . $e->getMessage()
 				);
 			}
 		}
@@ -236,7 +236,7 @@ class SvnDownloader extends VcsDownloader
 	protected function discardChanges(string $path): PromiseInterface
 	{
 		if (0 !== $this->process->execute(['svn', 'revert', '-R', '.'], $output, $path)) {
-			throw new \RuntimeException("Could not reset changes\n\n:".$this->process->getErrorOutput());
+			throw new \RuntimeException("Could not reset changes\n\n:" . $this->process->getErrorOutput());
 		}
 
 		return \React\Promise\resolve(null);
@@ -247,6 +247,6 @@ class SvnDownloader extends VcsDownloader
 	 */
 	protected function hasMetadataRepository(string $path): bool
 	{
-		return is_dir($path.'/.svn');
+		return is_dir($path . '/.svn');
 	}
 }

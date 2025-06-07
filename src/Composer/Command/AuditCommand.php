@@ -12,15 +12,15 @@
 
 namespace Composer\Command;
 
+use Composer\Advisory\Auditor;
 use Composer\Composer;
+use Composer\Console\Input\InputOption;
+use Composer\Package\PackageInterface;
+use Composer\Repository\InstalledRepository;
 use Composer\Repository\RepositorySet;
 use Composer\Repository\RepositoryUtils;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Composer\Package\PackageInterface;
-use Composer\Repository\InstalledRepository;
-use Composer\Advisory\Auditor;
-use Composer\Console\Input\InputOption;
 
 class AuditCommand extends BaseCommand
 {
@@ -45,7 +45,7 @@ If you do not want to include dev dependencies in the audit you can omit them wi
 Read more at https://getcomposer.org/doc/03-cli.md#audit
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -69,7 +69,7 @@ EOT
 
 		$abandoned = $input->getOption('abandoned');
 		if ($abandoned !== null && !in_array($abandoned, Auditor::ABANDONEDS, true)) {
-			throw new \InvalidArgumentException('--audit must be one of '.implode(', ', Auditor::ABANDONEDS).'.');
+			throw new \InvalidArgumentException('--audit must be one of ' . implode(', ', Auditor::ABANDONEDS) . '.');
 		}
 
 		$abandoned = $abandoned ?? $auditConfig['abandoned'] ?? Auditor::ABANDONED_FAIL;
@@ -86,7 +86,6 @@ EOT
 			$abandoned,
 			$ignoreSeverities
 		));
-
 	}
 
 	/**

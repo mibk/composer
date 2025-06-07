@@ -12,10 +12,10 @@
 
 namespace Composer\Repository\Vcs;
 
-use Composer\Config;
-use Composer\IO\IOInterface;
 use Composer\Cache;
+use Composer\Config;
 use Composer\Downloader\TransportException;
+use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
 use Composer\Pcre\Preg;
 use Composer\Util\Bitbucket;
@@ -310,8 +310,8 @@ class GitBitbucketDriver extends VcsDriver
 				http_build_query(
 					[
 						'pagelen' => 100,
-						'fields' => 'values.name,values.target.hash,next',
-						'sort' => '-target.date',
+						'fields'  => 'values.name,values.target.hash,next',
+						'sort'    => '-target.date',
 					],
 					'',
 					'&'
@@ -353,8 +353,8 @@ class GitBitbucketDriver extends VcsDriver
 				http_build_query(
 					[
 						'pagelen' => 100,
-						'fields' => 'values.name,values.target.hash,values.heads,next',
-						'sort' => '-target.date',
+						'fields'  => 'values.name,values.target.hash,values.heads,next',
+						'sort'    => '-target.date',
 					],
 					'',
 					'&'
@@ -382,7 +382,7 @@ class GitBitbucketDriver extends VcsDriver
 	/**
 	 * Get the remote content.
 	 *
-	 * @param string $url              The URL of content
+	 * @param string $url The URL of content
 	 *
 	 * @return Response The result
 	 *
@@ -418,7 +418,7 @@ class GitBitbucketDriver extends VcsDriver
 	 */
 	protected function generateSshUrl(): string
 	{
-		return 'git@' . $this->originUrl . ':' . $this->owner.'/'.$this->repository.'.git';
+		return 'git@' . $this->originUrl . ':' . $this->owner . '/' . $this->repository . '.git';
 	}
 
 	/**
@@ -457,7 +457,7 @@ class GitBitbucketDriver extends VcsDriver
 	}
 
 	/**
-	 * @param  array<array{name: string, href: string}> $cloneLinks
+	 * @param array<array{name: string, href: string}> $cloneLinks
 	 */
 	protected function parseCloneUrls(array $cloneLinks): void
 	{
@@ -490,9 +490,9 @@ class GitBitbucketDriver extends VcsDriver
 
 			if ($this->vcsType !== 'git') {
 				throw new \RuntimeException(
-					$this->url.' does not appear to be a git repository, use '.
-					$this->cloneHttpsUrl.' but remember that Bitbucket no longer supports the mercurial repositories. '.
-					'https://bitbucket.org/blog/sunsetting-mercurial-support-in-bitbucket'
+					$this->url . ' does not appear to be a git repository, use ' .
+						$this->cloneHttpsUrl . ' but remember that Bitbucket no longer supports the mercurial repositories. ' .
+						'https://bitbucket.org/blog/sunsetting-mercurial-support-in-bitbucket'
 				);
 			}
 
@@ -512,7 +512,7 @@ class GitBitbucketDriver extends VcsDriver
 		}
 
 		if (!extension_loaded('openssl')) {
-			$io->writeError('Skipping Bitbucket git driver for '.$url.' because the OpenSSL PHP extension is missing.', true, IOInterface::VERBOSE);
+			$io->writeError('Skipping Bitbucket git driver for ' . $url . ' because the OpenSSL PHP extension is missing.', true, IOInterface::VERBOSE);
 
 			return false;
 		}

@@ -48,7 +48,7 @@ class LockTransaction extends Transaction
 
 	/**
 	 * @param array<string, BasePackage> $presentMap
-	 * @param array<int, BasePackage> $unlockableMap
+	 * @param array<int, BasePackage>    $unlockableMap
 	 */
 	public function __construct(Pool $pool, array $presentMap, array $unlockableMap, Decisions $decisions)
 	{
@@ -156,8 +156,8 @@ class LockTransaction extends Transaction
 			// update dist url if it is in a known format
 			if (
 				$package->getDistUrl() !== null
-				&& $presentPackage->getDistReference() !== null
-				&& Preg::isMatch('{^https?://(?:(?:www\.)?bitbucket\.org|(api\.)?github\.com|(?:www\.)?gitlab\.com)/}i', $package->getDistUrl())
+					&& $presentPackage->getDistReference() !== null
+					&& Preg::isMatch('{^https?://(?:(?:www\.)?bitbucket\.org|(api\.)?github\.com|(?:www\.)?gitlab\.com)/}i', $package->getDistUrl())
 			) {
 				$presentPackage->setDistUrl(Preg::replace('{(?<=/|sha=)[a-f0-9]{40}(?=/|$)}i', $presentPackage->getDistReference(), $package->getDistUrl()));
 			}
@@ -171,7 +171,7 @@ class LockTransaction extends Transaction
 
 	/**
 	 * Checks which of the given aliases from composer.json are actually in use for the lock file
-	 * @param list<array{package: string, version: string, alias: string, alias_normalized: string}> $aliases
+	 * @param  list<array{package: string, version: string, alias: string, alias_normalized: string}> $aliases
 	 * @return list<array{package: string, version: string, alias: string, alias_normalized: string}>
 	 */
 	public function getAliases(array $aliases): array
@@ -189,7 +189,7 @@ class LockTransaction extends Transaction
 			}
 		}
 
-		usort($usedAliases, static function ($a, $b): int {
+		usort($usedAliases, static function($a, $b): int {
 			return strcmp($a['package'], $b['package']);
 		});
 

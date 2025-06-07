@@ -12,10 +12,10 @@
 
 namespace Composer\Downloader;
 
-use React\Promise\PromiseInterface;
 use Composer\Package\PackageInterface;
-use Composer\Util\ProcessExecutor;
 use Composer\Util\Hg as HgUtils;
+use Composer\Util\ProcessExecutor;
+use React\Promise\PromiseInterface;
 
 /**
  * @author Per Bernhardt <plb@webfactory.de>
@@ -41,7 +41,7 @@ class HgDownloader extends VcsDownloader
 	{
 		$hgUtils = new HgUtils($this->io, $this->config, $this->process);
 
-		$cloneCommand = static function (string $url) use ($path): array {
+		$cloneCommand = static function(string $url) use ($path): array {
 			return ['hg', 'clone', '--', $url, $path];
 		};
 
@@ -63,18 +63,18 @@ class HgDownloader extends VcsDownloader
 		$hgUtils = new HgUtils($this->io, $this->config, $this->process);
 
 		$ref = $target->getSourceReference();
-		$this->io->writeError(" Updating to ".$target->getSourceReference());
+		$this->io->writeError(" Updating to " . $target->getSourceReference());
 
 		if (!$this->hasMetadataRepository($path)) {
-			throw new \RuntimeException('The .hg directory is missing from '.$path.', see https://getcomposer.org/commit-deps for more information');
+			throw new \RuntimeException('The .hg directory is missing from ' . $path . ', see https://getcomposer.org/commit-deps for more information');
 		}
 
-		$command = static function ($url): array {
+		$command = static function($url): array {
 			return ['hg', 'pull', '--', $url];
 		};
 		$hgUtils->runCommand($command, $url, $path);
 
-		$command = static function () use ($ref): array {
+		$command = static function() use ($ref): array {
 			return ['hg', 'up', '--', $ref];
 		};
 		$hgUtils->runCommand($command, $url, $path);
@@ -87,7 +87,7 @@ class HgDownloader extends VcsDownloader
 	 */
 	public function getLocalChanges(PackageInterface $package, string $path): ?string
 	{
-		if (!is_dir($path.'/.hg')) {
+		if (!is_dir($path . '/.hg')) {
 			return null;
 		}
 
@@ -103,7 +103,7 @@ class HgDownloader extends VcsDownloader
 	 */
 	protected function getCommitLogs(string $fromReference, string $toReference, string $path): string
 	{
-		$command = ['hg', 'log', '-r', $fromReference.':'.$toReference, '--style', 'compact'];
+		$command = ['hg', 'log', '-r', $fromReference . ':' . $toReference, '--style', 'compact'];
 
 		if (0 !== $this->process->execute($command, $output, realpath($path))) {
 			throw new \RuntimeException('Failed to execute ' . implode(' ', $command) . "\n\n" . $this->process->getErrorOutput());

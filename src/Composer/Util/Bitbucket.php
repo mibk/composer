@@ -12,10 +12,10 @@
 
 namespace Composer\Util;
 
-use Composer\Factory;
-use Composer\IO\IOInterface;
 use Composer\Config;
 use Composer\Downloader\TransportException;
+use Composer\Factory;
+use Composer\IO\IOInterface;
 
 /**
  * @author Paul Wenke <wenke.paul@gmail.com>
@@ -91,15 +91,15 @@ class Bitbucket
 		try {
 			$response = $this->httpDownloader->get(self::OAUTH2_ACCESS_TOKEN_URL, [
 				'retry-auth-failure' => false,
-				'http' => [
-					'method' => 'POST',
+				'http'               => [
+					'method'  => 'POST',
 					'content' => 'grant_type=client_credentials',
 				],
 			]);
 
 			$token = $response->decodeJson();
 			if (!isset($token['expires_in']) || !isset($token['access_token'])) {
-				throw new \LogicException('Expected a token configured with expires_in and access_token present, got '.json_encode($token));
+				throw new \LogicException('Expected a token configured with expires_in and access_token present, got ' . json_encode($token));
 			}
 
 			$this->token = $token;
@@ -129,11 +129,11 @@ class Bitbucket
 	/**
 	 * Authorizes a Bitbucket domain interactively via OAuth
 	 *
-	 * @param  string                        $originUrl The host this Bitbucket instance is located at
-	 * @param  string                        $message   The reason this authorization is required
+	 * @param  string $originUrl The host this Bitbucket instance is located at
+	 * @param  string $message   The reason this authorization is required
 	 * @throws \RuntimeException
 	 * @throws TransportException|\Exception
-	 * @return bool                          true on success
+	 * @return bool true on success
 	 */
 	public function authorizeOAuthInteractively(string $originUrl, ?string $message = null): bool
 	{
@@ -217,21 +217,21 @@ class Bitbucket
 	 */
 	private function storeInAuthConfig(Config\ConfigSourceInterface $authConfigSource, string $originUrl, string $consumerKey, string $consumerSecret): void
 	{
-		$this->config->getConfigSource()->removeConfigSetting('bitbucket-oauth.'.$originUrl);
+		$this->config->getConfigSource()->removeConfigSetting('bitbucket-oauth.' . $originUrl);
 
 		if (null === $this->token || !isset($this->token['expires_in'])) {
-			throw new \LogicException('Expected a token configured with expires_in present, got '.json_encode($this->token));
+			throw new \LogicException('Expected a token configured with expires_in present, got ' . json_encode($this->token));
 		}
 
 		$time = null === $this->time ? time() : $this->time;
 		$consumer = [
-			"consumer-key" => $consumerKey,
-			"consumer-secret" => $consumerSecret,
-			"access-token" => $this->token['access_token'],
+			"consumer-key"            => $consumerKey,
+			"consumer-secret"         => $consumerSecret,
+			"access-token"            => $this->token['access_token'],
 			"access-token-expiration" => $time + $this->token['expires_in'],
 		];
 
-		$this->config->getAuthConfigSource()->addConfigSetting('bitbucket-oauth.'.$originUrl, $consumer);
+		$this->config->getAuthConfigSource()->addConfigSetting('bitbucket-oauth.' . $originUrl, $consumer);
 	}
 
 	/**
@@ -243,7 +243,7 @@ class Bitbucket
 
 		if (
 			!isset($authConfig[$originUrl]['access-token'], $authConfig[$originUrl]['access-token-expiration'])
-			|| time() > $authConfig[$originUrl]['access-token-expiration']
+				|| time() > $authConfig[$originUrl]['access-token-expiration']
 		) {
 			return false;
 		}

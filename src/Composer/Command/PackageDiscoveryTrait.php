@@ -103,7 +103,7 @@ trait PackageDiscoveryTrait
 
 			foreach ($requires as $requirement) {
 				if (isset($requirement['version']) && Preg::isMatch('{^\d+(\.\d+)?$}', $requirement['version'])) {
-					$io->writeError('<warning>The "'.$requirement['version'].'" constraint for "'.$requirement['name'].'" appears too strict and will likely not match what you want. See https://getcomposer.org/constraints</warning>');
+					$io->writeError('<warning>The "' . $requirement['version'] . '" constraint for "' . $requirement['name'] . '" appears too strict and will likely not match what you want. See https://getcomposer.org/constraints</warning>');
 				}
 
 				if (!isset($requirement['version'])) {
@@ -199,7 +199,7 @@ trait PackageDiscoveryTrait
 					$io->writeError($choices);
 					$io->writeError('');
 
-					$validator = static function (string $selection) use ($matches, $versionParser) {
+					$validator = static function(string $selection) use ($matches, $versionParser) {
 						if ('' === $selection) {
 							return false;
 						}
@@ -217,7 +217,7 @@ trait PackageDiscoveryTrait
 								// validate version constraint
 								$versionParser->parseConstraints($packageMatches['version']);
 
-								return $packageMatches['name'].' '.$packageMatches['version'];
+								return $packageMatches['name'] . ' ' . $packageMatches['version'];
 							}
 
 							// parsing `acme/example`
@@ -237,7 +237,7 @@ trait PackageDiscoveryTrait
 
 				// no constraint yet, determine the best version automatically
 				if (false !== $package && false === strpos($package, ' ')) {
-					$validator = static function (string $input) {
+					$validator = static function(string $input) {
 						$input = trim($input);
 
 						return strlen($input) > 0 ? $input : false;
@@ -260,7 +260,7 @@ trait PackageDiscoveryTrait
 						));
 					}
 
-					$package .= ' '.$constraint;
+					$package .= ' ' . $constraint;
 				}
 
 				if (false !== $package) {
@@ -279,7 +279,7 @@ trait PackageDiscoveryTrait
 	 * This returns a version with the ~ operator prefixed when possible.
 	 *
 	 * @throws \InvalidArgumentException
-	 * @return array{string, string}     name version
+	 * @return array{string, string} name version
 	 */
 	private function findBestVersionAndNameForPackage(IOInterface $io, InputInterface $input, string $name, ?PlatformRepository $platformRepo = null, string $preferredStability = 'stable', bool $fixed = false): array
 	{
@@ -309,7 +309,7 @@ trait PackageDiscoveryTrait
 			if (count($providers) > 0) {
 				$constraint = '*';
 				if ($input->isInteractive()) {
-					$constraint = $this->getIO()->askAndValidate('Package "<info>'.$name.'</info>" does not exist but is provided by '.count($providers).' packages. Which version constraint would you like to use? [<info>*</info>] ', static function ($value) {
+					$constraint = $this->getIO()->askAndValidate('Package "<info>' . $name . '</info>" does not exist but is provided by ' . count($providers) . ' packages. Which version constraint would you like to use? [<info>*</info>] ', static function($value) {
 						$parser = new VersionParser();
 						$parser->parseConstraints($value);
 
@@ -332,7 +332,7 @@ trait PackageDiscoveryTrait
 				// we must first verify if a valid package would be found in a lower priority repository
 				if (false !== ($allReposPackage = $versionSelector->findBestCandidate($name, null, $preferredStability, $platformRequirementFilter, RepositorySet::ALLOW_SHADOWED_REPOSITORIES))) {
 					throw new \InvalidArgumentException(
-						'Package '.$name.' exists in '.$allReposPackage->getRepository()->getRepoName().' and '.$package->getRepository()->getRepoName().' which has a higher repository priority. The packages from the higher priority repository do not match your minimum-stability and are therefore not installable. That repository is canonical so the lower priority repo\'s packages are not installable. See https://getcomposer.org/repoprio for details and assistance.'
+						'Package ' . $name . ' exists in ' . $allReposPackage->getRepository()->getRepoName() . ' and ' . $package->getRepository()->getRepoName() . ' which has a higher repository priority. The packages from the higher priority repository do not match your minimum-stability and are therefore not installable. That repository is canonical so the lower priority repo\'s packages are not installable. See https://getcomposer.org/repoprio for details and assistance.'
 					);
 				}
 
@@ -343,10 +343,10 @@ trait PackageDiscoveryTrait
 				));
 			}
 			// Check whether the PHP version was the problem for all versions
-			if (!$platformRequirementFilter instanceof IgnoreAllPlatformRequirementFilter && false !== ($candidate = $versionSelector->findBestCandidate($name, null, $preferredStability, PlatformRequirementFilterFactory::ignoreAll(), RepositorySet::ALLOW_UNACCEPTABLE_STABILITIES))) {
+			if (! $platformRequirementFilter instanceof IgnoreAllPlatformRequirementFilter && false !== ($candidate = $versionSelector->findBestCandidate($name, null, $preferredStability, PlatformRequirementFilterFactory::ignoreAll(), RepositorySet::ALLOW_UNACCEPTABLE_STABILITIES))) {
 				$additional = '';
 				if (false === $versionSelector->findBestCandidate($name, null, $preferredStability, PlatformRequirementFilterFactory::ignoreAll())) {
-					$additional = PHP_EOL.PHP_EOL.'Additionally, the package was only found with a stability of "'.$candidate->getStability().'" while your minimum stability is "'.$effectiveMinimumStability.'".';
+					$additional = PHP_EOL . PHP_EOL . 'Additionally, the package was only found with a stability of "' . $candidate->getStability() . '" while your minimum stability is "' . $effectiveMinimumStability . '".';
 				}
 
 				throw new \InvalidArgumentException(sprintf(
@@ -441,9 +441,9 @@ trait PackageDiscoveryTrait
 			$platformPkg = $platformRepo->findPackage($link->getTarget(), '*');
 			if (null === $platformPkg) {
 				if ($platformRepo->isPlatformPackageDisabled($link->getTarget())) {
-					$details[] = $candidate->getPrettyName().' '.$candidate->getPrettyVersion().' requires '.$link->getTarget().' '.$link->getPrettyConstraint().' but it is disabled by your platform config. Enable it again with "composer config platform.'.$link->getTarget().' --unset".';
+					$details[] = $candidate->getPrettyName() . ' ' . $candidate->getPrettyVersion() . ' requires ' . $link->getTarget() . ' ' . $link->getPrettyConstraint() . ' but it is disabled by your platform config. Enable it again with "composer config platform.' . $link->getTarget() . ' --unset".';
 				} else {
-					$details[] = $candidate->getPrettyName().' '.$candidate->getPrettyVersion().' requires '.$link->getTarget().' '.$link->getPrettyConstraint().' but it is not present.';
+					$details[] = $candidate->getPrettyName() . ' ' . $candidate->getPrettyVersion() . ' requires ' . $link->getTarget() . ' ' . $link->getPrettyConstraint() . ' but it is not present.';
 				}
 				continue;
 			}
@@ -451,9 +451,9 @@ trait PackageDiscoveryTrait
 				$platformPkgVersion = $platformPkg->getPrettyVersion();
 				$platformExtra = $platformPkg->getExtra();
 				if (isset($platformExtra['config.platform']) && $platformPkg instanceof CompletePackageInterface) {
-					$platformPkgVersion .= ' ('.$platformPkg->getDescription().')';
+					$platformPkgVersion .= ' (' . $platformPkg->getDescription() . ')';
 				}
-				$details[] = $candidate->getPrettyName().' '.$candidate->getPrettyVersion().' requires '.$link->getTarget().' '.$link->getPrettyConstraint().' which does not match your installed version '.$platformPkgVersion.'.';
+				$details[] = $candidate->getPrettyName() . ' ' . $candidate->getPrettyVersion() . ' requires ' . $link->getTarget() . ' ' . $link->getPrettyConstraint() . ' which does not match your installed version ' . $platformPkgVersion . '.';
 			}
 		}
 
@@ -461,6 +461,6 @@ trait PackageDiscoveryTrait
 			return '';
 		}
 
-		return ':'.PHP_EOL.'  - ' . implode(PHP_EOL.'  - ', $details);
+		return ':' . PHP_EOL . '  - ' . implode(PHP_EOL . '  - ', $details);
 	}
 }

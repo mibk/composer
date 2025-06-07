@@ -12,18 +12,18 @@
 
 namespace Composer\Downloader;
 
-use React\Promise\PromiseInterface;
+use Composer\DependencyResolver\Operation\InstallOperation;
+use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\Package\Archiver\ArchivableFilesFinder;
 use Composer\Package\Dumper\ArrayDumper;
 use Composer\Package\PackageInterface;
 use Composer\Package\Version\VersionGuesser;
 use Composer\Package\Version\VersionParser;
-use Composer\Util\Platform;
 use Composer\Util\Filesystem;
+use Composer\Util\Platform;
+use React\Promise\PromiseInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
 
 /**
  * Download a package from a local path.
@@ -34,7 +34,7 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
 class PathDownloader extends FileDownloader implements VcsCapableDownloaderInterface
 {
 	private const STRATEGY_SYMLINK = 10;
-	private const STRATEGY_MIRROR = 20;
+	private const STRATEGY_MIRROR  = 20;
 
 	/**
 	 * @inheritDoc
@@ -44,7 +44,7 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 		$path = Filesystem::trimTrailingSlash($path);
 		$url = $package->getDistUrl();
 		if (null === $url) {
-			throw new \RuntimeException('The package '.$package->getPrettyName().' has no dist url configured, cannot download.');
+			throw new \RuntimeException('The package ' . $package->getPrettyName() . ' has no dist url configured, cannot download.');
 		}
 		$realUrl = realpath($url);
 		if (false === $realUrl || !file_exists($realUrl) || !is_dir($realUrl)) {
@@ -83,11 +83,11 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 		$path = Filesystem::trimTrailingSlash($path);
 		$url = $package->getDistUrl();
 		if (null === $url) {
-			throw new \RuntimeException('The package '.$package->getPrettyName().' has no dist url configured, cannot install.');
+			throw new \RuntimeException('The package ' . $package->getPrettyName() . ' has no dist url configured, cannot install.');
 		}
 		$realUrl = realpath($url);
 		if (false === $realUrl) {
-			throw new \RuntimeException('Failed to realpath '.$url);
+			throw new \RuntimeException('Failed to realpath ' . $url);
 		}
 
 		if (realpath($path) === $realUrl) {
@@ -107,7 +107,7 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 		$this->filesystem->removeDirectory($path);
 
 		if ($output) {
-			$this->io->writeError("  - " . InstallOperation::format($package).': ', false);
+			$this->io->writeError("  - " . InstallOperation::format($package) . ': ', false);
 		}
 
 		$isFallback = false;
@@ -130,9 +130,9 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 							$absolutePath = Platform::getCwd() . DIRECTORY_SEPARATOR . $path;
 						}
 						$shortestPath = $this->filesystem->findShortestPath($absolutePath, $realUrl, false, true);
-						$symfonyFilesystem->symlink($shortestPath.'/', $path);
+						$symfonyFilesystem->symlink($shortestPath . '/', $path);
 					} else {
-						$symfonyFilesystem->symlink($realUrl.'/', $path);
+						$symfonyFilesystem->symlink($realUrl . '/', $path);
 					}
 				}
 			} catch (IOException $e) {
@@ -184,7 +184,7 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 		 */
 		if (Platform::isWindows() && $this->filesystem->isJunction($path)) {
 			if ($output) {
-				$this->io->writeError("  - " . UninstallOperation::format($package).", source is still present in $path");
+				$this->io->writeError("  - " . UninstallOperation::format($package) . ", source is still present in $path");
 			}
 			if (!$this->filesystem->removeJunction($path)) {
 				$this->io->writeError("    <warning>Could not remove junction at " . $path . " - is another process locking it?</warning>");
@@ -196,7 +196,7 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 
 		$url = $package->getDistUrl();
 		if (null === $url) {
-			throw new \RuntimeException('The package '.$package->getPrettyName().' has no dist url configured, cannot remove.');
+			throw new \RuntimeException('The package ' . $package->getPrettyName() . ' has no dist url configured, cannot remove.');
 		}
 
 		// ensure that the source path (dist url) is not the same as the install path, which
@@ -208,7 +208,7 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 		$absDistUrl = $fs->isAbsolutePath($url) ? $url : Platform::getCwd() . '/' . $url;
 		if ($fs->normalizePath($absPath) === $fs->normalizePath($absDistUrl)) {
 			if ($output) {
-				$this->io->writeError("  - " . UninstallOperation::format($package).", source is still present in $path");
+				$this->io->writeError("  - " . UninstallOperation::format($package) . ", source is still present in $path");
 			}
 
 			return \React\Promise\resolve(null);
@@ -243,11 +243,11 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 	{
 		$url = $package->getDistUrl();
 		if (null === $url) {
-			throw new \RuntimeException('The package '.$package->getPrettyName().' has no dist url configured, cannot install.');
+			throw new \RuntimeException('The package ' . $package->getPrettyName() . ' has no dist url configured, cannot install.');
 		}
 		$realUrl = realpath($url);
 		if (false === $realUrl) {
-			throw new \RuntimeException('Failed to realpath '.$url);
+			throw new \RuntimeException('Failed to realpath ' . $url);
 		}
 
 		if (realpath($path) === $realUrl) {
@@ -258,13 +258,13 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 
 		if ($currentStrategy === self::STRATEGY_SYMLINK) {
 			if (Platform::isWindows()) {
-				return ': Junctioning from '.$package->getDistUrl();
+				return ': Junctioning from ' . $package->getDistUrl();
 			}
 
-			return ': Symlinking from '.$package->getDistUrl();
+			return ': Symlinking from ' . $package->getDistUrl();
 		}
 
-		return ': Mirroring from '.$package->getDistUrl();
+		return ': Mirroring from ' . $package->getDistUrl();
 	}
 
 	/**
@@ -330,6 +330,6 @@ class PathDownloader extends FileDownloader implements VcsCapableDownloaderInter
 		// We need to call mklink, and rmdir on Windows 7 (version 6.1)
 		return function_exists('proc_open') &&
 			(PHP_WINDOWS_VERSION_MAJOR > 6 ||
-			(PHP_WINDOWS_VERSION_MAJOR === 6 && PHP_WINDOWS_VERSION_MINOR >= 1));
+				(PHP_WINDOWS_VERSION_MAJOR === 6 && PHP_WINDOWS_VERSION_MINOR >= 1));
 	}
 }

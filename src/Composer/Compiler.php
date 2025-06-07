@@ -12,14 +12,14 @@
 
 namespace Composer;
 
-use Composer\Json\JsonFile;
 use Composer\CaBundle\CaBundle;
+use Composer\Json\JsonFile;
 use Composer\Pcre\Preg;
 use Composer\Util\ProcessExecutor;
+use Seld\PharUtils\Linter;
+use Seld\PharUtils\Timestamps;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
-use Seld\PharUtils\Timestamps;
-use Seld\PharUtils\Linter;
 
 /**
  * The Compiler class compiles composer into a phar
@@ -67,7 +67,7 @@ class Compiler
 			$this->version = trim($output);
 		} else {
 			// get branch-alias defined in composer.json for dev-main (if any)
-			$localConfig = __DIR__.'/../../composer.json';
+			$localConfig = __DIR__ . '/../../composer.json';
 			$file = new JsonFile($localConfig);
 			$localConfig = $file->read();
 			if (isset($localConfig['extra']['branch-alias']['dev-main'])) {
@@ -84,7 +84,7 @@ class Compiler
 
 		$phar->startBuffering();
 
-		$finderSort = static function ($a, $b): int {
+		$finderSort = static function($a, $b): int {
 			return strcmp(strtr($a->getRealPath(), '\\', '/'), strtr($b->getRealPath(), '\\', '/'));
 		};
 
@@ -96,9 +96,9 @@ class Compiler
 			->notName('Compiler.php')
 			->notName('ClassLoader.php')
 			->notName('InstalledVersions.php')
-			->in(__DIR__.'/..')
+			->in(__DIR__ . '/..')
 			->sort($finderSort)
-		;
+			;
 		foreach ($finder as $file) {
 			$this->addFile($phar, $file);
 		}
@@ -109,9 +109,9 @@ class Compiler
 		// Add Composer resources
 		$finder = new Finder();
 		$finder->files()
-			->in(__DIR__.'/../../res')
+			->in(__DIR__ . '/../../res')
 			->sort($finderSort)
-		;
+			;
 		foreach ($finder as $file) {
 			$this->addFile($phar, $file, false);
 		}
@@ -129,9 +129,9 @@ class Compiler
 			->exclude('Tests')
 			->exclude('tests')
 			->exclude('docs')
-			->in(__DIR__.'/../../vendor/')
+			->in(__DIR__ . '/../../vendor/')
 			->sort($finderSort)
-		;
+			;
 
 		$extraFiles = [];
 		foreach ([
@@ -144,7 +144,7 @@ class Compiler
 		] as $file) {
 			$extraFiles[$file] = realpath($file);
 			if (!file_exists($file)) {
-				throw new \RuntimeException('Extra file listed is missing from the filesystem: '.$file);
+				throw new \RuntimeException('Extra file listed is missing from the filesystem: ' . $file);
 			}
 		}
 		$unexpectedFiles = [];
@@ -164,10 +164,10 @@ class Compiler
 		}
 
 		if (count($extraFiles) > 0) {
-			throw new \RuntimeException('These files were expected but not added to the phar, they might be excluded or gone from the source package:'.PHP_EOL.var_export($extraFiles, true));
+			throw new \RuntimeException('These files were expected but not added to the phar, they might be excluded or gone from the source package:' . PHP_EOL . var_export($extraFiles, true));
 		}
 		if (count($unexpectedFiles) > 0) {
-			throw new \RuntimeException('These files were unexpectedly added to the phar, make sure they are excluded or listed in $extraFiles:'.PHP_EOL.var_export($unexpectedFiles, true));
+			throw new \RuntimeException('These files were unexpectedly added to the phar, make sure they are excluded or listed in $extraFiles:' . PHP_EOL . var_export($unexpectedFiles, true));
 		}
 
 		// Add bin/composer
@@ -181,7 +181,7 @@ class Compiler
 		// disabled for interoperability with systems without gzip ext
 		// $phar->compressFiles(\Phar::GZ);
 
-		$this->addFile($phar, new \SplFileInfo(__DIR__.'/../../LICENSE'), false);
+		$this->addFile($phar, new \SplFileInfo(__DIR__ . '/../../LICENSE'), false);
 
 		unset($phar);
 
@@ -203,7 +203,7 @@ class Compiler
 	private function getRelativeFilePath(\SplFileInfo $file): string
 	{
 		$realPath = $file->getRealPath();
-		$pathPrefix = dirname(__DIR__, 2).DIRECTORY_SEPARATOR;
+		$pathPrefix = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR;
 
 		$pos = strpos($realPath, $pathPrefix);
 		$relativePath = ($pos !== false) ? substr_replace($realPath, '', $pos, strlen($pathPrefix)) : $realPath;
@@ -218,16 +218,16 @@ class Compiler
 		if ($strip) {
 			$content = $this->stripWhitespace($content);
 		} elseif ('LICENSE' === $file->getFilename()) {
-			$content = "\n".$content."\n";
+			$content = "\n" . $content . "\n";
 		}
 
 		if ($path === 'src/Composer/Composer.php') {
 			$content = strtr(
 				$content,
 				[
-					'@package_version@' => $this->version,
+					'@package_version@'              => $this->version,
 					'@package_branch_alias_version@' => $this->branchAliasVersion,
-					'@release_date@' => $this->versionDate->format('Y-m-d H:i:s'),
+					'@release_date@'                 => $this->versionDate->format('Y-m-d H:i:s'),
 				]
 			);
 			$content = Preg::replace('{SOURCE_VERSION = \'[^\']+\';}', 'SOURCE_VERSION = \'\';', $content);
@@ -238,7 +238,7 @@ class Compiler
 
 	private function addComposerBin(\Phar $phar): void
 	{
-		$content = file_get_contents(__DIR__.'/../../bin/composer');
+		$content = file_get_contents(__DIR__ . '/../../bin/composer');
 		$content = Preg::replace('{^#!/usr/bin/env php\s*}', '', $content);
 		$phar->addFromString('bin/composer', $content);
 	}
@@ -313,7 +313,7 @@ EOF;
 
 		// add warning once the phar is older than 60 days
 		if (Preg::isMatch('{^[a-f0-9]+$}', $this->version)) {
-			$warningTime = ((int) $this->versionDate->format('U')) + 60 * 86400;
+			$warningTime = ((int) $this->versionDate->format('U')) + 60*86400;
 			$stub .= "define('COMPOSER_DEV_WARNING_TIME', $warningTime);\n";
 		}
 

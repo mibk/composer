@@ -12,33 +12,33 @@
 
 namespace Composer;
 
+use Composer\Autoload\AutoloadGenerator;
 use Composer\Config\JsonConfigSource;
-use Composer\Json\JsonFile;
+use Composer\Downloader\TransportException;
+use Composer\EventDispatcher\Event;
+use Composer\EventDispatcher\EventDispatcher;
 use Composer\IO\IOInterface;
+use Composer\Json\JsonFile;
+use Composer\Json\JsonValidationException;
 use Composer\Package\Archiver;
-use Composer\Package\Version\VersionGuesser;
 use Composer\Package\RootPackageInterface;
+use Composer\Package\Version\VersionGuesser;
+use Composer\Package\Version\VersionParser;
+use Composer\Plugin\PluginEvents;
 use Composer\Repository\FilesystemRepository;
-use Composer\Repository\RepositoryManager;
+use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Repository\RepositoryFactory;
+use Composer\Repository\RepositoryManager;
 use Composer\Util\Filesystem;
-use Composer\Util\Platform;
-use Composer\Util\ProcessExecutor;
 use Composer\Util\HttpDownloader;
 use Composer\Util\Loop;
+use Composer\Util\Platform;
+use Composer\Util\ProcessExecutor;
 use Composer\Util\Silencer;
-use Composer\Plugin\PluginEvents;
-use Composer\EventDispatcher\Event;
 use Phar;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Composer\EventDispatcher\EventDispatcher;
-use Composer\Autoload\AutoloadGenerator;
-use Composer\Package\Version\VersionParser;
-use Composer\Downloader\TransportException;
-use Composer\Json\JsonValidationException;
-use Composer\Repository\InstalledRepositoryInterface;
 use UnexpectedValueException;
 use ZipArchive;
 
@@ -172,14 +172,14 @@ class Factory
 		$home = self::getHomeDir();
 		$config->merge([
 			'config' => [
-				'home' => $home,
+				'home'      => $home,
 				'cache-dir' => self::getCacheDir($home),
-				'data-dir' => self::getDataDir($home),
+				'data-dir'  => self::getDataDir($home),
 			],
 		], Config::SOURCE_DEFAULT);
 
 		// load global config
-		$file = new JsonFile($config->get('home').'/config.json');
+		$file = new JsonFile($config->get('home') . '/config.json');
 		if ($file->exists()) {
 			if ($io instanceof IOInterface) {
 				$io->writeError('Loading config file ' . $file->getPath(), true, IOInterface::DEBUG);
@@ -206,7 +206,7 @@ class Factory
 		}
 
 		// load global auth file
-		$file = new JsonFile($config->get('home').'/auth.json');
+		$file = new JsonFile($config->get('home') . '/auth.json');
 		if ($file->exists()) {
 			if ($io instanceof IOInterface) {
 				$io->writeError('Loading config file ' . $file->getPath(), true, IOInterface::DEBUG);
@@ -228,7 +228,7 @@ class Factory
 			$env = trim($env);
 			if ('' !== $env) {
 				if (is_dir($env)) {
-					throw new \RuntimeException('The COMPOSER environment variable is set to '.$env.' which is a directory, this variable should point to a composer.json or be left unset.');
+					throw new \RuntimeException('The COMPOSER environment variable is set to ' . $env . ' which is a directory, this variable should point to a composer.json or be left unset.');
 				}
 
 				return $env;
@@ -241,8 +241,8 @@ class Factory
 	public static function getLockFile(string $composerFile): string
 	{
 		return "json" === pathinfo($composerFile, PATHINFO_EXTENSION)
-				? substr($composerFile, 0, -4).'lock'
-				: $composerFile . '.lock';
+			? substr($composerFile, 0, -4) . 'lock'
+			: $composerFile . '.lock';
 	}
 
 	/**
@@ -252,7 +252,7 @@ class Factory
 	{
 		return [
 			'highlight' => new OutputFormatterStyle('red'),
-			'warning' => new OutputFormatterStyle('black', 'yellow'),
+			'warning'   => new OutputFormatterStyle('black', 'yellow'),
 		];
 	}
 
@@ -300,12 +300,12 @@ class Factory
 
 			if (!$file->exists()) {
 				if ($localConfig === './composer.json' || $localConfig === 'composer.json') {
-					$message = 'Composer could not find a composer.json file in '.$cwd;
+					$message = 'Composer could not find a composer.json file in ' . $cwd;
 				} else {
-					$message = 'Composer could not find the config file: '.$localConfig;
+					$message = 'Composer could not find the config file: ' . $localConfig;
 				}
 				$instructions = $fullLoad ? 'To initialize a project, please create a composer.json file. See https://getcomposer.org/basic-usage' : '';
-				throw new \InvalidArgumentException($message.PHP_EOL.$instructions);
+				throw new \InvalidArgumentException($message . PHP_EOL . $instructions);
 			}
 
 			if (!Platform::isInputCompletionProcess()) {
@@ -328,7 +328,7 @@ class Factory
 		$config->merge($localConfig, $localConfigSource);
 
 		if (isset($composerFile)) {
-			$io->writeError('Loading config file ' . $composerFile .' ('.realpath($composerFile).')', true, IOInterface::DEBUG);
+			$io->writeError('Loading config file ' . $composerFile . ' (' . realpath($composerFile) . ')', true, IOInterface::DEBUG);
 			$config->setConfigSource(new JsonConfigSource(new JsonFile(realpath($composerFile), null, $io)));
 
 			$localAuthFile = new JsonFile(dirname(realpath($composerFile)) . '/auth.json', null, $io);
@@ -358,7 +358,7 @@ class Factory
 
 			// load existing Composer\InstalledVersions instance if available and scripts/plugins are allowed, as they might need it
 			// we only load if the InstalledVersions class wasn't defined yet so that this is only loaded once
-			if (false === $disablePlugins && false === $disableScripts && !class_exists('Composer\InstalledVersions', false) && file_exists($installedVersionsPath = $config->get('vendor-dir').'/composer/installed.php')) {
+			if (false === $disablePlugins && false === $disableScripts && !class_exists('Composer\InstalledVersions', false) && file_exists($installedVersionsPath = $config->get('vendor-dir') . '/composer/installed.php')) {
 				// force loading the class at this point so it is loaded from the composer phar and not from the vendor dir
 				// as we cannot guarantee integrity of that file
 				if (class_exists('Composer\InstalledVersions')) {
@@ -422,7 +422,7 @@ class Factory
 		if ($composer instanceof Composer && isset($composerFile)) {
 			$lockFile = self::getLockFile($composerFile);
 			if (!$config->get('lock') && file_exists($lockFile)) {
-				$io->writeError('<warning>'.$lockFile.' is present but ignored as the "lock" config option is disabled.</warning>');
+				$io->writeError('<warning>' . $lockFile . ' is present but ignored as the "lock" config option is disabled.</warning>');
 			}
 
 			$locker = new Package\Locker($io, new JsonFile($config->get('lock') ? $lockFile : Platform::getDevNull(), null, $io), $im, file_get_contents($composerFile), $process);
@@ -481,7 +481,7 @@ class Factory
 			$fs = new Filesystem($process);
 		}
 
-		$rm->setLocalRepository(new Repository\InstalledFilesystemRepository(new JsonFile($vendorDir.'/composer/installed.json', null, $io), true, $rootPackage, $fs));
+		$rm->setLocalRepository(new Repository\InstalledFilesystemRepository(new JsonFile($vendorDir . '/composer/installed.json', null, $io), true, $rootPackage, $fs));
 	}
 
 	/**
@@ -498,7 +498,7 @@ class Factory
 		try {
 			$composer = $this->createComposer($io, $config->get('home') . '/composer.json', $disablePlugins, $config->get('home'), $fullLoad, $disableScripts);
 		} catch (\Exception $e) {
-			$io->writeError('Failed to initialize global composer: '.$e->getMessage(), true, IOInterface::DEBUG);
+			$io->writeError('Failed to initialize global composer: ' . $e->getMessage(), true, IOInterface::DEBUG);
 		}
 
 		return $composer;
@@ -520,16 +520,16 @@ class Factory
 
 		$dm = new Downloader\DownloadManager($io, false, $fs);
 		switch ($preferred = $config->get('preferred-install')) {
-			case 'dist':
-				$dm->setPreferDist(true);
-				break;
-			case 'source':
-				$dm->setPreferSource(true);
-				break;
-			case 'auto':
-			default:
-				// noop
-				break;
+		case 'dist':
+			$dm->setPreferDist(true);
+			break;
+		case 'source':
+			$dm->setPreferSource(true);
+			break;
+		case 'auto':
+		default:
+			// noop
+			break;
 		}
 
 		if (is_array($preferred)) {
@@ -753,9 +753,9 @@ class Factory
 				JsonFile::validateJsonSchema($source, $fileOrData, $schema);
 			}
 		} catch (JsonValidationException $e) {
-			$msg = $e->getMessage().', this may result in errors and should be resolved:'.PHP_EOL.' - '.implode(PHP_EOL.' - ', $e->getErrors());
+			$msg = $e->getMessage() . ', this may result in errors and should be resolved:' . PHP_EOL . ' - ' . implode(PHP_EOL . ' - ', $e->getErrors());
 			if ($io instanceof IOInterface) {
-				$io->writeError('<warning>'.$msg.'</>');
+				$io->writeError('<warning>' . $msg . '</>');
 			} else {
 				throw new UnexpectedValueException($msg);
 			}

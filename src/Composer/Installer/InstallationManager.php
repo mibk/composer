@@ -12,19 +12,19 @@
 
 namespace Composer\Installer;
 
-use Composer\IO\IOInterface;
-use Composer\IO\ConsoleIO;
-use Composer\Package\PackageInterface;
-use Composer\Package\AliasPackage;
-use Composer\Repository\InstalledRepositoryInterface;
-use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UpdateOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
 use Composer\DependencyResolver\Operation\MarkAliasInstalledOperation;
 use Composer\DependencyResolver\Operation\MarkAliasUninstalledOperation;
+use Composer\DependencyResolver\Operation\OperationInterface;
+use Composer\DependencyResolver\Operation\UninstallOperation;
+use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Downloader\FileDownloader;
 use Composer\EventDispatcher\EventDispatcher;
+use Composer\IO\ConsoleIO;
+use Composer\IO\IOInterface;
+use Composer\Package\AliasPackage;
+use Composer\Package\PackageInterface;
+use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Util\Loop;
 use Composer\Util\Platform;
 use React\Promise\PromiseInterface;
@@ -101,7 +101,7 @@ class InstallationManager
 	public function disablePlugins(): void
 	{
 		foreach ($this->installers as $i => $installer) {
-			if (!$installer instanceof PluginInstaller) {
+			if (! $installer instanceof PluginInstaller) {
 				continue;
 			}
 
@@ -130,7 +130,7 @@ class InstallationManager
 			}
 		}
 
-		throw new \InvalidArgumentException('Unknown installer type: '.$type);
+		throw new \InvalidArgumentException('Unknown installer type: ' . $type);
 	}
 
 	/**
@@ -183,8 +183,8 @@ class InstallationManager
 		/** @var array<callable(): ?PromiseInterface<void|null>> $cleanupPromises */
 		$cleanupPromises = [];
 
-		$signalHandler = SignalHandler::create([SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP], function (string $signal, SignalHandler $handler) use (&$cleanupPromises) {
-			$this->io->writeError('Received '.$signal.', aborting', true, IOInterface::DEBUG);
+		$signalHandler = SignalHandler::create([SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP], function(string $signal, SignalHandler $handler) use (&$cleanupPromises) {
+			$this->io->writeError('Received ' . $signal . ', aborting', true, IOInterface::DEBUG);
 			$this->runCleanup($cleanupPromises);
 			$handler->exitWithLastSignal();
 		});
@@ -239,8 +239,8 @@ class InstallationManager
 	}
 
 	/**
-	 * @param OperationInterface[] $operations    List of operations to execute in this batch
-	 * @param OperationInterface[] $allOperations Complete list of operations to be executed in the install job, used for event listeners
+	 * @param         OperationInterface[] $operations    List of operations to execute in this batch
+	 * @param         OperationInterface[] $allOperations Complete list of operations to be executed in the install job, used for event listeners
 	 * @phpstan-param array<callable(): ?PromiseInterface<void|null>> $cleanupPromises
 	 */
 	private function downloadAndExecuteBatch(InstalledRepositoryInterface $repo, array $operations, array &$cleanupPromises, bool $devMode, bool $runScripts, bool $downloadOnly, array $allOperations): void
@@ -266,7 +266,8 @@ class InstallationManager
 			}
 			$installer = $this->getInstaller($package->getType());
 
-			$cleanupPromises[$index] = static function () use ($opType, $installer, $package, $initialPackage): ?PromiseInterface {
+			$cleanupPromises[$index] = static function() use ($opType, $installer, $package, $initialPackage): ?PromiseInterface
+			{
 				// avoid calling cleanup if the download was not even initialized for a package
 				// as without installation source configured nothing will work
 				if (null === $package->getInstallationSource()) {
@@ -324,8 +325,8 @@ class InstallationManager
 	}
 
 	/**
-	 * @param OperationInterface[] $operations    List of operations to execute in this batch
-	 * @param OperationInterface[] $allOperations Complete list of operations to be executed in the install job, used for event listeners
+	 * @param         OperationInterface[] $operations    List of operations to execute in this batch
+	 * @param         OperationInterface[] $allOperations Complete list of operations to be executed in the install job, used for event listeners
 	 * @phpstan-param array<callable(): ?PromiseInterface<void|null>> $cleanupPromises
 	 */
 	private function executeBatch(InstalledRepositoryInterface $repo, array $operations, array $cleanupPromises, bool $devMode, bool $runScripts, array $allOperations): void
@@ -360,8 +361,8 @@ class InstallationManager
 			$installer = $this->getInstaller($package->getType());
 
 			$eventName = [
-				'install' => PackageEvents::PRE_PACKAGE_INSTALL,
-				'update' => PackageEvents::PRE_PACKAGE_UPDATE,
+				'install'   => PackageEvents::PRE_PACKAGE_INSTALL,
+				'update'    => PackageEvents::PRE_PACKAGE_UPDATE,
 				'uninstall' => PackageEvents::PRE_PACKAGE_UNINSTALL,
 			][$opType];
 
@@ -373,29 +374,29 @@ class InstallationManager
 			$io = $this->io;
 
 			$promise = $installer->prepare($opType, $package, $initialPackage);
-			if (!$promise instanceof PromiseInterface) {
+			if (! $promise instanceof PromiseInterface) {
 				$promise = \React\Promise\resolve(null);
 			}
 
-			$promise = $promise->then(function () use ($opType, $repo, $operation) {
+			$promise = $promise->then(function() use ($opType, $repo, $operation) {
 				return $this->{$opType}($repo, $operation);
 			})->then($cleanupPromises[$index])
-			->then(function () use ($devMode, $repo): void {
-				$repo->write($devMode, $this);
-			}, static function ($e) use ($opType, $package, $io): void {
-				$io->writeError('    <error>' . ucfirst($opType) .' of '.$package->getPrettyName().' failed</error>');
+				->then(function() use ($devMode, $repo): void {
+					$repo->write($devMode, $this);
+				}, static function($e) use ($opType, $package, $io): void {
+					$io->writeError('    <error>' . ucfirst($opType) . ' of ' . $package->getPrettyName() . ' failed</error>');
 
-				throw $e;
-			});
+					throw $e;
+				});
 
 			$eventName = [
-				'install' => PackageEvents::POST_PACKAGE_INSTALL,
-				'update' => PackageEvents::POST_PACKAGE_UPDATE,
+				'install'   => PackageEvents::POST_PACKAGE_INSTALL,
+				'update'    => PackageEvents::POST_PACKAGE_UPDATE,
 				'uninstall' => PackageEvents::POST_PACKAGE_UNINSTALL,
 			][$opType];
 
 			if ($runScripts && $dispatcher !== null) {
-				$postExecCallbacks[] = static function () use ($dispatcher, $eventName, $devMode, $repo, $allOperations, $operation): void {
+				$postExecCallbacks[] = static function() use ($dispatcher, $eventName, $devMode, $repo, $allOperations, $operation): void {
 					$dispatcher->dispatchPackageEvent($eventName, $devMode, $repo, $allOperations, $operation);
 				};
 			}
@@ -423,10 +424,10 @@ class InstallationManager
 		$progress = null;
 		if (
 			$this->outputProgress
-			&& $this->io instanceof ConsoleIO
-			&& !((bool) Platform::getEnv('CI'))
-			&& !$this->io->isDebug()
-			&& count($promises) > 1
+				&& $this->io instanceof ConsoleIO
+				&& !((bool) Platform::getEnv('CI'))
+				&& !$this->io->isDebug()
+				&& count($promises) > 1
 		) {
 			$progress = $this->io->getProgressBar();
 		}
@@ -456,8 +457,8 @@ class InstallationManager
 	/**
 	 * Executes install operation.
 	 *
-	 * @param InstalledRepositoryInterface $repo      repository in which to check
-	 * @param InstallOperation             $operation operation instance
+	 * @param          InstalledRepositoryInterface $repo      repository in which to check
+	 * @param          InstallOperation             $operation operation instance
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function install(InstalledRepositoryInterface $repo, InstallOperation $operation): ?PromiseInterface
@@ -473,8 +474,8 @@ class InstallationManager
 	/**
 	 * Executes update operation.
 	 *
-	 * @param InstalledRepositoryInterface $repo      repository in which to check
-	 * @param UpdateOperation              $operation operation instance
+	 * @param          InstalledRepositoryInterface $repo      repository in which to check
+	 * @param          UpdateOperation              $operation operation instance
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function update(InstalledRepositoryInterface $repo, UpdateOperation $operation): ?PromiseInterface
@@ -491,12 +492,12 @@ class InstallationManager
 			$this->markForNotification($target);
 		} else {
 			$promise = $this->getInstaller($initialType)->uninstall($repo, $initial);
-			if (!$promise instanceof PromiseInterface) {
+			if (! $promise instanceof PromiseInterface) {
 				$promise = \React\Promise\resolve(null);
 			}
 
 			$installer = $this->getInstaller($targetType);
-			$promise = $promise->then(static function () use ($installer, $repo, $target): PromiseInterface {
+			$promise = $promise->then(static function() use ($installer, $repo, $target): PromiseInterface {
 				$promise = $installer->install($repo, $target);
 				if ($promise instanceof PromiseInterface) {
 					return $promise;
@@ -512,8 +513,8 @@ class InstallationManager
 	/**
 	 * Uninstalls package.
 	 *
-	 * @param InstalledRepositoryInterface $repo      repository in which to check
-	 * @param UninstallOperation           $operation operation instance
+	 * @param          InstalledRepositoryInterface $repo      repository in which to check
+	 * @param          UninstallOperation           $operation operation instance
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function uninstall(InstalledRepositoryInterface $repo, UninstallOperation $operation): ?PromiseInterface
@@ -581,14 +582,14 @@ class InstallationManager
 						$url = str_replace('%package%', $package->getPrettyName(), $repoUrl);
 
 						$params = [
-							'version' => $package->getPrettyVersion(),
+							'version'            => $package->getPrettyVersion(),
 							'version_normalized' => $package->getVersion(),
 						];
 						$opts = [
 							'retry-auth-failure' => false,
-							'http' => [
-								'method' => 'POST',
-								'header' => ['Content-type: application/x-www-form-urlencoded'],
+							'http'               => [
+								'method'  => 'POST',
+								'header'  => ['Content-type: application/x-www-form-urlencoded'],
 								'content' => http_build_query($params, '', '&'),
 								'timeout' => 3,
 							],
@@ -603,7 +604,7 @@ class InstallationManager
 				$postData = ['downloads' => []];
 				foreach ($packages as $package) {
 					$packageNotification = [
-						'name' => $package->getPrettyName(),
+						'name'    => $package->getPrettyName(),
 						'version' => $package->getVersion(),
 					];
 					if (strpos($repoUrl, 'packagist.org/') !== false) {
@@ -618,9 +619,9 @@ class InstallationManager
 
 				$opts = [
 					'retry-auth-failure' => false,
-					'http' => [
-						'method' => 'POST',
-						'header' => ['Content-Type: application/json'],
+					'http'               => [
+						'method'  => 'POST',
+						'header'  => ['Content-Type: application/json'],
 						'content' => json_encode($postData),
 						'timeout' => 6,
 					],
@@ -644,7 +645,7 @@ class InstallationManager
 	}
 
 	/**
-	 * @return void
+	 * @return        void
 	 * @phpstan-param array<callable(): ?PromiseInterface<void|null>> $cleanupPromises
 	 */
 	private function runCleanup(array $cleanupPromises): void
@@ -654,12 +655,12 @@ class InstallationManager
 		$this->loop->abortJobs();
 
 		foreach ($cleanupPromises as $cleanup) {
-			$promises[] = new \React\Promise\Promise(static function ($resolve) use ($cleanup): void {
+			$promises[] = new \React\Promise\Promise(static function($resolve) use ($cleanup): void {
 				$promise = $cleanup();
-				if (!$promise instanceof PromiseInterface) {
+				if (! $promise instanceof PromiseInterface) {
 					$resolve(null);
 				} else {
-					$promise->then(static function () use ($resolve): void {
+					$promise->then(static function() use ($resolve): void {
 						$resolve(null);
 					});
 				}

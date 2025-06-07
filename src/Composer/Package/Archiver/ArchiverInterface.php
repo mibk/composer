@@ -35,7 +35,7 @@ interface ArchiverInterface
 	/**
 	 * Format supported by the archiver.
 	 *
-	 * @param string $format     The archive format
+	 * @param string  $format     The archive format
 	 * @param ?string $sourceType The source type (git, svn, hg, etc.)
 	 *
 	 * @return bool true if the format is supported by the archiver

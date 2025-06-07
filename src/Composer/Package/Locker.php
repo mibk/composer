@@ -12,20 +12,20 @@
 
 namespace Composer\Package;
 
-use Composer\Json\JsonFile;
+use Composer\IO\IOInterface;
 use Composer\Installer\InstallationManager;
+use Composer\Json\JsonFile;
+use Composer\Package\Dumper\ArrayDumper;
+use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\Version\VersionParser;
 use Composer\Pcre\Preg;
+use Composer\Plugin\PluginInterface;
 use Composer\Repository\InstalledRepository;
 use Composer\Repository\LockArrayRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RootPackageRepository;
-use Composer\Util\ProcessExecutor;
-use Composer\Package\Dumper\ArrayDumper;
-use Composer\Package\Loader\ArrayLoader;
-use Composer\Package\Version\VersionParser;
-use Composer\Plugin\PluginInterface;
 use Composer\Util\Git as GitUtil;
-use Composer\IO\IOInterface;
+use Composer\Util\ProcessExecutor;
 use Seld\JsonLint\ParsingException;
 
 /**
@@ -156,7 +156,7 @@ class Locker
 	/**
 	 * Searches and returns an array of locked packages, retrieved from registered repositories.
 	 *
-	 * @param  bool                                     $withDevReqs true to retrieve the locked dev packages
+	 * @param  bool $withDevReqs true to retrieve the locked dev packages
 	 * @throws \RuntimeException
 	 */
 	public function getLockedRepository(bool $withDevReqs = false): LockArrayRepository
@@ -224,7 +224,7 @@ class Locker
 	/**
 	 * Returns the platform requirements stored in the lock file
 	 *
-	 * @param  bool                     $withDevReqs if true, the platform requirements from the require-dev block are also returned
+	 * @param  bool $withDevReqs if true, the platform requirements from the require-dev block are also returned
 	 * @return \Composer\Package\Link[]
 	 */
 	public function getPlatformRequirements(bool $withDevReqs = false): array
@@ -344,14 +344,14 @@ class Locker
 	/**
 	 * Locks provided data into lockfile.
 	 *
-	 * @param PackageInterface[]          $packages          array of packages
-	 * @param PackageInterface[]|null     $devPackages       array of dev packages or null if installed without --dev
-	 * @param array<string, string>       $platformReqs      array of package name => constraint for required platform packages
-	 * @param array<string, string>       $platformDevReqs   array of package name => constraint for dev-required platform packages
-	 * @param string[][]                  $aliases           array of aliases
+	 * @param PackageInterface[]          $packages        array of packages
+	 * @param PackageInterface[]|null     $devPackages     array of dev packages or null if installed without --dev
+	 * @param array<string, string>       $platformReqs    array of package name => constraint for required platform packages
+	 * @param array<string, string>       $platformDevReqs array of package name => constraint for dev-required platform packages
+	 * @param string[][]                  $aliases         array of aliases
 	 * @param array<string, int>          $stabilityFlags
 	 * @param array<string, string|false> $platformOverrides
-	 * @param bool                        $write             Whether to actually write data to disk, useful in tests and for --dry-run
+	 * @param bool                        $write Whether to actually write data to disk, useful in tests and for --dry-run
 	 *
 	 * @phpstan-param list<array{package: string, version: string, alias: string, alias_normalized: string}> $aliases
 	 */
@@ -359,7 +359,7 @@ class Locker
 	{
 		// keep old default branch names normalized to DEFAULT_BRANCH_ALIAS for BC as that is how Composer 1 outputs the lock file
 		// when loading the lock file the version is anyway ignored in Composer 2, so it has no adverse effect
-		$aliases = array_map(static function ($alias): array {
+		$aliases = array_map(static function($alias): array {
 			if (in_array($alias['version'], ['dev-master', 'dev-trunk', 'dev-default'], true)) {
 				$alias['version'] = VersionParser::DEFAULT_BRANCH_ALIAS;
 			}
@@ -369,16 +369,16 @@ class Locker
 
 		$lock = [
 			'_readme' => ['This file locks the dependencies of your project to a known state',
-							   'Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies',
-							   'This file is @gener'.'ated automatically', ],
-			'content-hash' => $this->contentHash,
-			'packages' => $this->lockPackages($packages),
-			'packages-dev' => null,
-			'aliases' => $aliases,
+				'Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies',
+				'This file is @gener' . 'ated automatically'],
+			'content-hash'      => $this->contentHash,
+			'packages'          => $this->lockPackages($packages),
+			'packages-dev'      => null,
+			'aliases'           => $aliases,
 			'minimum-stability' => $minimumStability,
-			'stability-flags' => $stabilityFlags,
-			'prefer-stable' => $preferStable,
-			'prefer-lowest' => $preferLowest,
+			'stability-flags'   => $stabilityFlags,
+			'prefer-stable'     => $preferStable,
+			'prefer-lowest'     => $preferLowest,
 		];
 
 		if (null !== $devPackages) {
@@ -430,7 +430,7 @@ class Locker
 	{
 		$contents = file_get_contents($composerJson->getPath());
 		if (false === $contents) {
-			throw new \RuntimeException('Unable to read '.$composerJson->getPath().' contents to update the lock file hash.');
+			throw new \RuntimeException('Unable to read ' . $composerJson->getPath() . ' contents to update the lock file hash.');
 		}
 
 		$lockMtime = filemtime($this->lockFile->getPath());
@@ -451,7 +451,7 @@ class Locker
 	/**
 	 * Ensures correct data types and ordering for the JSON lock format
 	 *
-	 * @param array<mixed> $lockData
+	 * @param  array<mixed> $lockData
 	 * @return array<mixed>
 	 */
 	private function fixupJsonDataType(array $lockData): array
@@ -514,7 +514,7 @@ class Locker
 			$locked[] = $spec;
 		}
 
-		usort($locked, static function ($a, $b) {
+		usort($locked, static function($a, $b) {
 			$comparison = strcmp($a['name'], $b['name']);
 
 			if (0 !== $comparison) {
@@ -551,20 +551,20 @@ class Locker
 		if ($path && in_array($sourceType, ['git', 'hg'])) {
 			$sourceRef = $package->getSourceReference() ?: $package->getDistReference();
 			switch ($sourceType) {
-				case 'git':
-					GitUtil::cleanEnv();
+			case 'git':
+				GitUtil::cleanEnv();
 
-					$command = array_merge(['git', 'log', '-n1', '--pretty=%ct', (string) $sourceRef], GitUtil::getNoShowSignatureFlags($this->process));
-					if (0 === $this->process->execute($command, $output, $path) && Preg::isMatch('{^\s*\d+\s*$}', $output)) {
-						$datetime = new \DateTime('@'.trim($output), new \DateTimeZone('UTC'));
-					}
-					break;
+				$command = array_merge(['git', 'log', '-n1', '--pretty=%ct', (string) $sourceRef], GitUtil::getNoShowSignatureFlags($this->process));
+				if (0 === $this->process->execute($command, $output, $path) && Preg::isMatch('{^\s*\d+\s*$}', $output)) {
+					$datetime = new \DateTime('@' . trim($output), new \DateTimeZone('UTC'));
+				}
+				break;
 
-				case 'hg':
-					if (0 === $this->process->execute(['hg', 'log', '--template', '{date|hgdate}', '-r', (string) $sourceRef], $output, $path) && Preg::isMatch('{^\s*(\d+)\s*}', $output, $match)) {
-						$datetime = new \DateTime('@'.$match[1], new \DateTimeZone('UTC'));
-					}
-					break;
+			case 'hg':
+				if (0 === $this->process->execute(['hg', 'log', '--template', '{date|hgdate}', '-r', (string) $sourceRef], $output, $path) && Preg::isMatch('{^\s*(\d+)\s*}', $output, $match)) {
+					$datetime = new \DateTime('@' . $match[1], new \DateTimeZone('UTC'));
+				}
+				break;
 			}
 		}
 
@@ -604,15 +604,15 @@ class Locker
 							foreach (['getReplaces' => 'replaced as %s by %s', 'getProvides' => 'provided as %s by %s'] as $method => $text) {
 								foreach (call_user_func([$provider, $method]) as $providerLink) {
 									if ($providerLink->getTarget() === $link->getTarget()) {
-										$description = sprintf($text, $providerLink->getPrettyConstraint(), $provider->getPrettyName().' '.$provider->getPrettyVersion());
+										$description = sprintf($text, $providerLink->getPrettyConstraint(), $provider->getPrettyName() . ' ' . $provider->getPrettyVersion());
 										break 2;
 									}
 								}
 							}
 						}
-						$missingRequirementInfo[] = '- ' . $set['description'].' package "' . $link->getTarget() . '" is in the lock file as "'.$description.'" but that does not satisfy your constraint "'.$link->getPrettyConstraint().'".';
+						$missingRequirementInfo[] = '- ' . $set['description'] . ' package "' . $link->getTarget() . '" is in the lock file as "' . $description . '" but that does not satisfy your constraint "' . $link->getPrettyConstraint() . '".';
 					} else {
-						$missingRequirementInfo[] = '- ' . $set['description'].' package "' . $link->getTarget() . '" is not present in the lock file.';
+						$missingRequirementInfo[] = '- ' . $set['description'] . ' package "' . $link->getTarget() . '" is not present in the lock file.';
 					}
 					$missingRequirements = true;
 				}

@@ -15,11 +15,11 @@ namespace Composer\DependencyResolver;
 use Composer\Filter\PlatformRequirementFilter\IgnoreListPlatformRequirementFilter;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterInterface;
-use Composer\Package\BasePackage;
 use Composer\Package\AliasPackage;
+use Composer\Package\BasePackage;
 
 /**
- * @author Nils Adermann <naderman@naderman.de>
+ * @author              Nils Adermann <naderman@naderman.de>
  * @phpstan-import-type ReasonData from Rule
  */
 class RuleSetGenerator
@@ -48,11 +48,11 @@ class RuleSetGenerator
 	 * This rule is of the form (-A|B|C), where B and C are the providers of
 	 * one requirement of the package A.
 	 *
-	 * @param  BasePackage $package The package with a requirement
-	 * @param  BasePackage[] $providers The providers of the requirement
-	 * @param  Rule::RULE_* $reason A RULE_* constant describing the reason for generating this rule
-	 * @param  mixed $reasonData Any data, e.g. the requirement name, that goes with the reason
-	 * @return Rule|null The generated rule or null if tautological
+	 * @param  BasePackage   $package    The package with a requirement
+	 * @param  BasePackage[] $providers  The providers of the requirement
+	 * @param  Rule::RULE_*  $reason     A RULE_* constant describing the reason for generating this rule
+	 * @param  mixed         $reasonData Any data, e.g. the requirement name, that goes with the reason
+	 * @return Rule|null     The generated rule or null if tautological
 	 *
 	 * @phpstan-param ReasonData $reasonData
 	 */
@@ -77,11 +77,11 @@ class RuleSetGenerator
 	 * The rule is (A|B|C) with A, B and C different packages. If the given
 	 * set of packages is empty an impossible rule is generated.
 	 *
-	 * @param  non-empty-array<BasePackage> $packages   The set of packages to choose from
-	 * @param  Rule::RULE_*  $reason     A RULE_* constant describing the reason for
+	 * @param non-empty-array<BasePackage> $packages The set of packages to choose from
+	 * @param Rule::RULE_*                 $reason   A RULE_* constant describing the reason for
 	 *                                   generating this rule
-	 * @param  mixed         $reasonData Additional data like the root require or fix request info
-	 * @return Rule          The generated rule
+	 * @param  mixed $reasonData Additional data like the root require or fix request info
+	 * @return Rule  The generated rule
 	 *
 	 * @phpstan-param ReasonData $reasonData
 	 */
@@ -101,11 +101,11 @@ class RuleSetGenerator
 	 * The rule for conflicting packages A and B is (-A|-B). A is called the issuer
 	 * and B the provider.
 	 *
-	 * @param BasePackage $issuer The package declaring the conflict
-	 * @param BasePackage $provider The package causing the conflict
-	 * @param Rule::RULE_* $reason A RULE_* constant describing the reason for generating this rule
-	 * @param mixed $reasonData Any data, e.g. the package name, that goes with the reason
-	 * @return ?Rule The generated rule
+	 * @param  BasePackage  $issuer     The package declaring the conflict
+	 * @param  BasePackage  $provider   The package causing the conflict
+	 * @param  Rule::RULE_* $reason     A RULE_* constant describing the reason for generating this rule
+	 * @param  mixed        $reasonData Any data, e.g. the package name, that goes with the reason
+	 * @return ?Rule        The generated rule
 	 *
 	 * @phpstan-param ReasonData $reasonData
 	 */
@@ -121,8 +121,8 @@ class RuleSetGenerator
 
 	/**
 	 * @param non-empty-array<BasePackage> $packages
-	 * @param Rule::RULE_* $reason A RULE_* constant
-	 * @param mixed $reasonData
+	 * @param Rule::RULE_*                 $reason A RULE_* constant
+	 * @param mixed                        $reasonData
 	 *
 	 * @phpstan-param ReasonData $reasonData
 	 */
@@ -146,8 +146,8 @@ class RuleSetGenerator
 	 * To be able to directly pass in the result of one of the rule creation
 	 * methods null is allowed which will not insert a rule.
 	 *
-	 * @param RuleSet::TYPE_* $type A TYPE_* constant defining the rule type
-	 * @param Rule $newRule The rule about to be added
+	 * @param RuleSet::TYPE_* $type    A TYPE_* constant defining the rule type
+	 * @param Rule            $newRule The rule about to be added
 	 */
 	private function addRule($type, ?Rule $newRule = null): void
 	{
@@ -172,7 +172,7 @@ class RuleSetGenerator
 
 			$this->addedMap[$package->id] = $package;
 
-			if (!$package instanceof AliasPackage) {
+			if (! $package instanceof AliasPackage) {
 				foreach ($package->getNames(false) as $name) {
 					$this->addedPackagesByNames[$name][] = $package;
 				}
@@ -232,7 +232,7 @@ class RuleSetGenerator
 					// define the conflict rule for regular packages, for alias packages it's only needed if the name
 					// matches the conflict exactly, otherwise the name match is by provide/replace which means the
 					// package which this is an alias of will conflict anyway, so no need to create additional rules
-					if (!$conflict instanceof AliasPackage || $conflict->getName() === $link->getTarget()) {
+					if (! $conflict instanceof AliasPackage || $conflict->getName() === $link->getTarget()) {
 						$this->addRule(RuleSet::TYPE_PACKAGE, $this->createRule2Literals($package, $conflict, Rule::RULE_PACKAGE_CONFLICT, $link));
 					}
 				}
@@ -257,7 +257,7 @@ class RuleSetGenerator
 				}
 
 				// otherwise, looks like a bug
-				throw new \LogicException("Fixed package ".$package->getPrettyString()." was not added to solver pool.");
+				throw new \LogicException("Fixed package " . $package->getPrettyString() . " was not added to solver pool.");
 			}
 
 			$this->addRulesForPackage($package, $platformRequirementFilter);
@@ -283,7 +283,7 @@ class RuleSetGenerator
 
 				$rule = $this->createInstallOneOfRule($packages, Rule::RULE_ROOT_REQUIRE, [
 					'packageName' => $packageName,
-					'constraint' => $constraint,
+					'constraint'  => $constraint,
 				]);
 				$this->addRule(RuleSet::TYPE_REQUEST, $rule);
 			}

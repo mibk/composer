@@ -40,7 +40,7 @@ cache directory.
 Read more at https://getcomposer.org/doc/03-cli.md#clear-cache-clearcache-cc
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -55,10 +55,10 @@ EOT
 		$io = $this->getIO();
 
 		$cachePaths = [
-			'cache-vcs-dir' => $config->get('cache-vcs-dir'),
-			'cache-repo-dir' => $config->get('cache-repo-dir'),
+			'cache-vcs-dir'   => $config->get('cache-vcs-dir'),
+			'cache-repo-dir'  => $config->get('cache-repo-dir'),
 			'cache-files-dir' => $config->get('cache-files-dir'),
-			'cache-dir' => $config->get('cache-dir'),
+			'cache-dir'       => $config->get('cache-dir'),
 		];
 
 		foreach ($cachePaths as $key => $cachePath) {

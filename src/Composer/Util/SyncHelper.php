@@ -12,8 +12,8 @@
 
 namespace Composer\Util;
 
-use Composer\Downloader\DownloaderInterface;
 use Composer\Downloader\DownloadManager;
+use Composer\Downloader\DownloaderInterface;
 use Composer\Package\PackageInterface;
 use React\Promise\PromiseInterface;
 
@@ -57,7 +57,7 @@ class SyncHelper
 	/**
 	 * Waits for a promise to resolve
 	 *
-	 * @param Loop                  $loop    Loop instance which you can get from $composer->getLoop()
+	 * @param         Loop $loop Loop instance which you can get from $composer->getLoop()
 	 * @phpstan-param PromiseInterface<mixed>|null $promise
 	 */
 	public static function await(Loop $loop, ?PromiseInterface $promise = null): void

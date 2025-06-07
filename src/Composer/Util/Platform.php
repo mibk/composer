@@ -113,7 +113,7 @@ class Platform
 			return self::getUserDirectory() . substr($path, 1);
 		}
 
-		return Preg::replaceCallback('#^(\$|(?P<percent>%))(?P<var>\w++)(?(percent)%)(?P<path>.*)#', static function ($matches): string {
+		return Preg::replaceCallback('#^(\$|(?P<percent>%))(?P<var>\w++)(?(percent)%)(?P<path>.*)#', static function($matches): string {
 			// Treat HOME as an alias for USERPROFILE on Windows for legacy reasons
 			if (Platform::isWindows() && $matches['var'] === 'HOME') {
 				if ((bool) Platform::getEnv('HOME')) {
@@ -165,10 +165,10 @@ class Platform
 			}
 
 			if (
-				!(bool) ini_get('open_basedir')
-				&& is_readable('/proc/version')
-				&& false !== stripos((string)Silencer::call('file_get_contents', '/proc/version'), 'microsoft')
-				&& !self::isDocker() // Docker and Podman running inside WSL should not be seen as WSL
+				!(bool)ini_get('open_basedir')
+					&& is_readable('/proc/version')
+					&& false !== stripos((string) Silencer::call('file_get_contents', '/proc/version'), 'microsoft')
+					&& !self::isDocker() // Docker and Podman running inside WSL should not be seen as WSL
 			) {
 				return self::$isWindowsSubsystemForLinux = true;
 			}
@@ -204,7 +204,7 @@ class Platform
 		// see https://www.baeldung.com/linux/is-process-running-inside-container
 		$cgroups = [
 			'/proc/self/mountinfo', // cgroup v2
-			'/proc/1/cgroup', // cgroup v1
+			'/proc/1/cgroup',       // cgroup v1
 		];
 		foreach ($cgroups as $cgroup) {
 			if (!is_readable($cgroup)) {
@@ -230,7 +230,7 @@ class Platform
 	}
 
 	/**
-	 * @return int    return a guaranteed binary length of the string, regardless of silly mbstring configs
+	 * @return int return a guaranteed binary length of the string, regardless of silly mbstring configs
 	 */
 	public static function strlen(string $str): int
 	{
@@ -247,7 +247,7 @@ class Platform
 	}
 
 	/**
-	 * @param  ?resource $fd Open file descriptor or null to default to STDOUT
+	 * @param ?resource $fd Open file descriptor or null to default to STDOUT
 	 */
 	public static function isTty($fd = null): bool
 	{

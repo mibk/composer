@@ -25,8 +25,8 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class SuggestedPackagesReporter
 {
-	public const MODE_LIST = 1;
-	public const MODE_BY_PACKAGE = 2;
+	public const MODE_LIST          = 1;
+	public const MODE_BY_PACKAGE    = 2;
 	public const MODE_BY_SUGGESTION = 4;
 
 	/**
@@ -58,9 +58,9 @@ class SuggestedPackagesReporter
 	 * Could be used to add suggested packages both from the installer
 	 * or from CreateProjectCommand.
 	 *
-	 * @param  string                    $source Source package which made the suggestion
-	 * @param  string                    $target Target package to be suggested
-	 * @param  string                    $reason Reason the target package to be suggested
+	 * @param string $source Source package which made the suggestion
+	 * @param string $target Target package to be suggested
+	 * @param string $reason Reason the target package to be suggested
 	 */
 	public function addPackage(string $source, string $target, string $reason): SuggestedPackagesReporter
 	{
@@ -95,9 +95,9 @@ class SuggestedPackagesReporter
 	 *
 	 * Do not list the ones already installed if installed repository provided.
 	 *
-	 * @param  int                      $mode             One of the MODE_* constants from this class
-	 * @param  InstalledRepository|null $installedRepo    If passed in, suggested packages which are installed already will be skipped
-	 * @param  PackageInterface|null    $onlyDependentsOf If passed in, only the suggestions from direct dependents of that package, or from the package itself, will be shown
+	 * @param int                      $mode             One of the MODE_* constants from this class
+	 * @param InstalledRepository|null $installedRepo    If passed in, suggested packages which are installed already will be skipped
+	 * @param PackageInterface|null    $onlyDependentsOf If passed in, only the suggestions from direct dependents of that package, or from the package itself, will be shown
 	 */
 	public function output(int $mode, ?InstalledRepository $installedRepo = null, ?PackageInterface $onlyDependentsOf = null): void
 	{
@@ -153,7 +153,7 @@ class SuggestedPackagesReporter
 			$allSuggestedPackages = $this->getFilteredSuggestions($installedRepo);
 			$diff = count($allSuggestedPackages) - count($suggestedPackages);
 			if ($diff) {
-				$this->io->write('<info>'.$diff.' additional suggestions</info> by transitive dependencies can be shown with <info>--all</info>');
+				$this->io->write('<info>' . $diff . ' additional suggestions</info> by transitive dependencies can be shown with <info>--all</info>');
 			}
 		}
 	}
@@ -161,14 +161,14 @@ class SuggestedPackagesReporter
 	/**
 	 * Output number of new suggested packages and a hint to use suggest command.
 	 *
-	 * @param  InstalledRepository|null $installedRepo    If passed in, suggested packages which are installed already will be skipped
-	 * @param  PackageInterface|null    $onlyDependentsOf If passed in, only the suggestions from direct dependents of that package, or from the package itself, will be shown
+	 * @param InstalledRepository|null $installedRepo    If passed in, suggested packages which are installed already will be skipped
+	 * @param PackageInterface|null    $onlyDependentsOf If passed in, only the suggestions from direct dependents of that package, or from the package itself, will be shown
 	 */
 	public function outputMinimalistic(?InstalledRepository $installedRepo = null, ?PackageInterface $onlyDependentsOf = null): void
 	{
 		$suggestedPackages = $this->getFilteredSuggestions($installedRepo, $onlyDependentsOf);
 		if ($suggestedPackages) {
-			$this->io->writeError('<info>'.count($suggestedPackages).' package suggestions were added by new dependencies, use `composer suggest` to see details.</info>');
+			$this->io->writeError('<info>' . count($suggestedPackages) . ' package suggestions were added by new dependencies, use `composer suggest` to see details.</info>');
 		}
 	}
 
@@ -192,7 +192,7 @@ class SuggestedPackagesReporter
 
 		$sourceFilter = [];
 		if ($onlyDependentsOf) {
-			$sourceFilter = array_map(static function ($link): string {
+			$sourceFilter = array_map(static function($link): string {
 				return $link->getTarget();
 			}, array_merge($onlyDependentsOf->getRequires(), $onlyDependentsOf->getDevRequires()));
 			$sourceFilter[] = $onlyDependentsOf->getName();

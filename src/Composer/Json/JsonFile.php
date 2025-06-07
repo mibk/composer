@@ -12,14 +12,14 @@
 
 namespace Composer\Json;
 
+use Composer\Downloader\TransportException;
+use Composer\IO\IOInterface;
 use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
+use Composer\Util\HttpDownloader;
 use JsonSchema\Validator;
 use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
-use Composer\Util\HttpDownloader;
-use Composer\IO\IOInterface;
-use Composer\Downloader\TransportException;
 
 /**
  * Reads/writes json files.
@@ -29,10 +29,10 @@ use Composer\Downloader\TransportException;
  */
 class JsonFile
 {
-	public const LAX_SCHEMA = 1;
+	public const LAX_SCHEMA    = 1;
 	public const STRICT_SCHEMA = 2;
-	public const AUTH_SCHEMA = 3;
-	public const LOCK_SCHEMA = 4;
+	public const AUTH_SCHEMA   = 3;
+	public const LOCK_SCHEMA   = 4;
 
 	/** @deprecated Use \JSON_UNESCAPED_SLASHES */
 	public const JSON_UNESCAPED_SLASHES = 64;
@@ -42,7 +42,7 @@ class JsonFile
 	public const JSON_UNESCAPED_UNICODE = 256;
 
 	public const COMPOSER_SCHEMA_PATH = __DIR__ . '/../../../res/composer-schema.json';
-	public const LOCK_SCHEMA_PATH = __DIR__ . '/../../../res/composer-lock-schema.json';
+	public const LOCK_SCHEMA_PATH     = __DIR__ . '/../../../res/composer-lock-schema.json';
 
 	public const INDENT_DEFAULT = '    ';
 
@@ -58,9 +58,9 @@ class JsonFile
 	/**
 	 * Initializes json file reader/parser.
 	 *
-	 * @param  string                    $path           path to a lockfile
-	 * @param  ?HttpDownloader           $httpDownloader required for loading http/https json files
-	 * @param  ?IOInterface              $io
+	 * @param  string          $path           path to a lockfile
+	 * @param  ?HttpDownloader $httpDownloader required for loading http/https json files
+	 * @param  ?IOInterface    $io
 	 * @throws \InvalidArgumentException
 	 */
 	public function __construct(string $path, ?HttpDownloader $httpDownloader = null, ?IOInterface $io = null)
@@ -101,7 +101,7 @@ class JsonFile
 				$json = $this->httpDownloader->get($this->path)->getBody();
 			} else {
 				if (!Filesystem::isReadable($this->path)) {
-					throw new \RuntimeException('The file "'.$this->path.'" is not readable.');
+					throw new \RuntimeException('The file "' . $this->path . '" is not readable.');
 				}
 				if ($this->io && $this->io->isDebug()) {
 					$realpathInfo = '';
@@ -116,11 +116,11 @@ class JsonFile
 		} catch (TransportException $e) {
 			throw new \RuntimeException($e->getMessage(), 0, $e);
 		} catch (\Exception $e) {
-			throw new \RuntimeException('Could not read '.$this->path."\n\n".$e->getMessage());
+			throw new \RuntimeException('Could not read ' . $this->path . "\n\n" . $e->getMessage());
 		}
 
 		if ($json === false) {
-			throw new \RuntimeException('Could not read '.$this->path);
+			throw new \RuntimeException('Could not read ' . $this->path);
 		}
 
 		$this->indent = self::detectIndenting($json);
@@ -131,8 +131,8 @@ class JsonFile
 	/**
 	 * Writes json file.
 	 *
-	 * @param  mixed[]                              $hash    writes hash into json file
-	 * @param  int                                  $options json_encode options
+	 * @param  mixed[] $hash    writes hash into json file
+	 * @param  int     $options json_encode options
 	 * @throws \UnexpectedValueException|\Exception
 	 * @return void
 	 */
@@ -148,12 +148,12 @@ class JsonFile
 		if (!is_dir($dir)) {
 			if (file_exists($dir)) {
 				throw new \UnexpectedValueException(
-					realpath($dir).' exists and is not a directory.'
+					realpath($dir) . ' exists and is not a directory.'
 				);
 			}
 			if (!@mkdir($dir, 0777, true)) {
 				throw new \UnexpectedValueException(
-					$dir.' does not exist and could not be created.'
+					$dir . ' does not exist and could not be created.'
 				);
 			}
 		}
@@ -161,7 +161,7 @@ class JsonFile
 		$retries = 3;
 		while ($retries--) {
 			try {
-				$this->filePutContentsIfModified($this->path, static::encode($hash, $options, $this->indent). ($options & JSON_PRETTY_PRINT ? "\n" : ''));
+				$this->filePutContentsIfModified($this->path, static::encode($hash, $options, $this->indent) . ($options & JSON_PRETTY_PRINT ? "\n" : ''));
 				break;
 			} catch (\Exception $e) {
 				if ($retries > 0) {
@@ -192,18 +192,18 @@ class JsonFile
 	/**
 	 * Validates the schema of the current json file according to composer-schema.json rules
 	 *
-	 * @param  int                     $schema     a JsonFile::*_SCHEMA constant
-	 * @param  string|null             $schemaFile a path to the schema file
+	 * @param  int         $schema     a JsonFile::*_SCHEMA constant
+	 * @param  string|null $schemaFile a path to the schema file
 	 * @throws JsonValidationException
 	 * @throws ParsingException
-	 * @return true                    true on success
+	 * @return true true on success
 	 *
 	 * @phpstan-param self::*_SCHEMA $schema
 	 */
 	public function validateSchema(int $schema = self::STRICT_SCHEMA, ?string $schemaFile = null): bool
 	{
 		if (!Filesystem::isReadable($this->path)) {
-			throw new \RuntimeException('The file "'.$this->path.'" is not readable.');
+			throw new \RuntimeException('The file "' . $this->path . '" is not readable.');
 		}
 		$content = file_get_contents($this->path);
 		$data = json_decode($content);
@@ -218,11 +218,11 @@ class JsonFile
 	/**
 	 * Validates the schema of the current json file according to composer-schema.json rules
 	 *
-	 * @param  mixed                   $data       Decoded JSON data to validate
-	 * @param  int                     $schema     a JsonFile::*_SCHEMA constant
-	 * @param  string|null             $schemaFile a path to the schema file
+	 * @param  mixed       $data       Decoded JSON data to validate
+	 * @param  int         $schema     a JsonFile::*_SCHEMA constant
+	 * @param  string|null $schemaFile a path to the schema file
 	 * @throws JsonValidationException
-	 * @return true                    true on success
+	 * @return true true on success
 	 *
 	 * @phpstan-param self::*_SCHEMA $schema
 	 */
@@ -250,7 +250,7 @@ class JsonFile
 			$schemaData->additionalProperties = false;
 			$schemaData->required = ['name', 'description'];
 		} elseif ($schema === self::AUTH_SCHEMA && $isComposerSchemaFile) {
-			$schemaData = (object) ['$ref' => $schemaFile.'#/properties/config', '$schema' => "https://json-schema.org/draft-04/schema#"];
+			$schemaData = (object) ['$ref' => $schemaFile . '#/properties/config', '$schema' => "https://json-schema.org/draft-04/schema#"];
 		}
 
 		$validator = new Validator();
@@ -261,9 +261,9 @@ class JsonFile
 		if (!$validator->isValid()) {
 			$errors = [];
 			foreach ($validator->getErrors() as $error) {
-				$errors[] = ($error['property'] ? $error['property'].' : ' : '').$error['message'];
+				$errors[] = ($error['property'] ? $error['property'] . ' : ' : '') . $error['message'];
 			}
-			throw new JsonValidationException('"'.$source.'" does not match the expected JSON schema', $errors);
+			throw new JsonValidationException('"' . $source . '" does not match the expected JSON schema', $errors);
 		}
 
 		return true;
@@ -285,12 +285,12 @@ class JsonFile
 			self::throwEncodeError(json_last_error());
 		}
 
-		if (($options & JSON_PRETTY_PRINT) > 0 && $indent !== self::INDENT_DEFAULT ) {
+		if (($options & JSON_PRETTY_PRINT) > 0 && $indent !== self::INDENT_DEFAULT) {
 			// Pretty printing and not using default indentation
 			return Preg::replaceCallback(
 				'#^ {4,}#m',
-				static function ($match) use ($indent): string {
-					return str_repeat($indent, (int)(strlen($match[0]) / 4));
+				static function($match) use ($indent): string {
+					return str_repeat($indent, (int) (strlen($match[0]) / 4));
 				},
 				$json
 			);
@@ -302,37 +302,37 @@ class JsonFile
 	/**
 	 * Throws an exception according to a given code with a customized message
 	 *
-	 * @param  int               $code return code of json_last_error function
+	 * @param  int $code return code of json_last_error function
 	 * @throws \RuntimeException
 	 * @return never
 	 */
 	private static function throwEncodeError(int $code): void
 	{
 		switch ($code) {
-			case JSON_ERROR_DEPTH:
-				$msg = 'Maximum stack depth exceeded';
-				break;
-			case JSON_ERROR_STATE_MISMATCH:
-				$msg = 'Underflow or the modes mismatch';
-				break;
-			case JSON_ERROR_CTRL_CHAR:
-				$msg = 'Unexpected control character found';
-				break;
-			case JSON_ERROR_UTF8:
-				$msg = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-				break;
-			default:
-				$msg = 'Unknown error';
+		case JSON_ERROR_DEPTH:
+			$msg = 'Maximum stack depth exceeded';
+			break;
+		case JSON_ERROR_STATE_MISMATCH:
+			$msg = 'Underflow or the modes mismatch';
+			break;
+		case JSON_ERROR_CTRL_CHAR:
+			$msg = 'Unexpected control character found';
+			break;
+		case JSON_ERROR_UTF8:
+			$msg = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+			break;
+		default:
+			$msg = 'Unknown error';
 		}
 
-		throw new \RuntimeException('JSON encoding failed: '.$msg);
+		throw new \RuntimeException('JSON encoding failed: ' . $msg);
 	}
 
 	/**
 	 * Parses json string and returns hash.
 	 *
 	 * @param null|string $json json string
-	 * @param string $file the json file
+	 * @param string      $file the json file
 	 *
 	 * @throws ParsingException
 	 * @return mixed
@@ -353,10 +353,10 @@ class JsonFile
 	/**
 	 * Validates the syntax of a JSON string
 	 *
-	 * @param  string                    $file
+	 * @param  string $file
 	 * @throws \UnexpectedValueException
 	 * @throws ParsingException
-	 * @return bool                      true on success
+	 * @return bool true on success
 	 */
 	protected static function validateSyntax(string $json, ?string $file = null): bool
 	{

@@ -12,21 +12,21 @@
 
 namespace Composer\Command;
 
+use Composer\Advisory\Auditor;
 use Composer\Config\JsonConfigSource;
+use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
 use Composer\DependencyResolver\Request;
+use Composer\Factory;
 use Composer\Installer;
+use Composer\Json\JsonFile;
+use Composer\Package\BasePackage;
 use Composer\Pcre\Preg;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
-use Composer\Json\JsonFile;
-use Composer\Factory;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
-use Composer\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
-use Composer\Package\BasePackage;
-use Composer\Advisory\Auditor;
 
 /**
  * @author Pierre du Plessis <pdples@gmail.com>
@@ -78,7 +78,7 @@ list of installed packages
 Read more at https://getcomposer.org/doc/03-cli.md#remove-rm
 EOT
 			)
-		;
+			;
 	}
 
 	/**
@@ -204,11 +204,11 @@ EOT
 					}
 				}
 			} else {
-				$io->writeError('<warning>'.$package.' is not required in your composer.json and has not been removed</warning>');
+				$io->writeError('<warning>' . $package . ' is not required in your composer.json and has not been removed</warning>');
 			}
 		}
 
-		$io->writeError('<info>'.$file.' has been updated</info>');
+		$io->writeError('<info>' . $file . ' has been updated</info>');
 
 		if ($input->getOption('no-update')) {
 			return 0;
@@ -225,7 +225,7 @@ EOT
 		if ($dryRun) {
 			$rootPackage = $composer->getPackage();
 			$links = [
-				'require' => $rootPackage->getRequires(),
+				'require'     => $rootPackage->getRequires(),
 				'require-dev' => $rootPackage->getDevRequires(),
 			];
 			foreach ($toRemove as $type => $names) {
@@ -247,7 +247,7 @@ EOT
 				$json->removeConfigSetting('allow-plugins');
 			} else {
 				foreach ($removedPlugins as $plugin) {
-					$json->removeConfigSetting('allow-plugins.'.$plugin);
+					$json->removeConfigSetting('allow-plugins.' . $plugin);
 				}
 			}
 		}
@@ -272,7 +272,7 @@ EOT
 			$flags .= ' --with-dependencies';
 		}
 
-		$io->writeError('<info>Running composer update '.implode(' ', $packages).$flags.'</info>');
+		$io->writeError('<info>Running composer update ' . implode(' ', $packages) . $flags . '</info>');
 
 		$install
 			->setVerbose($input->getOption('verbose'))
@@ -288,7 +288,7 @@ EOT
 			->setAudit(!$input->getOption('no-audit'))
 			->setAuditFormat($this->getAuditFormat($input))
 			->setMinimalUpdate($input->getOption('minimal-changes'))
-		;
+			;
 
 		// if no lock is present, we do not do a partial update as
 		// this is not supported by the Installer
@@ -298,14 +298,14 @@ EOT
 
 		$status = $install->run();
 		if ($status !== 0) {
-			$io->writeError("\n".'<error>Removal failed, reverting '.$file.' to its original content.</error>');
+			$io->writeError("\n" . '<error>Removal failed, reverting ' . $file . ' to its original content.</error>');
 			file_put_contents($jsonFile->getPath(), $composerBackup);
 		}
 
 		if (!$dryRun) {
 			foreach ($packages as $package) {
 				if ($composer->getRepositoryManager()->getLocalRepository()->findPackages($package)) {
-					$io->writeError('<error>Removal failed, '.$package.' is still present, it may be required by another package. See `composer why '.$package.'`.</error>');
+					$io->writeError('<error>Removal failed, ' . $package . ' is still present, it may be required by another package. See `composer why ' . $package . '`.</error>');
 
 					return 2;
 				}

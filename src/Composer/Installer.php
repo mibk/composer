@@ -12,57 +12,57 @@
 
 namespace Composer;
 
+use Composer\Advisory\Auditor;
 use Composer\Autoload\AutoloadGenerator;
 use Composer\Console\GithubActionError;
 use Composer\DependencyResolver\DefaultPolicy;
 use Composer\DependencyResolver\LocalRepoTransaction;
 use Composer\DependencyResolver\LockTransaction;
-use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\DependencyResolver\Operation\UninstallOperation;
-use Composer\DependencyResolver\PoolOptimizer;
+use Composer\DependencyResolver\Operation\UpdateOperation;
+use Composer\DependencyResolver\PolicyInterface;
 use Composer\DependencyResolver\Pool;
+use Composer\DependencyResolver\PoolOptimizer;
 use Composer\DependencyResolver\Request;
 use Composer\DependencyResolver\Solver;
 use Composer\DependencyResolver\SolverProblemsException;
-use Composer\DependencyResolver\PolicyInterface;
 use Composer\Downloader\DownloadManager;
 use Composer\Downloader\TransportException;
 use Composer\EventDispatcher\EventDispatcher;
 use Composer\Filter\PlatformRequirementFilter\IgnoreListPlatformRequirementFilter;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterInterface;
+use Composer\IO\IOInterface;
 use Composer\Installer\InstallationManager;
 use Composer\Installer\InstallerEvents;
 use Composer\Installer\SuggestedPackagesReporter;
-use Composer\IO\IOInterface;
 use Composer\Package\AliasPackage;
-use Composer\Package\RootAliasPackage;
 use Composer\Package\BasePackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\CompletePackageInterface;
+use Composer\Package\Dumper\ArrayDumper;
 use Composer\Package\Link;
 use Composer\Package\Loader\ArrayLoader;
-use Composer\Package\Dumper\ArrayDumper;
-use Composer\Package\Version\VersionParser;
-use Composer\Package\Package;
-use Composer\Repository\ArrayRepository;
-use Composer\Repository\RepositorySet;
-use Composer\Repository\CompositeRepository;
-use Composer\Semver\Constraint\Constraint;
 use Composer\Package\Locker;
+use Composer\Package\Package;
+use Composer\Package\RootAliasPackage;
 use Composer\Package\RootPackageInterface;
+use Composer\Package\Version\VersionParser;
+use Composer\Repository\ArrayRepository;
+use Composer\Repository\CompositeRepository;
 use Composer\Repository\InstalledArrayRepository;
-use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Repository\InstalledRepository;
-use Composer\Repository\RootPackageRepository;
+use Composer\Repository\InstalledRepositoryInterface;
+use Composer\Repository\LockArrayRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryInterface;
 use Composer\Repository\RepositoryManager;
-use Composer\Repository\LockArrayRepository;
+use Composer\Repository\RepositorySet;
+use Composer\Repository\RootPackageRepository;
 use Composer\Script\ScriptEvents;
+use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
-use Composer\Advisory\Auditor;
 use Composer\Util\Platform;
 
 /**
@@ -73,13 +73,13 @@ use Composer\Util\Platform;
  */
 class Installer
 {
-	public const ERROR_NONE = 0; // no error/success state
-	public const ERROR_GENERIC_FAILURE = 1;
+	public const ERROR_NONE                            = 0; // no error/success state
+	public const ERROR_GENERIC_FAILURE                 = 1;
 	public const ERROR_NO_LOCK_FILE_FOR_PARTIAL_UPDATE = 3;
-	public const ERROR_LOCK_FILE_INVALID = 4;
+	public const ERROR_LOCK_FILE_INVALID               = 4;
 	// used/declared in SolverProblemsException, carried over here for completeness
 	public const ERROR_DEPENDENCY_RESOLUTION_FAILED = 2;
-	public const ERROR_AUDIT_FAILED = 5;
+	public const ERROR_AUDIT_FAILED                 = 5;
 	// technically exceptions are thrown with various status codes >400, but the process exit code is normalized to 100
 	public const ERROR_TRANSPORT_EXCEPTION = 100;
 
@@ -237,8 +237,8 @@ class Installer
 	/**
 	 * Run installation (or update)
 	 *
-	 * @throws \Exception
-	 * @return int        0 on success or a positive error code on failure
+	 * @throws         \Exception
+	 * @return         int 0 on success or a positive error code on failure
 	 * @phpstan-return self::ERROR_*
 	 */
 	public function run(): int
@@ -328,7 +328,7 @@ class Installer
 		// Find abandoned packages and warn user
 		$lockedRepository = $this->locker->getLockedRepository(true);
 		foreach ($lockedRepository->getPackages() as $package) {
-			if (!$package instanceof CompletePackage || !$package->isAbandoned()) {
+			if (! $package instanceof CompletePackage || !$package->isAbandoned()) {
 				continue;
 			}
 
@@ -387,7 +387,7 @@ class Installer
 		if ($showFunding) {
 			$fundingCount = 0;
 			foreach ($localRepo->getPackages() as $package) {
-				if ($package instanceof CompletePackageInterface && !$package instanceof AliasPackage && $package->getFunding()) {
+				if ($package instanceof CompletePackageInterface && ! $package instanceof AliasPackage && $package->getFunding()) {
 					$fundingCount++;
 				}
 			}
@@ -435,13 +435,13 @@ class Installer
 
 					return $auditor->audit($this->io, $repoSet, $packages, $this->auditFormat, true, $auditConfig['ignore'] ?? [], $auditConfig['abandoned'] ?? Auditor::ABANDONED_FAIL) > 0 && $this->errorOnAudit ? self::ERROR_AUDIT_FAILED : 0;
 				} catch (TransportException $e) {
-					$this->io->error('Failed to audit '.$target.' packages.');
+					$this->io->error('Failed to audit ' . $target . ' packages.');
 					if ($this->io->isVerbose()) {
-						$this->io->error('['.get_class($e).'] '.$e->getMessage());
+						$this->io->error('[' . get_class($e) . '] ' . $e->getMessage());
 					}
 				}
 			} else {
-				$this->io->writeError('No '.$target.' packages - skipping audit.');
+				$this->io->writeError('No ' . $target . ' packages - skipping audit.');
 			}
 		}
 
@@ -512,20 +512,20 @@ class Installer
 			$err = 'Your requirements could not be resolved to an installable set of packages.';
 			$prettyProblem = $e->getPrettyString($repositorySet, $request, $pool, $this->io->isVerbose());
 
-			$this->io->writeError('<error>'. $err .'</error>', true, IOInterface::QUIET);
+			$this->io->writeError('<error>' . $err . '</error>', true, IOInterface::QUIET);
 			$this->io->writeError($prettyProblem);
 			if (!$this->devMode) {
 				$this->io->writeError('<warning>Running update with --no-dev does not mean require-dev is ignored, it just means the packages will not be installed. If dev requirements are blocking the update you have to resolve those problems.</warning>', true, IOInterface::QUIET);
 			}
 
 			$ghe = new GithubActionError($this->io);
-			$ghe->emit($err."\n".$prettyProblem);
+			$ghe->emit($err . "\n" . $prettyProblem);
 
 			return max(self::ERROR_GENERIC_FAILURE, $e->getCode());
 		}
 
-		$this->io->writeError("Analyzed ".count($pool)." packages to resolve dependencies", true, IOInterface::VERBOSE);
-		$this->io->writeError("Analyzed ".$ruleSetSize." rules to resolve dependencies", true, IOInterface::VERBOSE);
+		$this->io->writeError("Analyzed " . count($pool) . " packages to resolve dependencies", true, IOInterface::VERBOSE);
+		$this->io->writeError("Analyzed " . $ruleSetSize . " rules to resolve dependencies", true, IOInterface::VERBOSE);
 
 		$pool = null;
 
@@ -554,7 +554,7 @@ class Installer
 			foreach ($lockTransaction->getOperations() as $operation) {
 				if ($operation instanceof InstallOperation) {
 					$installsUpdates[] = $operation;
-					$installNames[] = $operation->getPackage()->getPrettyName().':'.$operation->getPackage()->getFullPrettyVersion();
+					$installNames[] = $operation->getPackage()->getPrettyName() . ':' . $operation->getPackage()->getFullPrettyVersion();
 				} elseif ($operation instanceof UpdateOperation) {
 					// when mirrors/metadata from a package gets updated we do not want to list it as an
 					// update in the output as it is only an internal lock file metadata update
@@ -566,7 +566,7 @@ class Installer
 					}
 
 					$installsUpdates[] = $operation;
-					$updateNames[] = $operation->getTargetPackage()->getPrettyName().':'.$operation->getTargetPackage()->getFullPrettyVersion();
+					$updateNames[] = $operation->getTargetPackage()->getPrettyName() . ':' . $operation->getTargetPackage()->getFullPrettyVersion();
 				} elseif ($operation instanceof UninstallOperation) {
 					$uninstalls[] = $operation;
 					$uninstallNames[] = $operation->getPackage()->getPrettyName();
@@ -584,18 +584,18 @@ class Installer
 					1 === count($uninstalls) ? '' : 's'
 				));
 				if ($installNames) {
-					$this->io->writeError("Installs: ".implode(', ', $installNames), true, IOInterface::VERBOSE);
+					$this->io->writeError("Installs: " . implode(', ', $installNames), true, IOInterface::VERBOSE);
 				}
 				if ($updateNames) {
-					$this->io->writeError("Updates: ".implode(', ', $updateNames), true, IOInterface::VERBOSE);
+					$this->io->writeError("Updates: " . implode(', ', $updateNames), true, IOInterface::VERBOSE);
 				}
 				if ($uninstalls) {
-					$this->io->writeError("Removals: ".implode(', ', $uninstallNames), true, IOInterface::VERBOSE);
+					$this->io->writeError("Removals: " . implode(', ', $uninstallNames), true, IOInterface::VERBOSE);
 				}
 			}
 		}
 
-		$sortByName = static function ($a, $b): int {
+		$sortByName = static function($a, $b): int {
 			if ($a instanceof UpdateOperation) {
 				$a = $a->getTargetPackage()->getName();
 			} else {
@@ -662,7 +662,7 @@ class Installer
 	 *
 	 * @param array<int, array<string, string>> $aliases
 	 *
-	 * @phpstan-param list<array{package: string, version: string, alias: string, alias_normalized: string}> $aliases
+	 * @phpstan-param  list<array{package: string, version: string, alias: string, alias_normalized: string}> $aliases
 	 * @phpstan-return self::ERROR_*
 	 */
 	protected function extractDevPackages(LockTransaction $lockTransaction, PlatformRepository $platformRepo, array $aliases, PolicyInterface $policy, ?LockArrayRepository $lockedRepository = null): int
@@ -694,13 +694,13 @@ class Installer
 			$err = 'Unable to find a compatible set of packages based on your non-dev requirements alone.';
 			$prettyProblem = $e->getPrettyString($repositorySet, $request, $pool, $this->io->isVerbose(), true);
 
-			$this->io->writeError('<error>'. $err .'</error>', true, IOInterface::QUIET);
+			$this->io->writeError('<error>' . $err . '</error>', true, IOInterface::QUIET);
 			$this->io->writeError('Your requirements can be resolved successfully when require-dev packages are present.');
 			$this->io->writeError('You may need to move packages from require-dev or some of their dependencies to require.');
 			$this->io->writeError($prettyProblem);
 
 			$ghe = new GithubActionError($this->io);
-			$ghe->emit($err."\n".$prettyProblem);
+			$ghe->emit($err . "\n" . $prettyProblem);
 
 			return $e->getCode();
 		}
@@ -711,14 +711,14 @@ class Installer
 	}
 
 	/**
-	 * @param  bool                         $alreadySolved Whether the function is called as part of an update command or independently
-	 * @return int                          exit code
+	 * @param          bool $alreadySolved Whether the function is called as part of an update command or independently
+	 * @return         int  exit code
 	 * @phpstan-return self::ERROR_*
 	 */
 	protected function doInstall(InstalledRepositoryInterface $localRepo, bool $alreadySolved = false): int
 	{
 		if ($this->config->get('lock')) {
-			$this->io->writeError('<info>Installing dependencies from lock file'.($this->devMode ? ' (including require-dev)' : '').'</info>');
+			$this->io->writeError('<info>Installing dependencies from lock file' . ($this->devMode ? ' (including require-dev)' : '') . '</info>');
 		}
 
 		$lockedRepository = $this->locker->getLockedRepository($this->devMode);
@@ -790,11 +790,11 @@ class Installer
 				$err = 'Your lock file does not contain a compatible set of packages. Please run composer update.';
 				$prettyProblem = $e->getPrettyString($repositorySet, $request, $pool, $this->io->isVerbose());
 
-				$this->io->writeError('<error>'. $err .'</error>', true, IOInterface::QUIET);
+				$this->io->writeError('<error>' . $err . '</error>', true, IOInterface::QUIET);
 				$this->io->writeError($prettyProblem);
 
 				$ghe = new GithubActionError($this->io);
-				$ghe->emit($err."\n".$prettyProblem);
+				$ghe->emit($err . "\n" . $prettyProblem);
 
 				return max(self::ERROR_GENERIC_FAILURE, $e->getCode());
 			}
@@ -807,9 +807,9 @@ class Installer
 		$installs = $updates = $uninstalls = [];
 		foreach ($localRepoTransaction->getOperations() as $operation) {
 			if ($operation instanceof InstallOperation) {
-				$installs[] = $operation->getPackage()->getPrettyName().':'.$operation->getPackage()->getFullPrettyVersion();
+				$installs[] = $operation->getPackage()->getPrettyName() . ':' . $operation->getPackage()->getFullPrettyVersion();
 			} elseif ($operation instanceof UpdateOperation) {
-				$updates[] = $operation->getTargetPackage()->getPrettyName().':'.$operation->getTargetPackage()->getFullPrettyVersion();
+				$updates[] = $operation->getTargetPackage()->getPrettyName() . ':' . $operation->getTargetPackage()->getFullPrettyVersion();
 			} elseif ($operation instanceof UninstallOperation) {
 				$uninstalls[] = $operation->getPackage()->getPrettyName();
 			}
@@ -828,13 +828,13 @@ class Installer
 				1 === count($uninstalls) ? '' : 's'
 			));
 			if ($installs) {
-				$this->io->writeError("Installs: ".implode(', ', $installs), true, IOInterface::VERBOSE);
+				$this->io->writeError("Installs: " . implode(', ', $installs), true, IOInterface::VERBOSE);
 			}
 			if ($updates) {
-				$this->io->writeError("Updates: ".implode(', ', $updates), true, IOInterface::VERBOSE);
+				$this->io->writeError("Updates: " . implode(', ', $updates), true, IOInterface::VERBOSE);
 			}
 			if ($uninstalls) {
-				$this->io->writeError("Removals: ".implode(', ', $uninstalls), true, IOInterface::VERBOSE);
+				$this->io->writeError("Removals: " . implode(', ', $uninstalls), true, IOInterface::VERBOSE);
 			}
 		}
 
@@ -875,7 +875,7 @@ class Installer
 	}
 
 	/**
-	 * @param  array<int, array<string, string>> $rootAliases
+	 * @param array<int, array<string, string>> $rootAliases
 	 *
 	 * @phpstan-param list<array{package: string, version: string, alias: string, alias_normalized: string}> $rootAliases
 	 */
@@ -1020,7 +1020,7 @@ class Installer
 			foreach ($lockedRepository->getPackages() as $lockedPackage) {
 				// exclude alias packages here as for root aliases, both alias and aliased are
 				// present in the lock repo and we only want to require the aliased version
-				if (!$lockedPackage instanceof AliasPackage && !isset($excludedPackages[$lockedPackage->getName()])) {
+				if (! $lockedPackage instanceof AliasPackage && !isset($excludedPackages[$lockedPackage->getName()])) {
 					$request->requireName($lockedPackage->getName(), new Constraint('==', $lockedPackage->getVersion()));
 				}
 			}
@@ -1114,21 +1114,21 @@ class Installer
 	{
 		return new static(
 			$io,
-			$composer->getConfig(),
-			$composer->getPackage(),
-			$composer->getDownloadManager(),
-			$composer->getRepositoryManager(),
-			$composer->getLocker(),
-			$composer->getInstallationManager(),
-			$composer->getEventDispatcher(),
-			$composer->getAutoloadGenerator()
+				$composer->getConfig(),
+				$composer->getPackage(),
+				$composer->getDownloadManager(),
+				$composer->getRepositoryManager(),
+				$composer->getLocker(),
+				$composer->getInstallationManager(),
+				$composer->getEventDispatcher(),
+				$composer->getAutoloadGenerator()
 		);
 	}
 
 	/**
 	 * Packages of those types are ignored, by default php-ext and php-ext-zend are ignored
 	 *
-	 * @param list<string> $types
+	 * @param  list<string> $types
 	 * @return $this
 	 */
 	public function setIgnoredTypes(array $types): self
@@ -1141,7 +1141,7 @@ class Installer
 	/**
 	 * Only packages of those types are allowed if set to non-null
 	 *
-	 * @param list<string>|null $types
+	 * @param  list<string>|null $types
 	 * @return $this
 	 */
 	public function setAllowedTypes(?array $types): self
@@ -1162,7 +1162,7 @@ class Installer
 	}
 
 	/**
-	 * @param array<string, ConstraintInterface> $constraints
+	 * @param  array<string, ConstraintInterface> $constraints
 	 * @return Installer
 	 */
 	public function setTemporaryConstraints(array $constraints): self
@@ -1330,7 +1330,7 @@ class Installer
 	 *
 	 * This is disabled implicitly when enabling dryRun
 	 *
-	 * @return Installer
+	 * @return     Installer
 	 * @deprecated Use setRunScripts(false) on the EventDispatcher instance being injected instead
 	 */
 	public function setRunScripts(bool $runScripts = true): self
@@ -1379,7 +1379,7 @@ class Installer
 	 * If this is set to false, no platform requirements are ignored
 	 * If this is set to string[], those packages will be ignored
 	 *
-	 * @param  bool|string[] $ignorePlatformReqs
+	 * @param bool|string[] $ignorePlatformReqs
 	 *
 	 * @return Installer
 	 *
@@ -1439,7 +1439,7 @@ class Installer
 	 * Depending on the chosen constant this will either only update the directly named packages, all transitive
 	 * dependencies which are not root requirement or all transitive dependencies including root requirements
 	 *
-	 * @param  int       $updateAllowTransitiveDependencies One of the UPDATE_ constants on the Request class
+	 * @param  int $updateAllowTransitiveDependencies One of the UPDATE_ constants on the Request class
 	 * @return Installer
 	 */
 	public function setUpdateAllowTransitiveDependencies(int $updateAllowTransitiveDependencies): self
@@ -1534,7 +1534,7 @@ class Installer
 	/**
 	 * Should exit with status code 5 on audit error
 	 *
-	 * @param bool $errorOnAudit
+	 * @param  bool $errorOnAudit
 	 * @return Installer
 	 */
 	public function setErrorOnAudit(bool $errorOnAudit): self
@@ -1547,7 +1547,7 @@ class Installer
 	/**
 	 * What format should be used for audit output?
 	 *
-	 * @param Auditor::FORMAT_* $auditFormat
+	 * @param  Auditor::FORMAT_* $auditFormat
 	 * @return Installer
 	 */
 	public function setAuditFormat(string $auditFormat): self

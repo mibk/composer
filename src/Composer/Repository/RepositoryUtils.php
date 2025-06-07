@@ -29,9 +29,9 @@ class RepositoryUtils
 	 * are always ignored.
 	 *
 	 * @template T of PackageInterface
-	 * @param  array<T> $packages
-	 * @param  list<T> $bucket Do not pass this in, only used to avoid recursion with circular deps
-	 * @return list<T>
+	 * @param    array<T> $packages
+	 * @param    list<T>  $bucket Do not pass this in, only used to avoid recursion with circular deps
+	 * @return   list<T>
 	 */
 	public static function filterRequiredPackages(array $packages, PackageInterface $requirer, bool $includeRequireDev = false, array $bucket = []): array
 	{
@@ -67,7 +67,7 @@ class RepositoryUtils
 			$repo = $repo->getRepository();
 		}
 
-		if (!$repo instanceof CompositeRepository) {
+		if (! $repo instanceof CompositeRepository) {
 			return [$repo];
 		}
 

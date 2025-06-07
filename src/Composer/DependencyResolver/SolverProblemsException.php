@@ -12,8 +12,8 @@
 
 namespace Composer\DependencyResolver;
 
-use Composer\Util\IniHelper;
 use Composer\Repository\RepositorySet;
+use Composer\Util\IniHelper;
 
 /**
  * @author Nils Adermann <naderman@naderman.de>
@@ -30,7 +30,7 @@ class SolverProblemsException extends \RuntimeException
 	protected $learnedPool;
 
 	/**
-	 * @param Problem[] $problems
+	 * @param Problem[]     $problems
 	 * @param array<Rule[]> $learnedPool
 	 */
 	public function __construct(array $problems, array $learnedPool)
@@ -38,7 +38,7 @@ class SolverProblemsException extends \RuntimeException
 		$this->problems = $problems;
 		$this->learnedPool = $learnedPool;
 
-		parent::__construct('Failed resolving dependencies with '.\count($problems).' problems, call getPrettyString to get formatted details', self::ERROR_DEPENDENCY_RESOLUTION_FAILED);
+		parent::__construct('Failed resolving dependencies with ' . \count($problems) . ' problems, call getPrettyString to get formatted details', self::ERROR_DEPENDENCY_RESOLUTION_FAILED);
 	}
 
 	public function getPrettyString(RepositorySet $repositorySet, Request $request, Pool $pool, bool $isVerbose, bool $isDevExtraction = false): string
@@ -49,7 +49,7 @@ class SolverProblemsException extends \RuntimeException
 
 		$problems = [];
 		foreach ($this->problems as $problem) {
-			$problems[] = $problem->getPrettyString($repositorySet, $request, $pool, $isVerbose, $installedMap, $this->learnedPool)."\n";
+			$problems[] = $problem->getPrettyString($repositorySet, $request, $pool, $isVerbose, $installedMap, $this->learnedPool) . "\n";
 
 			$missingExtensions = array_merge($missingExtensions, $this->getExtensionProblems($problem->getReasons()));
 
@@ -59,7 +59,7 @@ class SolverProblemsException extends \RuntimeException
 		$i = 1;
 		$text = "\n";
 		foreach (array_unique($problems) as $problem) {
-			$text .= "  Problem ".($i++).$problem;
+			$text .= "  Problem " . ($i++) . $problem;
 		}
 
 		$hints = [];
@@ -115,7 +115,7 @@ class SolverProblemsException extends \RuntimeException
 			array_shift($paths);
 		}
 
-		$ignoreExtensionsArguments = implode(" ", array_map(static function ($extension) {
+		$ignoreExtensionsArguments = implode(" ", array_map(static function($extension) {
 			return "--ignore-platform-req=$extension";
 		}, array_unique($missingExtensions)));
 
@@ -128,7 +128,7 @@ class SolverProblemsException extends \RuntimeException
 	}
 
 	/**
-	 * @param Rule[][] $reasonSets
+	 * @param  Rule[][] $reasonSets
 	 * @return string[]
 	 */
 	private function getExtensionProblems(array $reasonSets): array

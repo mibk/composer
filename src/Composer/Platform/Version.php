@@ -35,13 +35,13 @@ class Version
 		// OpenSSL 1 used 1.2.3a style versioning, 3+ uses semver
 		$patch = '';
 		if (version_compare($matches['version'], '3.0.0', '<')) {
-			$patch = '.'.self::convertAlphaVersionToIntVersion($matches['patch']);
+			$patch = '.' . self::convertAlphaVersionToIntVersion($matches['patch']);
 		}
 
 		$isFips = strpos($matches['suffix'], 'fips') !== false;
-		$suffix = strtr('-'.ltrim($matches['suffix'], '-'), ['-fips' => '', '-pre' => '-alpha']);
+		$suffix = strtr('-' . ltrim($matches['suffix'], '-'), ['-fips' => '', '-pre' => '-alpha']);
 
-		return rtrim($matches['version'].$patch.$suffix, '-');
+		return rtrim($matches['version'] . $patch . $suffix, '-');
 	}
 
 	public static function parseLibjpeg(string $libjpegVersion): ?string
@@ -50,7 +50,7 @@ class Version
 			return null;
 		}
 
-		return $matches['major'].'.'.self::convertAlphaVersionToIntVersion($matches['minor']);
+		return $matches['major'] . '.' . self::convertAlphaVersionToIntVersion($matches['minor']);
 	}
 
 	public static function parseZoneinfoVersion(string $zoneinfoVersion): ?string
@@ -59,7 +59,7 @@ class Version
 			return null;
 		}
 
-		return $matches['year'].'.'.self::convertAlphaVersionToIntVersion($matches['revision']);
+		return $matches['year'] . '.' . self::convertAlphaVersionToIntVersion($matches['revision']);
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Version
 	 */
 	private static function convertAlphaVersionToIntVersion(string $alpha): int
 	{
-		return strlen($alpha) * (-ord('a') + 1) + array_sum(array_map('ord', str_split($alpha)));
+		return strlen($alpha)*(-ord('a') + 1) + array_sum(array_map('ord', str_split($alpha)));
 	}
 
 	public static function convertLibxpmVersionId(int $versionId): string
@@ -85,7 +85,7 @@ class Version
 		return sprintf(
 			'%d.%d.%d',
 			$versionId / ($base * $base),
-			(int) ($versionId / $base) % $base,
+			(int)($versionId / $base) % $base,
 			$versionId % $base
 		);
 	}

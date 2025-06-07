@@ -29,7 +29,7 @@ interface CompletePackageInterface extends PackageInterface
 	public function getScripts(): array;
 
 	/**
-	 * @param  array<string, string[]> $scripts
+	 * @param array<string, string[]> $scripts
 	 */
 	public function setScripts(array $scripts): void;
 
@@ -43,7 +43,7 @@ interface CompletePackageInterface extends PackageInterface
 	/**
 	 * Set the repositories
 	 *
-	 * @param  mixed[] $repositories
+	 * @param mixed[] $repositories
 	 */
 	public function setRepositories(array $repositories): void;
 
@@ -57,7 +57,7 @@ interface CompletePackageInterface extends PackageInterface
 	/**
 	 * Set the license
 	 *
-	 * @param  string[] $license
+	 * @param string[] $license
 	 */
 	public function setLicense(array $license): void;
 
@@ -71,7 +71,7 @@ interface CompletePackageInterface extends PackageInterface
 	/**
 	 * Set the keywords
 	 *
-	 * @param  string[] $keywords
+	 * @param string[] $keywords
 	 */
 	public function setKeywords(array $keywords): void;
 
@@ -111,7 +111,7 @@ interface CompletePackageInterface extends PackageInterface
 	/**
 	 * Set the authors
 	 *
-	 * @param  array<array{name?: string, homepage?: string, email?: string, role?: string}> $authors
+	 * @param array<array{name?: string, homepage?: string, email?: string, role?: string}> $authors
 	 */
 	public function setAuthors(array $authors): void;
 
@@ -125,7 +125,7 @@ interface CompletePackageInterface extends PackageInterface
 	/**
 	 * Set the support information
 	 *
-	 * @param  array{issues?: string, forum?: string, wiki?: string, source?: string, email?: string, irc?: string, docs?: string, rss?: string, chat?: string, security?: string} $support
+	 * @param array{issues?: string, forum?: string, wiki?: string, source?: string, email?: string, irc?: string, docs?: string, rss?: string, chat?: string, security?: string} $support
 	 */
 	public function setSupport(array $support): void;
 
@@ -141,7 +141,7 @@ interface CompletePackageInterface extends PackageInterface
 	/**
 	 * Set the funding
 	 *
-	 * @param  array<array{type?: string, url?: string}> $funding
+	 * @param array<array{type?: string, url?: string}> $funding
 	 */
 	public function setFunding(array $funding): void;
 
@@ -156,7 +156,7 @@ interface CompletePackageInterface extends PackageInterface
 	public function getReplacementPackage(): ?string;
 
 	/**
-	 * @param  bool|string $abandoned
+	 * @param bool|string $abandoned
 	 */
 	public function setAbandoned($abandoned): void;
 
@@ -182,7 +182,7 @@ interface CompletePackageInterface extends PackageInterface
 	/**
 	 * Sets a list of patterns to be excluded from archives
 	 *
-	 * @param  string[] $excludes
+	 * @param string[] $excludes
 	 */
 	public function setArchiveExcludes(array $excludes): void;
 }

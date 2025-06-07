@@ -154,7 +154,7 @@ EOT
 			$io->writeError('<info>' . $name . ' is valid, but with a few warnings</info>');
 			$doPrintSchemaUrl = $printSchemaUrl;
 		} elseif (\count($lockErrors) > 0) {
-			$io->write('<info>' . $name . ' is valid but your composer.lock has some '.($checkLock ? 'errors' : 'warnings').'</info>');
+			$io->write('<info>' . $name . ' is valid but your composer.lock has some ' . ($checkLock ? 'errors' : 'warnings') . '</info>');
 		} else {
 			$io->write('<info>' . $name . ' is valid</info>');
 		}
@@ -164,13 +164,13 @@ EOT
 		}
 
 		if (\count($errors) > 0) {
-			$errors = array_map(static function ($err): string {
+			$errors = array_map(static function($err): string {
 				return '- ' . $err;
 			}, $errors);
 			array_unshift($errors, '# General errors');
 		}
 		if (\count($warnings) > 0) {
-			$warnings = array_map(static function ($err): string {
+			$warnings = array_map(static function($err): string {
 				return '- ' . $err;
 			}, $warnings);
 			array_unshift($warnings, '# General warnings');
@@ -181,7 +181,7 @@ EOT
 
 		// If checking publish errors, display them as errors, otherwise just show them as warnings
 		if (\count($publishErrors) > 0 && $checkPublish) {
-			$publishErrors = array_map(static function ($err): string {
+			$publishErrors = array_map(static function($err): string {
 				return '- ' . $err;
 			}, $publishErrors);
 
@@ -201,7 +201,7 @@ EOT
 		}
 
 		$messages = [
-			'error' => $errors,
+			'error'   => $errors,
 			'warning' => array_merge($warnings, $extraWarnings),
 		];
 

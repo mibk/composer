@@ -44,7 +44,7 @@ class Auditor
 
 	public const ABANDONED_IGNORE = 'ignore';
 	public const ABANDONED_REPORT = 'report';
-	public const ABANDONED_FAIL = 'fail';
+	public const ABANDONED_FAIL   = 'fail';
 
 	/** @internal */
 	public const ABANDONEDS = [
@@ -54,17 +54,17 @@ class Auditor
 	];
 
 	/** Values to determine the audit result. */
-	public const STATUS_OK = 0;
+	public const STATUS_OK         = 0;
 	public const STATUS_VULNERABLE = 1;
-	public const STATUS_ABANDONED = 2;
+	public const STATUS_ABANDONED  = 2;
 
 	/**
 	 * @param PackageInterface[] $packages
-	 * @param self::FORMAT_* $format The format that will be used to output audit results.
-	 * @param bool $warningOnly If true, outputs a warning. If false, outputs an error.
-	 * @param string[] $ignoreList List of advisory IDs, remote IDs or CVE IDs that reported but not listed as vulnerabilities.
-	 * @param self::ABANDONED_* $abandoned
-	 * @param array<string> $ignoredSeverities List of ignored severity levels
+	 * @param self::FORMAT_*     $format      The format that will be used to output audit results.
+	 * @param bool               $warningOnly If true, outputs a warning. If false, outputs an error.
+	 * @param string[]           $ignoreList  List of advisory IDs, remote IDs or CVE IDs that reported but not listed as vulnerabilities.
+	 * @param self::ABANDONED_*  $abandoned
+	 * @param array<string>      $ignoredSeverities List of ignored severity levels
 	 *
 	 * @return int-mask<self::STATUS_*> A bitmask of STATUS_* constants or 0 on success
 	 * @throws InvalidArgumentException If no packages are passed in
@@ -97,7 +97,7 @@ class Auditor
 			if ($ignoredAdvisories !== []) {
 				$json['ignored-advisories'] = $ignoredAdvisories;
 			}
-			$json['abandoned'] = array_reduce($abandonedPackages, static function (array $carry, CompletePackageInterface $package): array {
+			$json['abandoned'] = array_reduce($abandonedPackages, static function(array $carry, CompletePackageInterface $package): array {
 				$carry[$package->getPrettyName()] = $package->getReplacementPackage();
 
 				return $carry;
@@ -140,20 +140,20 @@ class Auditor
 	}
 
 	/**
-	 * @param array<PackageInterface> $packages
+	 * @param  array<PackageInterface> $packages
 	 * @return array<CompletePackageInterface>
 	 */
 	private function filterAbandonedPackages(array $packages): array
 	{
-		return array_filter($packages, static function (PackageInterface $pkg): bool {
+		return array_filter($packages, static function(PackageInterface $pkg): bool {
 			return $pkg instanceof CompletePackageInterface && $pkg->isAbandoned();
 		});
 	}
 
 	/**
-	 * @phpstan-param array<string, array<PartialSecurityAdvisory|SecurityAdvisory>> $allAdvisories
-	 * @param array<string>|array<string,string> $ignoreList List of advisory IDs, remote IDs or CVE IDs that reported but not listed as vulnerabilities.
-	 * @param array<string> $ignoredSeverities List of ignored severity levels
+	 * @phpstan-param  array<string, array<PartialSecurityAdvisory|SecurityAdvisory>> $allAdvisories
+	 * @param          array<string>|array<string, string> $ignoreList        List of advisory IDs, remote IDs or CVE IDs that reported but not listed as vulnerabilities.
+	 * @param          array<string>                       $ignoredSeverities List of ignored severity levels
 	 * @phpstan-return array{advisories: array<string, array<PartialSecurityAdvisory|SecurityAdvisory>>, ignoredAdvisories: array<string, array<PartialSecurityAdvisory|SecurityAdvisory>>}
 	 */
 	private function processAdvisories(array $allAdvisories, array $ignoreList, array $ignoredSeverities): array
@@ -220,8 +220,8 @@ class Auditor
 	}
 
 	/**
-	 * @param array<string, array<PartialSecurityAdvisory>> $advisories
-	 * @return array{int, int} Count of affected packages and total count of advisories
+	 * @param  array<string, array<PartialSecurityAdvisory>> $advisories
+	 * @return array{int, int}                               Count of affected packages and total count of advisories
 	 */
 	private function countAdvisories(array $advisories): array
 	{
@@ -235,27 +235,26 @@ class Auditor
 
 	/**
 	 * @param array<string, array<SecurityAdvisory>> $advisories
-	 * @param self::FORMAT_* $format The format that will be used to output audit results.
+	 * @param self::FORMAT_*                         $format The format that will be used to output audit results.
 	 */
 	private function outputAdvisories(IOInterface $io, array $advisories, string $format): void
 	{
 		switch ($format) {
-			case self::FORMAT_TABLE:
-				if (!($io instanceof ConsoleIO)) {
-					throw new InvalidArgumentException('Cannot use table format with ' . get_class($io));
-				}
-				$this->outputAdvisoriesTable($io, $advisories);
+		case self::FORMAT_TABLE:
+			if (!($io instanceof ConsoleIO)) {
+				throw new InvalidArgumentException('Cannot use table format with ' . get_class($io));
+			}
+			$this->outputAdvisoriesTable($io, $advisories);
 
-				return;
-			case self::FORMAT_PLAIN:
-				$this->outputAdvisoriesPlain($io, $advisories);
+			return;
+		case self::FORMAT_PLAIN:
+			$this->outputAdvisoriesPlain($io, $advisories);
 
-				return;
-			case self::FORMAT_SUMMARY:
-
-				return;
-			default:
-				throw new InvalidArgumentException('Invalid format "'.$format.'".');
+			return;
+		case self::FORMAT_SUMMARY:
+			return;
+		default:
+			throw new InvalidArgumentException('Invalid format "' . $format . '".');
 		}
 	}
 
@@ -315,18 +314,18 @@ class Auditor
 				if (!$firstAdvisory) {
 					$error[] = '--------';
 				}
-				$error[] = "Package: ".$advisory->packageName;
-				$error[] = "Severity: ".$this->getSeverity($advisory);
-				$error[] = "CVE: ".$this->getCVE($advisory);
+				$error[] = "Package: " . $advisory->packageName;
+				$error[] = "Severity: " . $this->getSeverity($advisory);
+				$error[] = "CVE: " . $this->getCVE($advisory);
 				if ($advisory->cve === null) {
-					$error[] = "Advisory ID: ".$advisory->advisoryId;
+					$error[] = "Advisory ID: " . $advisory->advisoryId;
 				}
-				$error[] = "Title: ".OutputFormatter::escape($advisory->title);
-				$error[] = "URL: ".$this->getURL($advisory);
-				$error[] = "Affected versions: ".OutputFormatter::escape($advisory->affectedVersions->getPrettyString());
-				$error[] = "Reported at: ".$advisory->reportedAt->format(DATE_ATOM);
+				$error[] = "Title: " . OutputFormatter::escape($advisory->title);
+				$error[] = "URL: " . $this->getURL($advisory);
+				$error[] = "Affected versions: " . OutputFormatter::escape($advisory->affectedVersions->getPrettyString());
+				$error[] = "Reported at: " . $advisory->reportedAt->format(DATE_ATOM);
 				if ($advisory instanceof IgnoredSecurityAdvisory) {
-					$error[] = "Ignore reason: ".($advisory->ignoreReason ?? 'None specified');
+					$error[] = "Ignore reason: " . ($advisory->ignoreReason ?? 'None specified');
 				}
 				$firstAdvisory = false;
 			}
@@ -335,7 +334,7 @@ class Auditor
 	}
 
 	/**
-	 * @param array<CompletePackageInterface> $packages
+	 * @param array<CompletePackageInterface>       $packages
 	 * @param self::FORMAT_PLAIN|self::FORMAT_TABLE $format
 	 */
 	private function outputAbandonedPackages(IOInterface $io, array $packages, string $format): void
@@ -345,7 +344,7 @@ class Auditor
 		if ($format === self::FORMAT_PLAIN) {
 			foreach ($packages as $pkg) {
 				$replacement = $pkg->getReplacementPackage() !== null
-					? 'Use '.$pkg->getReplacementPackage().' instead'
+					? 'Use ' . $pkg->getReplacementPackage() . ' instead'
 					: 'No replacement was suggested';
 				$io->writeError(sprintf(
 					'%s is abandoned. %s.',
@@ -396,7 +395,7 @@ class Auditor
 			return 'NO CVE';
 		}
 
-		return '<href=https://cve.mitre.org/cgi-bin/cvename.cgi?name='.$advisory->cve.'>'.$advisory->cve.'</>';
+		return '<href=https://cve.mitre.org/cgi-bin/cvename.cgi?name=' . $advisory->cve . '>' . $advisory->cve . '</>';
 	}
 
 	private function getURL(SecurityAdvisory $advisory): string
@@ -405,7 +404,7 @@ class Auditor
 			return '';
 		}
 
-		return '<href='.OutputFormatter::escape($advisory->link).'>'.OutputFormatter::escape($advisory->link).'</>';
+		return '<href=' . OutputFormatter::escape($advisory->link) . '>' . OutputFormatter::escape($advisory->link) . '</>';
 	}
 
 	/**

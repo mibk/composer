@@ -12,11 +12,11 @@
 
 namespace Composer\DependencyResolver;
 
+use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\Package\AliasPackage;
 use Composer\Package\Link;
 use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
-use Composer\DependencyResolver\Operation\OperationInterface;
 
 /**
  * @author Nils Adermann <naderman@naderman.de>
@@ -70,7 +70,7 @@ class Transaction
 	 */
 	private function setResultPackageMaps(array $resultPackages): void
 	{
-		$packageSort = static function (PackageInterface $a, PackageInterface $b): int {
+		$packageSort = static function(PackageInterface $a, PackageInterface $b): int {
 			// sort alias packages by the same name behind their non alias version
 			if ($a->getName() === $b->getName()) {
 				if ($a instanceof AliasPackage !== $b instanceof AliasPackage) {
@@ -110,8 +110,8 @@ class Transaction
 		$removeAliasMap = [];
 		foreach ($this->presentPackages as $package) {
 			if ($package instanceof AliasPackage) {
-				$presentAliasMap[$package->getName().'::'.$package->getVersion()] = $package;
-				$removeAliasMap[$package->getName().'::'.$package->getVersion()] = $package;
+				$presentAliasMap[$package->getName() . '::' . $package->getVersion()] = $package;
+				$removeAliasMap[$package->getName() . '::' . $package->getVersion()] = $package;
 			} else {
 				$presentPackageMap[$package->getName()] = $package;
 				$removeMap[$package->getName()] = $package;
@@ -149,7 +149,7 @@ class Transaction
 				$processed[spl_object_hash($package)] = true;
 
 				if ($package instanceof AliasPackage) {
-					$aliasKey = $package->getName().'::'.$package->getVersion();
+					$aliasKey = $package->getName() . '::' . $package->getVersion();
 					if (isset($presentAliasMap[$aliasKey])) {
 						unset($removeAliasMap[$aliasKey]);
 					} else {
@@ -289,7 +289,7 @@ class Transaction
 			// is this a downloads modifying plugin or a dependency of one?
 			if ($isDownloadsModifyingPlugin || \count(array_intersect($package->getNames(), $dlModifyingPluginRequires)) > 0) {
 				// get the package's requires, but filter out any platform requirements
-				$requires = array_filter(array_keys($package->getRequires()), static function ($req): bool {
+				$requires = array_filter(array_keys($package->getRequires()), static function($req): bool {
 					return !PlatformRepository::isPlatformPackage($req);
 				});
 
@@ -314,7 +314,7 @@ class Transaction
 			// is this a plugin or a dependency of a plugin?
 			if ($isPlugin || \count(array_intersect($package->getNames(), $pluginRequires)) > 0) {
 				// get the package's requires, but filter out any platform requirements
-				$requires = array_filter(array_keys($package->getRequires()), static function ($req): bool {
+				$requires = array_filter(array_keys($package->getRequires()), static function($req): bool {
 					return !PlatformRepository::isPlatformPackage($req);
 				});
 

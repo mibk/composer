@@ -20,12 +20,12 @@ use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\Version\VersionGuesser;
 use Composer\Package\Version\VersionParser;
 use Composer\Pcre\Preg;
+use Composer\Util\Filesystem;
+use Composer\Util\Git as GitUtil;
 use Composer\Util\HttpDownloader;
 use Composer\Util\Platform;
 use Composer\Util\ProcessExecutor;
-use Composer\Util\Filesystem;
 use Composer\Util\Url;
-use Composer\Util\Git as GitUtil;
 
 /**
  * This repository allows installing local packages that are not necessarily under their own VCS.
@@ -87,7 +87,7 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
 	private $url;
 
 	/**
-	 * @var mixed[]
+	 * @var         mixed[]
 	 * @phpstan-var array{url: string, options?: array{symlink?: bool, reference?: string, relative?: bool, versions?: array<string, string>}}
 	 */
 	private $repoConfig;
@@ -129,7 +129,7 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
 
 	public function getRepoName(): string
 	{
-		return 'path repo ('.Url::sanitize($this->repoConfig['url']).')';
+		return 'path repo (' . Url::sanitize($this->repoConfig['url']) . ')';
 	}
 
 	public function getRepoConfig(): array
@@ -165,7 +165,7 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
 
 		foreach ($urlMatches as $url) {
 			$path = realpath($url) . DIRECTORY_SEPARATOR;
-			$composerFilePath = $path.'composer.json';
+			$composerFilePath = $path . 'composer.json';
 
 			if (!file_exists($composerFilePath)) {
 				continue;
@@ -175,7 +175,7 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
 			$package = JsonFile::parseJson($json, $composerFilePath);
 			$package['dist'] = [
 				'type' => 'path',
-				'url' => $url,
+				'url'  => $url,
 			];
 			$reference = $this->options['reference'] ?? 'auto';
 			if ('none' === $reference) {
@@ -195,8 +195,8 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
 			if (!isset($package['version']) && ($rootVersion = Platform::getEnv('COMPOSER_ROOT_VERSION'))) {
 				if (
 					0 === $this->process->execute(['git', 'rev-parse', 'HEAD'], $ref1, $path)
-					&& 0 === $this->process->execute(['git', 'rev-parse', 'HEAD'], $ref2)
-					&& $ref1 === $ref2
+						&& 0 === $this->process->execute(['git', 'rev-parse', 'HEAD'], $ref2)
+						&& $ref1 === $ref2
 				) {
 					$package['version'] = $this->versionGuesser->getRootVersionFromEnv();
 				}
@@ -225,7 +225,7 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
 			try {
 				$this->addPackage($this->loader->load($package));
 			} catch (\Exception $e) {
-				throw new \RuntimeException('Failed loading the package in '.$composerFilePath, 0, $e);
+				throw new \RuntimeException('Failed loading the package in ' . $composerFilePath, 0, $e);
 			}
 		}
 	}
@@ -242,11 +242,11 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
 		if (defined('GLOB_BRACE')) {
 			$flags |= GLOB_BRACE;
 		} elseif (strpos($this->url, '{') !== false || strpos($this->url, '}') !== false) {
-			throw new \RuntimeException('The operating system does not support GLOB_BRACE which is required for the url '. $this->url);
+			throw new \RuntimeException('The operating system does not support GLOB_BRACE which is required for the url ' . $this->url);
 		}
 
 		// Ensure environment-specific path separators are normalized to URL separators
-		return array_map(static function ($val): string {
+		return array_map(static function($val): string {
 			return rtrim(str_replace(DIRECTORY_SEPARATOR, '/', $val), '/');
 		}, glob($this->url, $flags));
 	}

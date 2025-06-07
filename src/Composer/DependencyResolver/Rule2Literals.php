@@ -13,7 +13,7 @@
 namespace Composer\DependencyResolver;
 
 /**
- * @author Nils Adermann <naderman@naderman.de>
+ * @author              Nils Adermann <naderman@naderman.de>
  * @phpstan-import-type ReasonData from Rule
  */
 class Rule2Literals extends Rule
@@ -25,7 +25,7 @@ class Rule2Literals extends Rule
 
 	/**
 	 * @param Rule::RULE_* $reason A RULE_* constant
-	 * @param mixed $reasonData
+	 * @param mixed        $reasonData
 	 *
 	 * @phpstan-param ReasonData $reasonData
 	 */
@@ -55,7 +55,7 @@ class Rule2Literals extends Rule
 	 */
 	public function getHash()
 	{
-		return $this->literal1.','.$this->literal2;
+		return $this->literal1 . ',' . $this->literal2;
 	}
 
 	/**

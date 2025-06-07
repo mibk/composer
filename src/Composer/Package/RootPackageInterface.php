@@ -106,7 +106,7 @@ interface RootPackageInterface extends CompletePackageInterface
 	/**
 	 * Set the autoload mapping
 	 *
-	 * @param array $autoload Mapping of autoloading rules
+	 * @param         array $autoload Mapping of autoloading rules
 	 * @phpstan-param AutoloadRules $autoload
 	 */
 	public function setAutoload(array $autoload): void;
@@ -114,7 +114,7 @@ interface RootPackageInterface extends CompletePackageInterface
 	/**
 	 * Set the dev autoload mapping
 	 *
-	 * @param array $devAutoload Mapping of dev autoloading rules
+	 * @param         array $devAutoload Mapping of dev autoloading rules
 	 * @phpstan-param DevAutoloadRules $devAutoload
 	 */
 	public function setDevAutoload(array $devAutoload): void;

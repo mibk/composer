@@ -12,23 +12,23 @@
 
 namespace Composer\Repository;
 
-use Composer\DependencyResolver\PoolOptimizer;
+use Composer\Advisory\PartialSecurityAdvisory;
+use Composer\Advisory\SecurityAdvisory;
 use Composer\DependencyResolver\Pool;
 use Composer\DependencyResolver\PoolBuilder;
+use Composer\DependencyResolver\PoolOptimizer;
 use Composer\DependencyResolver\Request;
 use Composer\EventDispatcher\EventDispatcher;
-use Composer\Advisory\SecurityAdvisory;
-use Composer\Advisory\PartialSecurityAdvisory;
 use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
-use Composer\Package\BasePackage;
 use Composer\Package\AliasPackage;
+use Composer\Package\BasePackage;
 use Composer\Package\CompleteAliasPackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\PackageInterface;
+use Composer\Package\Version\StabilityFilter;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
-use Composer\Package\Version\StabilityFilter;
 use Composer\Semver\Constraint\MatchAllConstraint;
 use Composer\Semver\Constraint\MultiConstraint;
 
@@ -269,7 +269,7 @@ class RepositorySet
 	{
 		$repoAdvisories = [];
 		foreach ($this->repositories as $repository) {
-			if (!$repository instanceof AdvisoryProviderInterface || !$repository->hasSecurityAdvisories()) {
+			if (! $repository instanceof AdvisoryProviderInterface || !$repository->hasSecurityAdvisories()) {
 				continue;
 			}
 
@@ -411,7 +411,7 @@ class RepositorySet
 
 		foreach ($aliases as $alias) {
 			$normalizedAliases[$alias['package']][$alias['version']] = [
-				'alias' => $alias['alias'],
+				'alias'            => $alias['alias'],
 				'alias_normalized' => $alias['alias_normalized'],
 			];
 		}

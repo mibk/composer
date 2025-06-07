@@ -72,7 +72,7 @@ class ProxyManager
 	public function getProxyForRequest(string $requestUrl): RequestProxy
 	{
 		if ($this->error !== null) {
-			throw new TransportException('Unable to use a proxy: '.$this->error);
+			throw new TransportException('Unable to use a proxy: ' . $this->error);
 		}
 
 		$scheme = (string) parse_url($requestUrl, PHP_URL_SCHEME);

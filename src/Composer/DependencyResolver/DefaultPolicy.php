@@ -68,13 +68,13 @@ class DefaultPolicy implements PolicyInterface
 	}
 
 	/**
-	 * @param  non-empty-list<int>  $literals
+	 * @param  non-empty-list<int> $literals
 	 * @return non-empty-list<int>
 	 */
 	public function selectPreferredPackages(Pool $pool, array $literals, ?string $requiredPackage = null): array
 	{
 		sort($literals);
-		$resultCacheKey = implode(',', $literals).$requiredPackage;
+		$resultCacheKey = implode(',', $literals) . $requiredPackage;
 		$poolId = spl_object_id($pool);
 
 		if (isset($this->preferredPackageResultCachePerPool[$poolId][$resultCacheKey])) {
@@ -84,8 +84,8 @@ class DefaultPolicy implements PolicyInterface
 		$packages = $this->groupLiteralsByName($pool, $literals);
 
 		foreach ($packages as &$nameLiterals) {
-			usort($nameLiterals, function ($a, $b) use ($pool, $requiredPackage, $poolId): int {
-				$cacheKey = 'i'.$a.'.'.$b.$requiredPackage; // i prefix -> ignoreReplace = true
+			usort($nameLiterals, function($a, $b) use ($pool, $requiredPackage, $poolId): int {
+				$cacheKey = 'i' . $a . '.' . $b . $requiredPackage; // i prefix -> ignoreReplace = true
 
 				if (isset($this->sortingCachePerPool[$poolId][$cacheKey])) {
 					return $this->sortingCachePerPool[$poolId][$cacheKey];
@@ -103,8 +103,8 @@ class DefaultPolicy implements PolicyInterface
 		$selected = array_merge(...array_values($packages));
 
 		// now sort the result across all packages to respect replaces across packages
-		usort($selected, function ($a, $b) use ($pool, $requiredPackage, $poolId): int {
-			$cacheKey = $a.'.'.$b.$requiredPackage; // no i prefix -> ignoreReplace = false
+		usort($selected, function($a, $b) use ($pool, $requiredPackage, $poolId): int {
+			$cacheKey = $a . '.' . $b . $requiredPackage; // no i prefix -> ignoreReplace = false
 
 			if (isset($this->sortingCachePerPool[$poolId][$cacheKey])) {
 				return $this->sortingCachePerPool[$poolId][$cacheKey];
@@ -193,8 +193,8 @@ class DefaultPolicy implements PolicyInterface
 	{
 		foreach ($source->getReplaces() as $link) {
 			if ($link->getTarget() === $target->getName()
-//                && (null === $link->getConstraint() ||
-//                $link->getConstraint()->matches(new Constraint('==', $target->getVersion())))) {
+				//                && (null === $link->getConstraint() ||
+				//                $link->getConstraint()->matches(new Constraint('==', $target->getVersion())))) {
 			) {
 				return true;
 			}

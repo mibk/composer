@@ -28,8 +28,8 @@ use Composer\Repository\RepositoryInterface;
 interface PackageInterface
 {
 	public const DISPLAY_SOURCE_REF_IF_DEV = 0;
-	public const DISPLAY_SOURCE_REF = 1;
-	public const DISPLAY_DIST_REF = 2;
+	public const DISPLAY_SOURCE_REF        = 1;
+	public const DISPLAY_DIST_REF          = 2;
 
 	/**
 	 * Returns the package's name without version info, thus not a unique identifier
@@ -98,7 +98,7 @@ interface PackageInterface
 	/**
 	 * Sets source from which this package was installed (source/dist).
 	 *
-	 * @param ?string $type source/dist
+	 * @param         ?string $type source/dist
 	 * @phpstan-param 'source'|'dist'|null $type
 	 */
 	public function setInstallationSource(?string $type): void;
@@ -106,7 +106,7 @@ interface PackageInterface
 	/**
 	 * Returns source from which this package was installed (source/dist).
 	 *
-	 * @return ?string source/dist
+	 * @return         ?string source/dist
 	 * @phpstan-return 'source'|'dist'|null
 	 */
 	public function getInstallationSource(): ?string;
@@ -147,7 +147,7 @@ interface PackageInterface
 	public function getSourceMirrors(): ?array;
 
 	/**
-	 * @param  null|list<array{url: non-empty-string, preferred: bool}> $mirrors
+	 * @param null|list<array{url: non-empty-string, preferred: bool}> $mirrors
 	 */
 	public function setSourceMirrors(?array $mirrors): void;
 
@@ -196,7 +196,7 @@ interface PackageInterface
 	public function getDistMirrors(): ?array;
 
 	/**
-	 * @param  null|list<array{url: non-empty-string, preferred: bool}> $mirrors
+	 * @param null|list<array{url: non-empty-string, preferred: bool}> $mirrors
 	 */
 	public function setDistMirrors(?array $mirrors): void;
 
@@ -285,7 +285,7 @@ interface PackageInterface
 	 * Returns a set of package names and reasons why they are useful in
 	 * combination with this package.
 	 *
-	 * @return array An array of package suggestions with descriptions
+	 * @return         array An array of package suggestions with descriptions
 	 * @phpstan-return array<string, string>
 	 */
 	public function getSuggests(): array;
@@ -298,7 +298,7 @@ interface PackageInterface
 	 * Type is either "psr-4", "psr-0", "classmap" or "files". Namespaces are mapped to
 	 * directories for autoloading using the type specified.
 	 *
-	 * @return array Mapping of autoloading rules
+	 * @return         array Mapping of autoloading rules
 	 * @phpstan-return AutoloadRules
 	 */
 	public function getAutoload(): array;
@@ -311,7 +311,7 @@ interface PackageInterface
 	 * Type is either "psr-4", "psr-0", "classmap" or "files". Namespaces are mapped to
 	 * directories for autoloading using the type specified.
 	 *
-	 * @return array Mapping of dev autoloading rules
+	 * @return         array Mapping of dev autoloading rules
 	 * @phpstan-return DevAutoloadRules
 	 */
 	public function getDevAutoload(): array;

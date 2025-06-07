@@ -30,8 +30,8 @@ class ProxyItem
 	private $optionsAuth;
 
 	/**
-	 * @param string $proxyUrl The value from the environment
-	 * @param string $envName The name of the environment variable
+	 * @param  string            $proxyUrl The value from the environment
+	 * @param  string            $envName  The name of the environment variable
 	 * @throws \RuntimeException If the proxy url is invalid
 	 */
 	public function __construct(string $proxyUrl, string $envName)

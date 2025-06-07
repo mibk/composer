@@ -15,11 +15,11 @@ namespace Composer\Package\Loader;
 use Composer\Package\BasePackage;
 use Composer\Package\CompleteAliasPackage;
 use Composer\Package\CompletePackage;
-use Composer\Package\RootPackage;
-use Composer\Package\PackageInterface;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\Link;
+use Composer\Package\PackageInterface;
 use Composer\Package\RootAliasPackage;
+use Composer\Package\RootPackage;
 use Composer\Package\Version\VersionParser;
 use Composer\Pcre\Preg;
 
@@ -58,7 +58,7 @@ class ArrayLoader implements LoaderInterface
 			if (!isset($config[$type]) || !is_array($config[$type])) {
 				continue;
 			}
-			$method = 'set'.ucfirst($opts['method']);
+			$method = 'set' . ucfirst($opts['method']);
 			$package->{$method}(
 				$this->parseLinks(
 					$package->getName(),
@@ -109,10 +109,10 @@ class ArrayLoader implements LoaderInterface
 	private function createObject(array $config, string $class): CompletePackage
 	{
 		if (!isset($config['name'])) {
-			throw new \UnexpectedValueException('Unknown package has no name defined ('.json_encode($config).').');
+			throw new \UnexpectedValueException('Unknown package has no name defined (' . json_encode($config) . ').');
 		}
 		if (!isset($config['version']) || !is_scalar($config['version'])) {
-			throw new \UnexpectedValueException('Package '.$config['name'].' has no version defined.');
+			throw new \UnexpectedValueException('Package ' . $config['name'] . ' has no version defined.');
 		}
 		if (!is_string($config['version'])) {
 			$config['version'] = (string) $config['version'];
@@ -141,7 +141,7 @@ class ArrayLoader implements LoaderInterface
 	 */
 	private function configureObject(PackageInterface $package, array $config): BasePackage
 	{
-		if (!$package instanceof CompletePackage) {
+		if (! $package instanceof CompletePackage) {
 			throw new \LogicException('ArrayLoader expects instances of the Composer\Package\CompletePackage class to function correctly');
 		}
 
@@ -192,8 +192,8 @@ class ArrayLoader implements LoaderInterface
 		if (isset($config['dist'])) {
 			if (!isset($config['dist']['type'], $config['dist']['url'])) {
 				throw new \UnexpectedValueException(sprintf(
-					"Package %s's dist key should be specified as ".
-					"{\"type\": ..., \"url\": ..., \"reference\": ..., \"shasum\": ...},\n%s given.",
+					"Package %s's dist key should be specified as " .
+						"{\"type\": ..., \"url\": ..., \"reference\": ..., \"shasum\": ...},\n%s given.",
 					$config['name'],
 					json_encode($config['dist'])
 				));
@@ -233,7 +233,7 @@ class ArrayLoader implements LoaderInterface
 		}
 
 		if (!empty($config['time'])) {
-			$time = Preg::isMatch('/^\d++$/D', $config['time']) ? '@'.$config['time'] : $config['time'];
+			$time = Preg::isMatch('/^\d++$/D', $config['time']) ? '@' . $config['time'] : $config['time'];
 
 			try {
 				$date = new \DateTime($time, new \DateTimeZone('UTC'));
@@ -260,7 +260,7 @@ class ArrayLoader implements LoaderInterface
 				}
 				foreach (['composer', 'php', 'putenv'] as $reserved) {
 					if (isset($config['scripts'][$reserved])) {
-						trigger_error('The `'.$reserved.'` script name is reserved for internal use, please avoid defining it', E_USER_DEPRECATED);
+						trigger_error('The `' . $reserved . '` script name is reserved for internal use, please avoid defining it', E_USER_DEPRECATED);
 					}
 				}
 				$package->setScripts($config['scripts']);
@@ -318,7 +318,7 @@ class ArrayLoader implements LoaderInterface
 
 	/**
 	 * @param array<string, array<string, array<int|string, array<int|string, array{string, Link}>>>> $linkCache
-	 * @param mixed[]                                                                             $config
+	 * @param mixed[]                                                                                 $config
 	 */
 	private function configureCachedLinks(array &$linkCache, PackageInterface $package, array $config): void
 	{
@@ -327,7 +327,7 @@ class ArrayLoader implements LoaderInterface
 
 		foreach (BasePackage::$supportedLinkTypes as $type => $opts) {
 			if (isset($config[$type])) {
-				$method = 'set'.ucfirst($opts['method']);
+				$method = 'set' . ucfirst($opts['method']);
 
 				$links = [];
 				foreach ($config[$type] as $prettyTarget => $constraint) {
@@ -356,10 +356,10 @@ class ArrayLoader implements LoaderInterface
 	}
 
 	/**
-	 * @param  string                    $source        source package name
-	 * @param  string                    $sourceVersion source package version (pretty version ideally)
-	 * @param  string                    $description   link description (e.g. requires, replaces, ..)
-	 * @param  array<string|int, string> $links         array of package name => constraint mappings
+	 * @param string                    $source        source package name
+	 * @param string                    $sourceVersion source package version (pretty version ideally)
+	 * @param string                    $description   link description (e.g. requires, replaces, ..)
+	 * @param array<string|int, string> $links         array of package name => constraint mappings
 	 *
 	 * @return Link[]
 	 *
@@ -380,16 +380,16 @@ class ArrayLoader implements LoaderInterface
 	}
 
 	/**
-	 * @param  string       $source           source package name
-	 * @param  string       $sourceVersion    source package version (pretty version ideally)
-	 * @param  Link::TYPE_* $description      link description (e.g. requires, replaces, ..)
-	 * @param  string       $target           target package name
-	 * @param  string       $prettyConstraint constraint string
+	 * @param string       $source           source package name
+	 * @param string       $sourceVersion    source package version (pretty version ideally)
+	 * @param Link::TYPE_* $description      link description (e.g. requires, replaces, ..)
+	 * @param string       $target           target package name
+	 * @param string       $prettyConstraint constraint string
 	 */
 	private function createLink(string $source, string $sourceVersion, string $description, string $target, string $prettyConstraint): Link
 	{
 		if (!\is_string($prettyConstraint)) {
-			throw new \UnexpectedValueException('Link constraint in '.$source.' '.$description.' > '.$target.' should be a string, got '.\gettype($prettyConstraint) . ' (' . var_export($prettyConstraint, true) . ')');
+			throw new \UnexpectedValueException('Link constraint in ' . $source . ' ' . $description . ' > ' . $target . ' should be a string, got ' . \gettype($prettyConstraint) . ' (' . var_export($prettyConstraint, true) . ')');
 		}
 		if ('self.version' === $prettyConstraint) {
 			$parsedConstraint = $this->versionParser->parseConstraints($sourceVersion);
@@ -458,8 +458,8 @@ class ArrayLoader implements LoaderInterface
 
 		if (
 			isset($config['default-branch'])
-			&& $config['default-branch'] === true
-			&& false === $this->versionParser->parseNumericAliasPrefix(Preg::replace('{^v}', '', $config['version']))
+				&& $config['default-branch'] === true
+				&& false === $this->versionParser->parseNumericAliasPrefix(Preg::replace('{^v}', '', $config['version']))
 		) {
 			return VersionParser::DEFAULT_BRANCH_ALIAS;
 		}

@@ -52,9 +52,9 @@ class MultiConflictRule extends Rule
 	 */
 	public function getHash()
 	{
-		$data = unpack('ihash', (string) hash(\PHP_VERSION_ID > 80100 ? 'xxh3' : 'sha1', 'c:'.implode(',', $this->literals), true));
+		$data = unpack('ihash', (string) hash(\PHP_VERSION_ID > 80100 ? 'xxh3' : 'sha1', 'c:' . implode(',', $this->literals), true));
 		if (false === $data) {
-			throw new \RuntimeException('Failed unpacking: '.implode(', ', $this->literals));
+			throw new \RuntimeException('Failed unpacking: ' . implode(', ', $this->literals));
 		}
 
 		return $data['hash'];

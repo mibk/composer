@@ -12,28 +12,28 @@
 
 namespace Composer\Command;
 
+use Composer\Composer;
+use Composer\Config;
+use Composer\Console\Input\InputArgument;
+use Composer\Console\Input\InputOption;
 use Composer\Factory;
 use Composer\IO\IOInterface;
-use Composer\Config;
-use Composer\Composer;
 use Composer\Package\BasePackage;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\Version\VersionParser;
 use Composer\Package\Version\VersionSelector;
 use Composer\Pcre\Preg;
+use Composer\Plugin\CommandEvent;
+use Composer\Plugin\PluginEvents;
 use Composer\Repository\CompositeRepository;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositorySet;
 use Composer\Script\ScriptEvents;
-use Composer\Plugin\CommandEvent;
-use Composer\Plugin\PluginEvents;
 use Composer\Util\Filesystem;
 use Composer\Util\Loop;
 use Composer\Util\Platform;
 use Composer\Util\ProcessExecutor;
-use Composer\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -58,7 +58,7 @@ class ArchiveCommand extends BaseCommand
 				new InputOption('format', 'f', InputOption::VALUE_REQUIRED, 'Format of the resulting archive: tar, tar.gz, tar.bz2 or zip (default tar)', null, self::FORMATS),
 				new InputOption('dir', null, InputOption::VALUE_REQUIRED, 'Write the archive to this directory'),
 				new InputOption('file', null, InputOption::VALUE_REQUIRED, 'Write the archive with the given file name.'
-					.' Note that the format will be appended.'),
+					. ' Note that the format will be appended.'),
 				new InputOption('ignore-filters', null, InputOption::VALUE_NONE, 'Ignore filters when saving package'),
 			])
 			->setHelp(
@@ -72,7 +72,7 @@ package in the specified version and writes it to the specified directory.
 Read more at https://getcomposer.org/doc/03-cli.md#archive
 EOT
 			)
-		;
+			;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
@@ -139,7 +139,7 @@ EOT
 			$package = $this->requireComposer()->getPackage();
 		}
 
-		$io->writeError('<info>Creating the archive into "'.$dest.'".</info>');
+		$io->writeError('<info>Creating the archive into "' . $dest . '".</info>');
 		$packagePath = $archiveManager->archive($package, $format, $dest, $fileName, $ignoreFilters);
 		$fs = new Filesystem;
 		$shortPath = $fs->findShortestPath(Platform::getCwd(), $packagePath, true);
@@ -186,25 +186,25 @@ EOT
 				$package = reset($packages);
 			}
 
-			$io->writeError('<info>Found multiple matches, selected '.$package->getPrettyString().'.</info>');
-			$io->writeError('Alternatives were '.implode(', ', array_map(static function ($p): string {
+			$io->writeError('<info>Found multiple matches, selected ' . $package->getPrettyString() . '.</info>');
+			$io->writeError('Alternatives were ' . implode(', ', array_map(static function($p): string {
 				return $p->getPrettyString();
-			}, $packages)).'.');
+			}, $packages)) . '.');
 			$io->writeError('<comment>Please use a more specific constraint to pick a different package.</comment>');
 		} elseif (count($packages) === 1) {
 			$package = reset($packages);
-			$io->writeError('<info>Found an exact match '.$package->getPrettyString().'.</info>');
+			$io->writeError('<info>Found an exact match ' . $package->getPrettyString() . '.</info>');
 		} else {
-			$io->writeError('<error>Could not find a package matching '.$packageName.'.</error>');
+			$io->writeError('<error>Could not find a package matching ' . $packageName . '.</error>');
 
 			return false;
 		}
 
-		if (!$package instanceof CompletePackageInterface) {
-			throw new \LogicException('Expected a CompletePackageInterface instance but found '.get_class($package));
+		if (! $package instanceof CompletePackageInterface) {
+			throw new \LogicException('Expected a CompletePackageInterface instance but found ' . get_class($package));
 		}
-		if (!$package instanceof BasePackage) {
-			throw new \LogicException('Expected a BasePackage instance but found '.get_class($package));
+		if (! $package instanceof BasePackage) {
+			throw new \LogicException('Expected a BasePackage instance but found ' . get_class($package));
 		}
 
 		return $package;

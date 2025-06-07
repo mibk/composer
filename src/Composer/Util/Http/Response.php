@@ -31,7 +31,7 @@ class Response
 	private $body;
 
 	/**
-	 * @param Request $request
+	 * @param Request      $request
 	 * @param list<string> $headers
 	 */
 	public function __construct(array $request, ?int $code, array $headers, ?string $body)
@@ -105,14 +105,14 @@ class Response
 	}
 
 	/**
-	 * @param  string[]    $headers array of returned headers like from getLastHeaders()
-	 * @param  string      $name    header name (case insensitive)
+	 * @param string[] $headers array of returned headers like from getLastHeaders()
+	 * @param string   $name    header name (case insensitive)
 	 */
 	public static function findHeaderValue(array $headers, string $name): ?string
 	{
 		$value = null;
 		foreach ($headers as $header) {
-			if (Preg::isMatch('{^'.preg_quote($name).':\s*(.+?)\s*$}i', $header, $match)) {
+			if (Preg::isMatch('{^' . preg_quote($name) . ':\s*(.+?)\s*$}i', $header, $match)) {
 				$value = $match[1];
 			}
 		}

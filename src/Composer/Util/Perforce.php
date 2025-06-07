@@ -249,7 +249,7 @@ class Perforce
 		}
 		$this->p4User = $this->io->ask('Enter P4 User:');
 		if ($this->windowsFlag) {
-			$command = $this->getP4Executable().' set P4USER=' . $this->p4User;
+			$command = $this->getP4Executable() . ' set P4USER=' . $this->p4User;
 		} else {
 			$command = 'export P4USER=' . $this->p4User;
 		}
@@ -262,7 +262,7 @@ class Perforce
 	protected function getP4variable(string $name): ?string
 	{
 		if ($this->windowsFlag) {
-			$command = $this->getP4Executable().' set';
+			$command = $this->getP4Executable() . ' set';
 			$this->executeCommand($command);
 			$result = trim($this->commandResult);
 			$resArray = explode(PHP_EOL, $result);
@@ -310,7 +310,7 @@ class Perforce
 	 */
 	public function generateP4Command(string $command, bool $useClient = true): string
 	{
-		$p4Command = $this->getP4Executable().' ';
+		$p4Command = $this->getP4Executable() . ' ';
 		$p4Command .= '-u ' . $this->getUser() . ' ';
 		if ($useClient) {
 			$p4Command .= '-c ' . $this->getClient() . ' ';
@@ -431,7 +431,7 @@ class Perforce
 			if ($this->windowsFlag) {
 				$this->windowsLogin($password);
 			} else {
-				$command = 'echo ' . ProcessExecutor::escape($password)  . ' | ' . $this->generateP4Command(' login -a', false);
+				$command = 'echo ' . ProcessExecutor::escape($password) . ' | ' . $this->generateP4Command(' login -a', false);
 				$exitCode = $this->executeCommand($command);
 				if ($exitCode) {
 					throw new \Exception("Error logging in:" . $this->process->getErrorOutput());
@@ -473,7 +473,7 @@ class Perforce
 	{
 		$index = strpos($identifier, '@');
 		if ($index === false) {
-			return $identifier. '/' . $file;
+			return $identifier . '/' . $file;
 		}
 
 		$path = substr($identifier, 0, $index) . '/' . $file . substr($identifier, $index);
@@ -503,7 +503,7 @@ class Perforce
 		if (!$this->isStream()) {
 			$possibleBranches[$this->p4Branch] = $this->getStream();
 		} else {
-			$command = $this->generateP4Command('streams '.ProcessExecutor::escape('//' . $this->p4Depot . '/...'));
+			$command = $this->generateP4Command('streams ' . ProcessExecutor::escape('//' . $this->p4Depot . '/...'));
 			$this->executeCommand($command);
 			$result = $this->commandResult;
 			$resArray = explode(PHP_EOL, $result);
@@ -515,7 +515,7 @@ class Perforce
 				}
 			}
 		}
-		$command = $this->generateP4Command('changes '. ProcessExecutor::escape($this->getStream() . '/...'), false);
+		$command = $this->generateP4Command('changes ' . ProcessExecutor::escape($this->getStream() . '/...'), false);
 		$this->executeCommand($command);
 		$result = $this->commandResult;
 		$resArray = explode(PHP_EOL, $result);
@@ -523,7 +523,7 @@ class Perforce
 		$lastCommitArr = explode(' ', $lastCommit);
 		$lastCommitNum = $lastCommitArr[1];
 
-		return ['master' => $possibleBranches[$this->p4Branch] . '@'. $lastCommitNum];
+		return ['master' => $possibleBranches[$this->p4Branch] . '@' . $lastCommitNum];
 	}
 
 	/**
@@ -602,7 +602,7 @@ class Perforce
 		}
 		$index = strpos($fromReference, '@');
 		$main = substr($fromReference, 0, $index) . '/...';
-		$command = $this->generateP4Command('filelog ' . ProcessExecutor::escape($main . '@' . $fromChangeList. ',' . $toChangeList));
+		$command = $this->generateP4Command('filelog ' . ProcessExecutor::escape($main . '@' . $fromChangeList . ',' . $toChangeList));
 		$this->executeCommand($command);
 
 		return $this->commandResult;

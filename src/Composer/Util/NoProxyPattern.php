@@ -81,12 +81,12 @@ class NoProxyPattern
 
 		if (empty($port)) {
 			switch (parse_url($url, PHP_URL_SCHEME)) {
-				case 'http':
-					$port = 80;
-					break;
-				case 'https':
-					$port = 443;
-					break;
+			case 'http':
+				$port = 80;
+				break;
+			case 'https':
+				$port = 443;
+				break;
 			}
 		}
 
@@ -143,13 +143,13 @@ class NoProxyPattern
 		$mask = unpack('C*', $network->netmask);
 		$ip = unpack('C*', $target->ip);
 		if (false === $net) {
-			throw new \RuntimeException('Could not parse network IP '.$network->ip);
+			throw new \RuntimeException('Could not parse network IP ' . $network->ip);
 		}
 		if (false === $mask) {
-			throw new \RuntimeException('Could not parse netmask '.$network->netmask);
+			throw new \RuntimeException('Could not parse netmask ' . $network->netmask);
 		}
 		if (false === $ip) {
-			throw new \RuntimeException('Could not parse target IP '.$target->ip);
+			throw new \RuntimeException('Could not parse target IP ' . $target->ip);
 		}
 
 		for ($i = 1; $i < 17; ++$i) {
@@ -289,10 +289,10 @@ class NoProxyPattern
 		$ip = unpack('C*', $rangeIp);
 		$net = '';
 		if (false === $mask) {
-			throw new \RuntimeException('Could not parse netmask '.$netmask);
+			throw new \RuntimeException('Could not parse netmask ' . $netmask);
 		}
 		if (false === $ip) {
-			throw new \RuntimeException('Could not parse range IP '.$rangeIp);
+			throw new \RuntimeException('Could not parse range IP ' . $rangeIp);
 		}
 
 		for ($i = 1; $i < 17; ++$i) {
@@ -326,9 +326,9 @@ class NoProxyPattern
 	private function makeData(string $host, int $port, ?stdClass $ipdata): stdClass
 	{
 		return (object) [
-			'host' => $host,
-			'name' => '.' . ltrim($host, '.'),
-			'port' => $port,
+			'host'   => $host,
+			'name'   => '.' . ltrim($host, '.'),
+			'port'   => $port,
 			'ipdata' => $ipdata,
 		];
 	}
@@ -343,8 +343,8 @@ class NoProxyPattern
 	private function makeIpData(string $ip, int $size, ?string $netmask): stdClass
 	{
 		return (object) [
-			'ip' => $ip,
-			'size' => $size,
+			'ip'      => $ip,
+			'size'    => $size,
 			'netmask' => $netmask,
 		];
 	}

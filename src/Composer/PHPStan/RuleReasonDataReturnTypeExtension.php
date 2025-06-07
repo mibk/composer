@@ -16,19 +16,19 @@ use Composer\DependencyResolver\Rule;
 use Composer\Package\BasePackage;
 use Composer\Package\Link;
 use Composer\Semver\Constraint\ConstraintInterface;
-use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\Accessory\AccessoryNonEmptyStringType;
 use PHPStan\Type\Constant\ConstantArrayType;
-use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\Constant\ConstantIntegerType;
+use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\DynamicMethodReturnTypeExtension;
 use PHPStan\Type\IntegerType;
+use PHPStan\Type\ObjectType;
 use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
-use PHPStan\Type\ObjectType;
 use PHPStan\Type\TypeCombinator;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
 
 final class RuleReasonDataReturnTypeExtension implements DynamicMethodReturnTypeExtension
@@ -48,13 +48,13 @@ final class RuleReasonDataReturnTypeExtension implements DynamicMethodReturnType
 		$reasonType = $scope->getType(new MethodCall($methodCall->var, new Identifier('getReason')));
 
 		$types = [
-			Rule::RULE_ROOT_REQUIRE => new ConstantArrayType([new ConstantStringType('packageName'), new ConstantStringType('constraint')], [new StringType, new ObjectType(ConstraintInterface::class)]),
-			Rule::RULE_FIXED => new ConstantArrayType([new ConstantStringType('package')], [new ObjectType(BasePackage::class)]),
-			Rule::RULE_PACKAGE_CONFLICT => new ObjectType(Link::class),
-			Rule::RULE_PACKAGE_REQUIRES => new ObjectType(Link::class),
-			Rule::RULE_PACKAGE_SAME_NAME => TypeCombinator::intersect(new StringType, new AccessoryNonEmptyStringType()),
-			Rule::RULE_LEARNED => new IntegerType(),
-			Rule::RULE_PACKAGE_ALIAS => new ObjectType(BasePackage::class),
+			Rule::RULE_ROOT_REQUIRE          => new ConstantArrayType([new ConstantStringType('packageName'), new ConstantStringType('constraint')], [new StringType, new ObjectType(ConstraintInterface::class)]),
+			Rule::RULE_FIXED                 => new ConstantArrayType([new ConstantStringType('package')], [new ObjectType(BasePackage::class)]),
+			Rule::RULE_PACKAGE_CONFLICT      => new ObjectType(Link::class),
+			Rule::RULE_PACKAGE_REQUIRES      => new ObjectType(Link::class),
+			Rule::RULE_PACKAGE_SAME_NAME     => TypeCombinator::intersect(new StringType, new AccessoryNonEmptyStringType()),
+			Rule::RULE_LEARNED               => new IntegerType(),
+			Rule::RULE_PACKAGE_ALIAS         => new ObjectType(BasePackage::class),
 			Rule::RULE_PACKAGE_INVERSE_ALIAS => new ObjectType(BasePackage::class),
 		];
 

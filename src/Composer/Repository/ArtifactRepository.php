@@ -54,7 +54,7 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
 
 	public function getRepoName()
 	{
-		return 'artifact repo ('.$this->lookup.')';
+		return 'artifact repo (' . $this->lookup . ')';
 	}
 
 	public function getRepoConfig()
@@ -108,7 +108,7 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
 		} elseif ($fileExtension === 'zip') {
 			$fileType = 'zip';
 		} else {
-			throw new \RuntimeException('Files with "'.$fileExtension.'" extensions aren\'t supported. Only ZIP and TAR/TAR.GZ/TGZ archives are supported.');
+			throw new \RuntimeException('Files with "' . $fileExtension . '" extensions aren\'t supported. Only ZIP and TAR/TAR.GZ/TGZ archives are supported.');
 		}
 
 		try {
@@ -118,24 +118,24 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
 				$json = Zip::getComposerJson($file->getPathname());
 			}
 		} catch (\Exception $exception) {
-			$this->io->write('Failed loading package '.$file->getPathname().': '.$exception->getMessage(), false, IOInterface::VERBOSE);
+			$this->io->write('Failed loading package ' . $file->getPathname() . ': ' . $exception->getMessage(), false, IOInterface::VERBOSE);
 		}
 
 		if (null === $json) {
 			return null;
 		}
 
-		$package = JsonFile::parseJson($json, $file->getPathname().'#composer.json');
+		$package = JsonFile::parseJson($json, $file->getPathname() . '#composer.json');
 		$package['dist'] = [
-			'type' => $fileType,
-			'url' => strtr($file->getPathname(), '\\', '/'),
+			'type'   => $fileType,
+			'url'    => strtr($file->getPathname(), '\\', '/'),
 			'shasum' => hash_file('sha1', $file->getRealPath()),
 		];
 
 		try {
 			$package = $this->loader->load($package);
 		} catch (\UnexpectedValueException $e) {
-			throw new \UnexpectedValueException('Failed loading package in '.$file.': '.$e->getMessage(), 0, $e);
+			throw new \UnexpectedValueException('Failed loading package in ' . $file . ': ' . $e->getMessage(), 0, $e);
 		}
 
 		return $package;

@@ -39,22 +39,22 @@ use Composer\Semver\Intervals;
 class PoolBuilder
 {
 	/**
-	 * @var int[]
+	 * @var         int[]
 	 * @phpstan-var array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>
 	 */
 	private $acceptableStabilities;
 	/**
-	 * @var int[]
+	 * @var         int[]
 	 * @phpstan-var array<string, BasePackage::STABILITY_*>
 	 */
 	private $stabilityFlags;
 	/**
-	 * @var array[]
+	 * @var         array[]
 	 * @phpstan-var array<string, array<string, array{alias: string, alias_normalized: string}>>
 	 */
 	private $rootAliases;
 	/**
-	 * @var string[]
+	 * @var         string[]
 	 * @phpstan-var array<string, string>
 	 */
 	private $rootReferences;
@@ -75,22 +75,22 @@ class PoolBuilder
 	 */
 	private $io;
 	/**
-	 * @var array[]
+	 * @var         array[]
 	 * @phpstan-var array<string, AliasPackage[]>
 	 */
 	private $aliasMap = [];
 	/**
-	 * @var ConstraintInterface[]
+	 * @var         ConstraintInterface[]
 	 * @phpstan-var array<string, ConstraintInterface>
 	 */
 	private $packagesToLoad = [];
 	/**
-	 * @var ConstraintInterface[]
+	 * @var         ConstraintInterface[]
 	 * @phpstan-var array<string, ConstraintInterface>
 	 */
 	private $loadedPackages = [];
 	/**
-	 * @var array[]
+	 * @var         array[]
 	 * @phpstan-var array<int, array<string, array<string, PackageInterface>>>
 	 */
 	private $loadedPerRepo = [];
@@ -143,7 +143,7 @@ class PoolBuilder
 	 */
 	private $maxExtendedReqs = [];
 	/**
-	 * @var array
+	 * @var         array
 	 * @phpstan-var array<string, bool>
 	 */
 	private $updateAllowWarned = [];
@@ -152,15 +152,15 @@ class PoolBuilder
 	private $indexCounter = 0;
 
 	/**
-	 * @param int[] $acceptableStabilities array of stability => BasePackage::STABILITY_* value
+	 * @param         int[] $acceptableStabilities array of stability => BasePackage::STABILITY_* value
 	 * @phpstan-param array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*> $acceptableStabilities
-	 * @param int[] $stabilityFlags an array of package name => BasePackage::STABILITY_* value
+	 * @param         int[] $stabilityFlags an array of package name => BasePackage::STABILITY_* value
 	 * @phpstan-param array<string, BasePackage::STABILITY_*> $stabilityFlags
-	 * @param array[] $rootAliases
+	 * @param         array[] $rootAliases
 	 * @phpstan-param array<string, array<string, array{alias: string, alias_normalized: string}>> $rootAliases
-	 * @param string[] $rootReferences an array of package name => source reference
+	 * @param         string[] $rootReferences an array of package name => source reference
 	 * @phpstan-param array<string, string> $rootReferences
-	 * @param array<string, ConstraintInterface> $temporaryConstraints Runtime temporary constraints that will be used to filter packages
+	 * @param         array<string, ConstraintInterface> $temporaryConstraints Runtime temporary constraints that will be used to filter packages
 	 */
 	public function __construct(array $acceptableStabilities, array $stabilityFlags, array $rootAliases, array $rootReferences, IOInterface $io, ?EventDispatcher $eventDispatcher = null, ?PoolOptimizer $poolOptimizer = null, array $temporaryConstraints = [])
 	{
@@ -249,8 +249,8 @@ class PoolBuilder
 
 			if (
 				$package->getRepository() instanceof RootPackageRepository
-				|| $package->getRepository() instanceof PlatformRepository
-				|| StabilityFilter::isPackageAcceptable($this->acceptableStabilities, $this->stabilityFlags, $package->getNames(), $package->getStability())
+					|| $package->getRepository() instanceof PlatformRepository
+					|| StabilityFilter::isPackageAcceptable($this->acceptableStabilities, $this->stabilityFlags, $package->getNames(), $package->getStability())
 			) {
 				$this->loadPackage($request, $repositories, $package, false);
 			} else {
@@ -516,7 +516,7 @@ class PoolBuilder
 						foreach ($skippedRootRequires as $rootRequire) {
 							if (!isset($this->updateAllowWarned[$rootRequire])) {
 								$this->updateAllowWarned[$rootRequire] = true;
-								$this->io->writeError('<warning>Dependency '.$rootRequire.' is also a root requirement. Package has not been listed as an update argument, so keeping locked at old version. Use --with-all-dependencies (-W) to include root dependencies.</warning>');
+								$this->io->writeError('<warning>Dependency ' . $rootRequire . ' is also a root requirement. Package has not been listed as an update argument, so keeping locked at old version. Use --with-all-dependencies (-W) to include root dependencies.</warning>');
 							}
 						}
 					}
@@ -546,7 +546,7 @@ class PoolBuilder
 						foreach ($skippedRootRequires as $rootRequire) {
 							if (!isset($this->updateAllowWarned[$rootRequire])) {
 								$this->updateAllowWarned[$rootRequire] = true;
-								$this->io->writeError('<warning>Dependency '.$rootRequire.' is also a root requirement. Package has not been listed as an update argument, so keeping locked at old version. Use --with-all-dependencies (-W) to include root dependencies.</warning>');
+								$this->io->writeError('<warning>Dependency ' . $rootRequire . ' is also a root requirement. Package has not been listed as an update argument, so keeping locked at old version. Use --with-all-dependencies (-W) to include root dependencies.</warning>');
 							}
 						}
 					}
@@ -580,9 +580,9 @@ class PoolBuilder
 		$matches = [];
 
 		if (isset($rootRequires[$name])) {
-			return array_map(static function (PackageInterface $package) use ($name): string {
+			return array_map(static function(PackageInterface $package) use ($name): string {
 				if ($name !== $package->getName()) {
-					return $package->getName() .' (via replace of '.$name.')';
+					return $package->getName() . ' (via replace of ' . $name . ')';
 				}
 
 				return $package->getName();
@@ -596,7 +596,7 @@ class PoolBuilder
 			foreach ($packageOrReplacer->getReplaces() as $link) {
 				if (isset($rootRequires[$link->getTarget()])) {
 					if ($name !== $packageOrReplacer->getName()) {
-						$matches[] = $packageOrReplacer->getName() .' (via replace of '.$name.')';
+						$matches[] = $packageOrReplacer->getName() . ' (via replace of ' . $name . ')';
 					} else {
 						$matches[] = $packageOrReplacer->getName();
 					}

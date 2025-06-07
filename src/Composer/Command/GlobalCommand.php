@@ -12,6 +12,7 @@
 
 namespace Composer\Command;
 
+use Composer\Console\Input\InputArgument;
 use Composer\Factory;
 use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
@@ -20,7 +21,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Completion\CompletionInput;
 use Symfony\Component\Console\Completion\CompletionSuggestions;
 use Symfony\Component\Console\Input\InputInterface;
-use Composer\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -34,9 +34,9 @@ class GlobalCommand extends BaseCommand
 		$application = $this->getApplication();
 		if ($input->mustSuggestArgumentValuesFor('command-name')) {
 			$suggestions->suggestValues(array_values(array_filter(
-				array_map(static function (Command $command) {
+				array_map(static function(Command $command) {
 					return $command->isHidden() ? null : $command->getName();
-				}, $application->all()), function (?string $cmd) {
+				}, $application->all()), function(?string $cmd) {
 					return $cmd !== null;
 				}
 			)));
@@ -84,7 +84,7 @@ composer.json or the environmental variable COMPOSER_BIN_DIR.
 Read more at https://getcomposer.org/doc/03-cli.md#global
 EOT
 			)
-		;
+			;
 	}
 
 	/**
@@ -94,7 +94,7 @@ EOT
 	{
 		// TODO remove for Symfony 6+ as it is then in the interface
 		if (!method_exists($input, '__toString')) { // @phpstan-ignore-line
-			throw new \LogicException('Expected an Input instance that is stringable, got '.get_class($input));
+			throw new \LogicException('Expected an Input instance that is stringable, got ' . get_class($input));
 		}
 
 		// extract real command name
@@ -123,7 +123,7 @@ EOT
 	{
 		// TODO remove for Symfony 6+ as it is then in the interface
 		if (!method_exists($input, '__toString')) { // @phpstan-ignore-line
-			throw new \LogicException('Expected an Input instance that is stringable, got '.get_class($input));
+			throw new \LogicException('Expected an Input instance that is stringable, got ' . get_class($input));
 		}
 
 		// The COMPOSER env var should not apply to the global execution scope
@@ -146,10 +146,10 @@ EOT
 		try {
 			chdir($home);
 		} catch (\Exception $e) {
-			throw new \RuntimeException('Could not switch to home directory "'.$home.'"', 0, $e);
+			throw new \RuntimeException('Could not switch to home directory "' . $home . '"', 0, $e);
 		}
 		if (!$quiet) {
-			$this->getIO()->writeError('<info>Changed current directory to '.$home.'</info>');
+			$this->getIO()->writeError('<info>Changed current directory to ' . $home . '</info>');
 		}
 
 		// create new input without "global" command prefix

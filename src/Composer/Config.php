@@ -33,68 +33,68 @@ class Config
 
 	/** @var array<string, mixed> */
 	public static $defaultConfig = [
-		'process-timeout' => 300,
-		'use-include-path' => false,
-		'allow-plugins' => [],
-		'use-parent-dir' => 'prompt',
-		'preferred-install' => 'dist',
-		'audit' => ['ignore' => [], 'abandoned' => Auditor::ABANDONED_FAIL],
-		'notify-on-install' => true,
-		'github-protocols' => ['https', 'ssh', 'git'],
-		'gitlab-protocol' => null,
-		'vendor-dir' => 'vendor',
-		'bin-dir' => '{$vendor-dir}/bin',
-		'cache-dir' => '{$home}/cache',
-		'data-dir' => '{$home}',
-		'cache-files-dir' => '{$cache-dir}/files',
-		'cache-repo-dir' => '{$cache-dir}/repo',
-		'cache-vcs-dir' => '{$cache-dir}/vcs',
-		'cache-ttl' => 15552000, // 6 months
-		'cache-files-ttl' => null, // fallback to cache-ttl
-		'cache-files-maxsize' => '300MiB',
-		'cache-read-only' => false,
-		'bin-compat' => 'auto',
-		'discard-changes' => false,
-		'autoloader-suffix' => null,
-		'sort-packages' => false,
-		'optimize-autoloader' => false,
-		'classmap-authoritative' => false,
-		'apcu-autoloader' => false,
-		'prepend-autoloader' => true,
-		'github-domains' => ['github.com'],
-		'bitbucket-expose-hostname' => true,
-		'disable-tls' => false,
-		'secure-http' => true,
-		'secure-svn-domains' => [],
-		'cafile' => null,
-		'capath' => null,
-		'github-expose-hostname' => true,
-		'gitlab-domains' => ['gitlab.com'],
-		'store-auths' => 'prompt',
-		'platform' => [],
-		'archive-format' => 'tar',
-		'archive-dir' => '.',
-		'htaccess-protect' => true,
-		'use-github-api' => true,
-		'lock' => true,
-		'platform-check' => 'php-only',
-		'bitbucket-oauth' => [],
-		'github-oauth' => [],
-		'gitlab-oauth' => [],
-		'gitlab-token' => [],
-		'http-basic' => [],
-		'bearer' => [],
-		'custom-headers' => [],
-		'bump-after-update' => false,
+		'process-timeout'            => 300,
+		'use-include-path'           => false,
+		'allow-plugins'              => [],
+		'use-parent-dir'             => 'prompt',
+		'preferred-install'          => 'dist',
+		'audit'                      => ['ignore' => [], 'abandoned' => Auditor::ABANDONED_FAIL],
+		'notify-on-install'          => true,
+		'github-protocols'           => ['https', 'ssh', 'git'],
+		'gitlab-protocol'            => null,
+		'vendor-dir'                 => 'vendor',
+		'bin-dir'                    => '{$vendor-dir}/bin',
+		'cache-dir'                  => '{$home}/cache',
+		'data-dir'                   => '{$home}',
+		'cache-files-dir'            => '{$cache-dir}/files',
+		'cache-repo-dir'             => '{$cache-dir}/repo',
+		'cache-vcs-dir'              => '{$cache-dir}/vcs',
+		'cache-ttl'                  => 15552000, // 6 months
+		'cache-files-ttl'            => null,     // fallback to cache-ttl
+		'cache-files-maxsize'        => '300MiB',
+		'cache-read-only'            => false,
+		'bin-compat'                 => 'auto',
+		'discard-changes'            => false,
+		'autoloader-suffix'          => null,
+		'sort-packages'              => false,
+		'optimize-autoloader'        => false,
+		'classmap-authoritative'     => false,
+		'apcu-autoloader'            => false,
+		'prepend-autoloader'         => true,
+		'github-domains'             => ['github.com'],
+		'bitbucket-expose-hostname'  => true,
+		'disable-tls'                => false,
+		'secure-http'                => true,
+		'secure-svn-domains'         => [],
+		'cafile'                     => null,
+		'capath'                     => null,
+		'github-expose-hostname'     => true,
+		'gitlab-domains'             => ['gitlab.com'],
+		'store-auths'                => 'prompt',
+		'platform'                   => [],
+		'archive-format'             => 'tar',
+		'archive-dir'                => '.',
+		'htaccess-protect'           => true,
+		'use-github-api'             => true,
+		'lock'                       => true,
+		'platform-check'             => 'php-only',
+		'bitbucket-oauth'            => [],
+		'github-oauth'               => [],
+		'gitlab-oauth'               => [],
+		'gitlab-token'               => [],
+		'http-basic'                 => [],
+		'bearer'                     => [],
+		'custom-headers'             => [],
+		'bump-after-update'          => false,
 		'allow-missing-requirements' => false,
-		'client-certificate' => [],
+		'client-certificate'         => [],
 	];
 
 	/** @var array<string, mixed> */
 	public static $defaultRepositories = [
 		'packagist.org' => [
 			'type' => 'composer',
-			'url' => 'https://repo.packagist.org',
+			'url'  => 'https://repo.packagist.org',
 		],
 	];
 
@@ -287,7 +287,7 @@ class Config
 	/**
 	 * Returns a setting
 	 *
-	 * @param  int               $flags Options (see class constants)
+	 * @param  int $flags Options (see class constants)
 	 * @throws \RuntimeException
 	 *
 	 * @return mixed
@@ -295,183 +295,183 @@ class Config
 	public function get(string $key, int $flags = 0)
 	{
 		switch ($key) {
-			// strings/paths with env var and {$refs} support
-			case 'vendor-dir':
-			case 'bin-dir':
-			case 'process-timeout':
-			case 'data-dir':
-			case 'cache-dir':
-			case 'cache-files-dir':
-			case 'cache-repo-dir':
-			case 'cache-vcs-dir':
-			case 'cafile':
-			case 'capath':
-				// convert foo-bar to COMPOSER_FOO_BAR and check if it exists since it overrides the local config
-				$env = 'COMPOSER_' . strtoupper(strtr($key, '-', '_'));
+		// strings/paths with env var and {$refs} support
+		case 'vendor-dir':
+		case 'bin-dir':
+		case 'process-timeout':
+		case 'data-dir':
+		case 'cache-dir':
+		case 'cache-files-dir':
+		case 'cache-repo-dir':
+		case 'cache-vcs-dir':
+		case 'cafile':
+		case 'capath':
+			// convert foo-bar to COMPOSER_FOO_BAR and check if it exists since it overrides the local config
+			$env = 'COMPOSER_' . strtoupper(strtr($key, '-', '_'));
 
-				$val = $this->getComposerEnv($env);
-				if ($val !== false) {
-					$this->setSourceOfConfigValue($val, $key, $env);
-				}
+			$val = $this->getComposerEnv($env);
+			if ($val !== false) {
+				$this->setSourceOfConfigValue($val, $key, $env);
+			}
 
-				if ($key === 'process-timeout') {
-					return max(0, false !== $val ? (int) $val : $this->config[$key]);
-				}
+			if ($key === 'process-timeout') {
+				return max(0, false !== $val ? (int) $val : $this->config[$key]);
+			}
 
-				$val = rtrim((string) $this->process(false !== $val ? $val : $this->config[$key], $flags), '/\\');
-				$val = Platform::expandPath($val);
+			$val = rtrim((string) $this->process(false !== $val ? $val : $this->config[$key], $flags), '/\\');
+			$val = Platform::expandPath($val);
 
-				if (substr($key, -4) !== '-dir') {
-					return $val;
-				}
+			if (substr($key, -4) !== '-dir') {
+				return $val;
+			}
 
-				return (($flags & self::RELATIVE_PATHS) === self::RELATIVE_PATHS) ? $val : $this->realpath($val);
+			return (($flags & self::RELATIVE_PATHS) === self::RELATIVE_PATHS) ? $val : $this->realpath($val);
 
 			// booleans with env var support
-			case 'cache-read-only':
-			case 'htaccess-protect':
-				// convert foo-bar to COMPOSER_FOO_BAR and check if it exists since it overrides the local config
-				$env = 'COMPOSER_' . strtoupper(strtr($key, '-', '_'));
+		case 'cache-read-only':
+		case 'htaccess-protect':
+			// convert foo-bar to COMPOSER_FOO_BAR and check if it exists since it overrides the local config
+			$env = 'COMPOSER_' . strtoupper(strtr($key, '-', '_'));
 
-				$val = $this->getComposerEnv($env);
-				if (false === $val) {
-					$val = $this->config[$key];
-				} else {
-					$this->setSourceOfConfigValue($val, $key, $env);
-				}
+			$val = $this->getComposerEnv($env);
+			if (false === $val) {
+				$val = $this->config[$key];
+			} else {
+				$this->setSourceOfConfigValue($val, $key, $env);
+			}
 
-				return $val !== 'false' && (bool) $val;
+			return $val !== 'false' && (bool) $val;
 
 			// booleans without env var support
-			case 'disable-tls':
-			case 'secure-http':
-			case 'use-github-api':
-			case 'lock':
-				// special case for secure-http
-				if ($key === 'secure-http' && $this->get('disable-tls') === true) {
-					return false;
-				}
+		case 'disable-tls':
+		case 'secure-http':
+		case 'use-github-api':
+		case 'lock':
+			// special case for secure-http
+			if ($key === 'secure-http' && $this->get('disable-tls') === true) {
+				return false;
+			}
 
-				return $this->config[$key] !== 'false' && (bool) $this->config[$key];
+			return $this->config[$key] !== 'false' && (bool) $this->config[$key];
 
 			// ints without env var support
-			case 'cache-ttl':
-				return max(0, (int) $this->config[$key]);
+		case 'cache-ttl':
+			return max(0, (int) $this->config[$key]);
 
 			// numbers with kb/mb/gb support, without env var support
-			case 'cache-files-maxsize':
-				if (!Preg::isMatch('/^\s*([0-9.]+)\s*(?:([kmg])(?:i?b)?)?\s*$/i', (string) $this->config[$key], $matches)) {
-					throw new \RuntimeException(
-						"Could not parse the value of '$key': {$this->config[$key]}"
-					);
+		case 'cache-files-maxsize':
+			if (!Preg::isMatch('/^\s*([0-9.]+)\s*(?:([kmg])(?:i?b)?)?\s*$/i', (string) $this->config[$key], $matches)) {
+				throw new \RuntimeException(
+					"Could not parse the value of '$key': {$this->config[$key]}"
+				);
+			}
+			$size = (float) $matches[1];
+			if (isset($matches[2])) {
+				switch (strtolower($matches[2])) {
+				case 'g':
+					$size *= 1024;
+					// intentional fallthrough
+					// no break
+				case 'm':
+					$size *= 1024;
+					// intentional fallthrough
+					// no break
+				case 'k':
+					$size *= 1024;
+					break;
 				}
-				$size = (float) $matches[1];
-				if (isset($matches[2])) {
-					switch (strtolower($matches[2])) {
-						case 'g':
-							$size *= 1024;
-							// intentional fallthrough
-							// no break
-						case 'm':
-							$size *= 1024;
-							// intentional fallthrough
-							// no break
-						case 'k':
-							$size *= 1024;
-							break;
-					}
-				}
+			}
 
-				return max(0, (int) $size);
+			return max(0, (int) $size);
 
 			// special cases below
-			case 'cache-files-ttl':
-				if (isset($this->config[$key])) {
-					return max(0, (int) $this->config[$key]);
-				}
+		case 'cache-files-ttl':
+			if (isset($this->config[$key])) {
+				return max(0, (int) $this->config[$key]);
+			}
 
-				return $this->get('cache-ttl');
+			return $this->get('cache-ttl');
 
-			case 'home':
-				return rtrim($this->process(Platform::expandPath($this->config[$key]), $flags), '/\\');
+		case 'home':
+			return rtrim($this->process(Platform::expandPath($this->config[$key]), $flags), '/\\');
 
-			case 'bin-compat':
-				$value = $this->getComposerEnv('COMPOSER_BIN_COMPAT') ?: $this->config[$key];
+		case 'bin-compat':
+			$value = $this->getComposerEnv('COMPOSER_BIN_COMPAT') ?: $this->config[$key];
 
-				if (!in_array($value, ['auto', 'full', 'proxy', 'symlink'])) {
+			if (!in_array($value, ['auto', 'full', 'proxy', 'symlink'])) {
+				throw new \RuntimeException(
+					"Invalid value for 'bin-compat': {$value}. Expected auto, full or proxy"
+				);
+			}
+
+			if ($value === 'symlink') {
+				trigger_error('config.bin-compat "symlink" is deprecated since Composer 2.2, use auto, full (for Windows compatibility) or proxy instead.', E_USER_DEPRECATED);
+			}
+
+			return $value;
+
+		case 'discard-changes':
+			$env = $this->getComposerEnv('COMPOSER_DISCARD_CHANGES');
+			if ($env !== false) {
+				if (!in_array($env, ['stash', 'true', 'false', '1', '0'], true)) {
 					throw new \RuntimeException(
-						"Invalid value for 'bin-compat': {$value}. Expected auto, full or proxy"
+						"Invalid value for COMPOSER_DISCARD_CHANGES: {$env}. Expected 1, 0, true, false or stash"
 					);
 				}
-
-				if ($value === 'symlink') {
-					trigger_error('config.bin-compat "symlink" is deprecated since Composer 2.2, use auto, full (for Windows compatibility) or proxy instead.', E_USER_DEPRECATED);
+				if ('stash' === $env) {
+					return 'stash';
 				}
 
-				return $value;
+				// convert string value to bool
+				return $env !== 'false' && (bool) $env;
+			}
 
-			case 'discard-changes':
-				$env = $this->getComposerEnv('COMPOSER_DISCARD_CHANGES');
-				if ($env !== false) {
-					if (!in_array($env, ['stash', 'true', 'false', '1', '0'], true)) {
-						throw new \RuntimeException(
-							"Invalid value for COMPOSER_DISCARD_CHANGES: {$env}. Expected 1, 0, true, false or stash"
-						);
-					}
-					if ('stash' === $env) {
-						return 'stash';
-					}
+			if (!in_array($this->config[$key], [true, false, 'stash'], true)) {
+				throw new \RuntimeException(
+					"Invalid value for 'discard-changes': {$this->config[$key]}. Expected true, false or stash"
+				);
+			}
 
-					// convert string value to bool
-					return $env !== 'false' && (bool) $env;
-				}
+			return $this->config[$key];
 
-				if (!in_array($this->config[$key], [true, false, 'stash'], true)) {
+		case 'github-protocols':
+			$protos = $this->config['github-protocols'];
+			if ($this->config['secure-http'] && false !== ($index = array_search('git', $protos))) {
+				unset($protos[$index]);
+			}
+			if (reset($protos) === 'http') {
+				throw new \RuntimeException('The http protocol for github is not available anymore, update your config\'s github-protocols to use "https", "git" or "ssh"');
+			}
+
+			return $protos;
+
+		case 'autoloader-suffix':
+			if ($this->config[$key] === '') { // we need to guarantee null or non-empty-string
+				return null;
+			}
+
+			return $this->process($this->config[$key], $flags);
+
+		case 'audit':
+			$result = $this->config[$key];
+			$abandonedEnv = $this->getComposerEnv('COMPOSER_AUDIT_ABANDONED');
+			if (false !== $abandonedEnv) {
+				if (!in_array($abandonedEnv, $validChoices = Auditor::ABANDONEDS, true)) {
 					throw new \RuntimeException(
-						"Invalid value for 'discard-changes': {$this->config[$key]}. Expected true, false or stash"
+						"Invalid value for COMPOSER_AUDIT_ABANDONED: {$abandonedEnv}. Expected one of " . implode(', ', Auditor::ABANDONEDS) . "."
 					);
 				}
+				$result['abandoned'] = $abandonedEnv;
+			}
 
-				return $this->config[$key];
+			return $result;
 
-			case 'github-protocols':
-				$protos = $this->config['github-protocols'];
-				if ($this->config['secure-http'] && false !== ($index = array_search('git', $protos))) {
-					unset($protos[$index]);
-				}
-				if (reset($protos) === 'http') {
-					throw new \RuntimeException('The http protocol for github is not available anymore, update your config\'s github-protocols to use "https", "git" or "ssh"');
-				}
+		default:
+			if (!isset($this->config[$key])) {
+				return null;
+			}
 
-				return $protos;
-
-			case 'autoloader-suffix':
-				if ($this->config[$key] === '') { // we need to guarantee null or non-empty-string
-					return null;
-				}
-
-				return $this->process($this->config[$key], $flags);
-
-			case 'audit':
-				$result = $this->config[$key];
-				$abandonedEnv = $this->getComposerEnv('COMPOSER_AUDIT_ABANDONED');
-				if (false !== $abandonedEnv) {
-					if (!in_array($abandonedEnv, $validChoices = Auditor::ABANDONEDS, true)) {
-						throw new \RuntimeException(
-							"Invalid value for COMPOSER_AUDIT_ABANDONED: {$abandonedEnv}. Expected one of ".implode(', ', Auditor::ABANDONEDS)."."
-						);
-					}
-					$result['abandoned'] = $abandonedEnv;
-				}
-
-				return $result;
-
-			default:
-				if (!isset($this->config[$key])) {
-					return null;
-				}
-
-				return $this->process($this->config[$key], $flags);
+			return $this->process($this->config[$key], $flags);
 		}
 	}
 
@@ -498,7 +498,7 @@ class Config
 	}
 
 	/**
-	 * @param mixed  $configValue
+	 * @param mixed $configValue
 	 */
 	private function setSourceOfConfigValue($configValue, string $path, string $source): void
 	{
@@ -518,7 +518,7 @@ class Config
 	{
 		return [
 			'repositories' => $this->getRepositories(),
-			'config' => $this->config,
+			'config'       => $this->config,
 		];
 	}
 
@@ -533,8 +533,8 @@ class Config
 	/**
 	 * Replaces {$refs} inside a config string
 	 *
-	 * @param  string|mixed $value a config string that can contain {$refs-to-other-config}
-	 * @param  int          $flags Options (see class constants)
+	 * @param string|mixed $value a config string that can contain {$refs-to-other-config}
+	 * @param int          $flags Options (see class constants)
 	 *
 	 * @return string|mixed
 	 */
@@ -544,7 +544,7 @@ class Config
 			return $value;
 		}
 
-		return Preg::replaceCallback('#\{\$(.+)\}#', function ($match) use ($flags) {
+		return Preg::replaceCallback('#\{\$(.+)\}#', function($match) use ($flags) {
 			return $this->get($match[1], $flags);
 		}, $value);
 	}
@@ -631,11 +631,11 @@ class Config
 
 		if ($io !== null && is_string($hostname) && !isset($this->sslVerifyWarnedHosts[$hostname])) {
 			$warning = null;
-			if (isset($repoOptions['ssl']['verify_peer']) && !(bool) $repoOptions['ssl']['verify_peer']) {
+			if (isset($repoOptions['ssl']['verify_peer']) && !(bool)$repoOptions['ssl']['verify_peer']) {
 				$warning = 'verify_peer';
 			}
 
-			if (isset($repoOptions['ssl']['verify_peer_name']) && !(bool) $repoOptions['ssl']['verify_peer_name']) {
+			if (isset($repoOptions['ssl']['verify_peer_name']) && !(bool)$repoOptions['ssl']['verify_peer_name']) {
 				$warning = $warning === null ? 'verify_peer_name' : $warning . ' and verify_peer_name';
 			}
 

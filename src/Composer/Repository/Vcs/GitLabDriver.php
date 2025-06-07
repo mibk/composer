@@ -12,15 +12,15 @@
 
 namespace Composer\Repository\Vcs;
 
-use Composer\Config;
 use Composer\Cache;
+use Composer\Config;
+use Composer\Downloader\TransportException;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
-use Composer\Downloader\TransportException;
 use Composer\Pcre\Preg;
-use Composer\Util\HttpDownloader;
 use Composer\Util\GitLab;
 use Composer\Util\Http\Response;
+use Composer\Util\HttpDownloader;
 
 /**
  * Driver for GitLab API, use the Git driver for local checkouts.
@@ -31,7 +31,7 @@ use Composer\Util\Http\Response;
 class GitLabDriver extends VcsDriver
 {
 	/**
-	 * @var string
+	 * @var         string
 	 * @phpstan-var 'https'|'http'
 	 */
 	private $scheme;
@@ -97,17 +97,17 @@ class GitLabDriver extends VcsDriver
 			throw new \InvalidArgumentException(sprintf('The GitLab repository URL %s is invalid. It must be the HTTP URL of a GitLab project.', $this->url));
 		}
 
-		$guessedDomain = $match['domain'] ?? (string) $match['domain2'];
+		$guessedDomain = $match['domain'] ?? (string)$match['domain2'];
 		$configuredDomains = $this->config->get('gitlab-domains');
 		$urlParts = explode('/', $match['parts']);
 
 		$this->scheme = in_array($match['scheme'], ['https', 'http'], true)
 			? $match['scheme']
 			: (isset($this->repoConfig['secure-http']) && $this->repoConfig['secure-http'] === false ? 'http' : 'https')
-		;
+				;
 		$origin = self::determineOrigin($configuredDomains, $guessedDomain, $urlParts, $match['port']);
 		if (false === $origin) {
-			throw new \LogicException('It should not be possible to create a gitlab driver with an unparsable origin URL ('.$this->url.')');
+			throw new \LogicException('It should not be possible to create a gitlab driver with an unparsable origin URL (' . $this->url . ')');
 		}
 		$this->originUrl = $origin;
 
@@ -126,7 +126,7 @@ class GitLabDriver extends VcsDriver
 		$this->namespace = implode('/', $urlParts);
 		$this->repository = Preg::replace('#(\.git)$#', '', $match['repo']);
 
-		$this->cache = new Cache($this->io, $this->config->get('cache-repo-dir').'/'.$this->originUrl.'/'.$this->namespace.'/'.$this->repository);
+		$this->cache = new Cache($this->io, $this->config->get('cache-repo-dir') . '/' . $this->originUrl . '/' . $this->namespace . '/' . $this->repository);
 		$this->cache->setReadOnly($this->config->get('cache-read-only'));
 
 		$this->fetchProject();
@@ -203,7 +203,7 @@ class GitLabDriver extends VcsDriver
 			}
 		}
 
-		$resource = $this->getApiUrl().'/repository/files/'.$this->urlEncodeAll($file).'/raw?ref='.$identifier;
+		$resource = $this->getApiUrl() . '/repository/files/' . $this->urlEncodeAll($file) . '/raw?ref=' . $identifier;
 
 		try {
 			$content = $this->getContents($resource)->getBody();
@@ -260,7 +260,7 @@ class GitLabDriver extends VcsDriver
 	 */
 	public function getDist(string $identifier): ?array
 	{
-		$url = $this->getApiUrl().'/repository/archive.zip?sha='.$identifier;
+		$url = $this->getApiUrl() . '/repository/archive.zip?sha=' . $identifier;
 
 		return ['type' => 'zip', 'url' => $url, 'reference' => $identifier, 'shasum' => ''];
 	}
@@ -326,7 +326,7 @@ class GitLabDriver extends VcsDriver
 	 */
 	public function getApiUrl(): string
 	{
-		return $this->scheme.'://'.$this->originUrl.'/api/v4/projects/'.$this->urlEncodeAll($this->namespace).'%2F'.$this->urlEncodeAll($this->repository);
+		return $this->scheme . '://' . $this->originUrl . '/api/v4/projects/' . $this->urlEncodeAll($this->namespace) . '%2F' . $this->urlEncodeAll($this->repository);
 	}
 
 	/**
@@ -352,7 +352,7 @@ class GitLabDriver extends VcsDriver
 	protected function getReferences(string $type): array
 	{
 		$perPage = 100;
-		$resource = $this->getApiUrl().'/repository/'.$type.'?per_page='.$perPage;
+		$resource = $this->getApiUrl() . '/repository/' . $type . '?per_page=' . $perPage;
 
 		$references = [];
 		do {
@@ -418,7 +418,7 @@ class GitLabDriver extends VcsDriver
 		} catch (\RuntimeException $e) {
 			$this->gitDriver = null;
 
-			$this->io->writeError('<error>Failed to clone the '.$url.' repository, try running in interactive mode so that you can enter your credentials</error>');
+			$this->io->writeError('<error>Failed to clone the ' . $url . ' repository, try running in interactive mode so that you can enter your credentials</error>');
 			throw $e;
 		}
 	}
@@ -429,15 +429,15 @@ class GitLabDriver extends VcsDriver
 	protected function generateSshUrl(): string
 	{
 		if ($this->hasNonstandardOrigin) {
-			return 'ssh://git@'.$this->originUrl.'/'.$this->namespace.'/'.$this->repository.'.git';
+			return 'ssh://git@' . $this->originUrl . '/' . $this->namespace . '/' . $this->repository . '.git';
 		}
 
-		return 'git@' . $this->originUrl . ':'.$this->namespace.'/'.$this->repository.'.git';
+		return 'git@' . $this->originUrl . ':' . $this->namespace . '/' . $this->repository . '.git';
 	}
 
 	protected function generatePublicUrl(): string
 	{
-		return $this->scheme . '://' . $this->originUrl . '/'.$this->namespace.'/'.$this->repository.'.git';
+		return $this->scheme . '://' . $this->originUrl . '/' . $this->namespace . '/' . $this->repository . '.git';
 	}
 
 	protected function setupGitDriver(string $url): void
@@ -508,46 +508,46 @@ class GitLabDriver extends VcsDriver
 			$gitLabUtil = new GitLab($this->io, $this->config, $this->process, $this->httpDownloader);
 
 			switch ($e->getCode()) {
-				case 401:
-				case 404:
-					// try to authorize only if we are fetching the main /repos/foo/bar data, otherwise it must be a real 404
-					if (!$fetchingRepoData) {
-						throw $e;
-					}
+			case 401:
+			case 404:
+				// try to authorize only if we are fetching the main /repos/foo/bar data, otherwise it must be a real 404
+				if (!$fetchingRepoData) {
+					throw $e;
+				}
 
-					if ($gitLabUtil->authorizeOAuth($this->originUrl)) {
-						return parent::getContents($url);
-					}
-
-					if ($gitLabUtil->isOAuthExpired($this->originUrl) && $gitLabUtil->authorizeOAuthRefresh($this->scheme, $this->originUrl)) {
-						return parent::getContents($url);
-					}
-
-					if (!$this->io->isInteractive()) {
-						$this->attemptCloneFallback();
-
-						return new Response(['url' => 'dummy'], 200, [], 'null');
-					}
-					$this->io->writeError('<warning>Failed to download ' . $this->namespace . '/' . $this->repository . ':' . $e->getMessage() . '</warning>');
-					$gitLabUtil->authorizeOAuthInteractively($this->scheme, $this->originUrl, 'Your credentials are required to fetch private repository metadata (<info>'.$this->url.'</info>)');
-
+				if ($gitLabUtil->authorizeOAuth($this->originUrl)) {
 					return parent::getContents($url);
+				}
 
-				case 403:
-					if (!$this->io->hasAuthentication($this->originUrl) && $gitLabUtil->authorizeOAuth($this->originUrl)) {
-						return parent::getContents($url);
-					}
+				if ($gitLabUtil->isOAuthExpired($this->originUrl) && $gitLabUtil->authorizeOAuthRefresh($this->scheme, $this->originUrl)) {
+					return parent::getContents($url);
+				}
 
-					if (!$this->io->isInteractive() && $fetchingRepoData) {
-						$this->attemptCloneFallback();
+				if (!$this->io->isInteractive()) {
+					$this->attemptCloneFallback();
 
-						return new Response(['url' => 'dummy'], 200, [], 'null');
-					}
+					return new Response(['url' => 'dummy'], 200, [], 'null');
+				}
+				$this->io->writeError('<warning>Failed to download ' . $this->namespace . '/' . $this->repository . ':' . $e->getMessage() . '</warning>');
+				$gitLabUtil->authorizeOAuthInteractively($this->scheme, $this->originUrl, 'Your credentials are required to fetch private repository metadata (<info>' . $this->url . '</info>)');
 
-					throw $e;
+				return parent::getContents($url);
 
-				default:
-					throw $e;
+			case 403:
+				if (!$this->io->hasAuthentication($this->originUrl) && $gitLabUtil->authorizeOAuth($this->originUrl)) {
+					return parent::getContents($url);
+				}
+
+				if (!$this->io->isInteractive() && $fetchingRepoData) {
+					$this->attemptCloneFallback();
+
+					return new Response(['url' => 'dummy'], 200, [], 'null');
+				}
+
+				throw $e;
+
+			default:
+				throw $e;
 			}
 		}
 	}
@@ -565,7 +565,7 @@ class GitLabDriver extends VcsDriver
 		}
 
 		$scheme = $match['scheme'];
-		$guessedDomain = $match['domain'] ?? (string) $match['domain2'];
+		$guessedDomain = $match['domain'] ?? (string)$match['domain2'];
 		$urlParts = explode('/', $match['parts']);
 
 		if (false === self::determineOrigin($config->get('gitlab-domains'), $guessedDomain, $urlParts, $match['port'])) {
@@ -573,7 +573,7 @@ class GitLabDriver extends VcsDriver
 		}
 
 		if ('https' === $scheme && !extension_loaded('openssl')) {
-			$io->writeError('Skipping GitLab driver for '.$url.' because the OpenSSL PHP extension is missing.', true, IOInterface::VERBOSE);
+			$io->writeError('Skipping GitLab driver for ' . $url . ' because the OpenSSL PHP extension is missing.', true, IOInterface::VERBOSE);
 
 			return false;
 		}
@@ -608,9 +608,9 @@ class GitLabDriver extends VcsDriver
 	}
 
 	/**
-	 * @param  array<string> $configuredDomains
-	 * @param  array<string> $urlParts
-	 * @param string         $portNumber
+	 * @param array<string> $configuredDomains
+	 * @param array<string> $urlParts
+	 * @param string        $portNumber
 	 *
 	 * @return string|false
 	 */
@@ -618,16 +618,16 @@ class GitLabDriver extends VcsDriver
 	{
 		$guessedDomain = strtolower($guessedDomain);
 
-		if (in_array($guessedDomain, $configuredDomains) || (null !== $portNumber && in_array($guessedDomain.':'.$portNumber, $configuredDomains))) {
+		if (in_array($guessedDomain, $configuredDomains) || (null !== $portNumber && in_array($guessedDomain . ':' . $portNumber, $configuredDomains))) {
 			if (null !== $portNumber) {
-				return $guessedDomain.':'.$portNumber;
+				return $guessedDomain . ':' . $portNumber;
 			}
 
 			return $guessedDomain;
 		}
 
 		if (null !== $portNumber) {
-			$guessedDomain .= ':'.$portNumber;
+			$guessedDomain .= ':' . $portNumber;
 		}
 
 		while (null !== ($part = array_shift($urlParts))) {

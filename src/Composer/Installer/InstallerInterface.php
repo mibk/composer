@@ -45,9 +45,9 @@ interface InstallerInterface
 	/**
 	 * Downloads the files needed to later install the given package.
 	 *
-	 * @param  PackageInterface      $package     package instance
-	 * @param  PackageInterface      $prevPackage previous package instance in case of an update
-	 * @return PromiseInterface|null
+	 * @param          PackageInterface $package     package instance
+	 * @param          PackageInterface $prevPackage previous package instance in case of an update
+	 * @return         PromiseInterface|null
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function download(PackageInterface $package, ?PackageInterface $prevPackage = null);
@@ -60,10 +60,10 @@ interface InstallerInterface
 	 * user prompts should happen in the prepare step rather. In case of failure, cleanup() will be called so that changes can
 	 * be undone as much as possible.
 	 *
-	 * @param  string                $type        one of install/update/uninstall
-	 * @param  PackageInterface      $package     package instance
-	 * @param  PackageInterface      $prevPackage previous package instance in case of an update
-	 * @return PromiseInterface|null
+	 * @param          string           $type        one of install/update/uninstall
+	 * @param          PackageInterface $package     package instance
+	 * @param          PackageInterface $prevPackage previous package instance in case of an update
+	 * @return         PromiseInterface|null
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function prepare(string $type, PackageInterface $package, ?PackageInterface $prevPackage = null);
@@ -71,9 +71,9 @@ interface InstallerInterface
 	/**
 	 * Installs specific package.
 	 *
-	 * @param  InstalledRepositoryInterface $repo    repository in which to check
-	 * @param  PackageInterface             $package package instance
-	 * @return PromiseInterface|null
+	 * @param          InstalledRepositoryInterface $repo    repository in which to check
+	 * @param          PackageInterface             $package package instance
+	 * @return         PromiseInterface|null
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function install(InstalledRepositoryInterface $repo, PackageInterface $package);
@@ -81,11 +81,11 @@ interface InstallerInterface
 	/**
 	 * Updates specific package.
 	 *
-	 * @param  InstalledRepositoryInterface $repo    repository in which to check
-	 * @param  PackageInterface             $initial already installed package version
-	 * @param  PackageInterface             $target  updated version
-	 * @throws InvalidArgumentException     if $initial package is not installed
-	 * @return PromiseInterface|null
+	 * @param          InstalledRepositoryInterface $repo    repository in which to check
+	 * @param          PackageInterface             $initial already installed package version
+	 * @param          PackageInterface             $target  updated version
+	 * @throws         InvalidArgumentException     if $initial package is not installed
+	 * @return         PromiseInterface|null
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target);
@@ -93,9 +93,9 @@ interface InstallerInterface
 	/**
 	 * Uninstalls specific package.
 	 *
-	 * @param  InstalledRepositoryInterface $repo    repository in which to check
-	 * @param  PackageInterface             $package package instance
-	 * @return PromiseInterface|null
+	 * @param          InstalledRepositoryInterface $repo    repository in which to check
+	 * @param          PackageInterface             $package package instance
+	 * @return         PromiseInterface|null
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package);
@@ -107,10 +107,10 @@ interface InstallerInterface
 	 * all installers a change to cleanup things they did previously, so you need to keep track of changes
 	 * applied in the installer/downloader themselves.
 	 *
-	 * @param  string                $type        one of install/update/uninstall
-	 * @param  PackageInterface      $package     package instance
-	 * @param  PackageInterface      $prevPackage previous package instance in case of an update
-	 * @return PromiseInterface|null
+	 * @param          string           $type        one of install/update/uninstall
+	 * @param          PackageInterface $package     package instance
+	 * @param          PackageInterface $prevPackage previous package instance in case of an update
+	 * @return         PromiseInterface|null
 	 * @phpstan-return PromiseInterface<void|null>|null
 	 */
 	public function cleanup(string $type, PackageInterface $package, ?PackageInterface $prevPackage = null);

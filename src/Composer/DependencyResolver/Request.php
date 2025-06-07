@@ -70,7 +70,7 @@ class Request
 			$constraint = new MatchAllConstraint();
 		}
 		if (isset($this->requires[$packageName])) {
-			throw new \LogicException('Overwriting requires seems like a bug ('.$packageName.' '.$this->requires[$packageName]->getPrettyString().' => '.$constraint->getPrettyString().', check why it is happening, might be a root alias');
+			throw new \LogicException('Overwriting requires seems like a bug (' . $packageName . ' ' . $this->requires[$packageName]->getPrettyString() . ' => ' . $constraint->getPrettyString() . ', check why it is happening, might be a root alias');
 		}
 		$this->requires[$packageName] = $constraint;
 	}
