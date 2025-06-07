@@ -22,34 +22,34 @@ use Composer\Package\PackageInterface;
  */
 trait CanonicalPackagesTrait
 {
-    /**
-     * Get unique packages (at most one package of each name), with aliases resolved and removed.
-     *
-     * @return PackageInterface[]
-     */
-    public function getCanonicalPackages()
-    {
-        $packages = $this->getPackages();
+	/**
+	 * Get unique packages (at most one package of each name), with aliases resolved and removed.
+	 *
+	 * @return PackageInterface[]
+	 */
+	public function getCanonicalPackages()
+	{
+		$packages = $this->getPackages();
 
-        // get at most one package of each name, preferring non-aliased ones
-        $packagesByName = [];
-        foreach ($packages as $package) {
-            if (!isset($packagesByName[$package->getName()]) || $packagesByName[$package->getName()] instanceof AliasPackage) {
-                $packagesByName[$package->getName()] = $package;
-            }
-        }
+		// get at most one package of each name, preferring non-aliased ones
+		$packagesByName = [];
+		foreach ($packages as $package) {
+			if (!isset($packagesByName[$package->getName()]) || $packagesByName[$package->getName()] instanceof AliasPackage) {
+				$packagesByName[$package->getName()] = $package;
+			}
+		}
 
-        $canonicalPackages = [];
+		$canonicalPackages = [];
 
-        // unfold aliased packages
-        foreach ($packagesByName as $package) {
-            while ($package instanceof AliasPackage) {
-                $package = $package->getAliasOf();
-            }
+		// unfold aliased packages
+		foreach ($packagesByName as $package) {
+			while ($package instanceof AliasPackage) {
+				$package = $package->getAliasOf();
+			}
 
-            $canonicalPackages[] = $package;
-        }
+			$canonicalPackages[] = $package;
+		}
 
-        return $canonicalPackages;
-    }
+		return $canonicalPackages;
+	}
 }

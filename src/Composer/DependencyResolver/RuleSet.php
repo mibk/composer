@@ -22,173 +22,173 @@ use Composer\Repository\RepositorySet;
  */
 class RuleSet implements \IteratorAggregate, \Countable
 {
-    // highest priority => lowest number
-    public const TYPE_PACKAGE = 0;
-    public const TYPE_REQUEST = 1;
-    public const TYPE_LEARNED = 4;
+	// highest priority => lowest number
+	public const TYPE_PACKAGE = 0;
+	public const TYPE_REQUEST = 1;
+	public const TYPE_LEARNED = 4;
 
-    /**
-     * READ-ONLY: Lookup table for rule id to rule object
-     *
-     * @var array<int, Rule>
-     */
-    public $ruleById = [];
+	/**
+	 * READ-ONLY: Lookup table for rule id to rule object
+	 *
+	 * @var array<int, Rule>
+	 */
+	public $ruleById = [];
 
-    const TYPES = [
-        self::TYPE_PACKAGE => 'PACKAGE',
-        self::TYPE_REQUEST => 'REQUEST',
-        self::TYPE_LEARNED => 'LEARNED',
-    ];
+	const TYPES = [
+		self::TYPE_PACKAGE => 'PACKAGE',
+		self::TYPE_REQUEST => 'REQUEST',
+		self::TYPE_LEARNED => 'LEARNED',
+	];
 
-    /** @var array<self::TYPE_*, Rule[]> */
-    protected $rules;
+	/** @var array<self::TYPE_*, Rule[]> */
+	protected $rules;
 
-    /** @var 0|positive-int */
-    protected $nextRuleId = 0;
+	/** @var 0|positive-int */
+	protected $nextRuleId = 0;
 
-    /** @var array<int|string, Rule|Rule[]> */
-    protected $rulesByHash = [];
+	/** @var array<int|string, Rule|Rule[]> */
+	protected $rulesByHash = [];
 
-    public function __construct()
-    {
-        foreach ($this->getTypes() as $type) {
-            $this->rules[$type] = [];
-        }
-    }
+	public function __construct()
+	{
+		foreach ($this->getTypes() as $type) {
+			$this->rules[$type] = [];
+		}
+	}
 
-    /**
-     * @param self::TYPE_* $type
-     */
-    public function add(Rule $rule, $type): void
-    {
-        if (!isset(self::TYPES[$type])) {
-            throw new \OutOfBoundsException('Unknown rule type: ' . $type);
-        }
+	/**
+	 * @param self::TYPE_* $type
+	 */
+	public function add(Rule $rule, $type): void
+	{
+		if (!isset(self::TYPES[$type])) {
+			throw new \OutOfBoundsException('Unknown rule type: ' . $type);
+		}
 
-        $hash = $rule->getHash();
+		$hash = $rule->getHash();
 
-        // Do not add if rule already exists
-        if (isset($this->rulesByHash[$hash])) {
-            $potentialDuplicates = $this->rulesByHash[$hash];
-            if (\is_array($potentialDuplicates)) {
-                foreach ($potentialDuplicates as $potentialDuplicate) {
-                    if ($rule->equals($potentialDuplicate)) {
-                        return;
-                    }
-                }
-            } else {
-                if ($rule->equals($potentialDuplicates)) {
-                    return;
-                }
-            }
-        }
+		// Do not add if rule already exists
+		if (isset($this->rulesByHash[$hash])) {
+			$potentialDuplicates = $this->rulesByHash[$hash];
+			if (\is_array($potentialDuplicates)) {
+				foreach ($potentialDuplicates as $potentialDuplicate) {
+					if ($rule->equals($potentialDuplicate)) {
+						return;
+					}
+				}
+			} else {
+				if ($rule->equals($potentialDuplicates)) {
+					return;
+				}
+			}
+		}
 
-        if (!isset($this->rules[$type])) {
-            $this->rules[$type] = [];
-        }
+		if (!isset($this->rules[$type])) {
+			$this->rules[$type] = [];
+		}
 
-        $this->rules[$type][] = $rule;
-        $this->ruleById[$this->nextRuleId] = $rule;
-        $rule->setType($type);
+		$this->rules[$type][] = $rule;
+		$this->ruleById[$this->nextRuleId] = $rule;
+		$rule->setType($type);
 
-        $this->nextRuleId++;
+		$this->nextRuleId++;
 
-        if (!isset($this->rulesByHash[$hash])) {
-            $this->rulesByHash[$hash] = $rule;
-        } elseif (\is_array($this->rulesByHash[$hash])) {
-            $this->rulesByHash[$hash][] = $rule;
-        } else {
-            $originalRule = $this->rulesByHash[$hash];
-            $this->rulesByHash[$hash] = [$originalRule, $rule];
-        }
-    }
+		if (!isset($this->rulesByHash[$hash])) {
+			$this->rulesByHash[$hash] = $rule;
+		} elseif (\is_array($this->rulesByHash[$hash])) {
+			$this->rulesByHash[$hash][] = $rule;
+		} else {
+			$originalRule = $this->rulesByHash[$hash];
+			$this->rulesByHash[$hash] = [$originalRule, $rule];
+		}
+	}
 
-    public function count(): int
-    {
-        return $this->nextRuleId;
-    }
+	public function count(): int
+	{
+		return $this->nextRuleId;
+	}
 
-    public function ruleById(int $id): Rule
-    {
-        return $this->ruleById[$id];
-    }
+	public function ruleById(int $id): Rule
+	{
+		return $this->ruleById[$id];
+	}
 
-    /** @return array<self::TYPE_*, Rule[]> */
-    public function getRules(): array
-    {
-        return $this->rules;
-    }
+	/** @return array<self::TYPE_*, Rule[]> */
+	public function getRules(): array
+	{
+		return $this->rules;
+	}
 
-    public function getIterator(): RuleSetIterator
-    {
-        return new RuleSetIterator($this->getRules());
-    }
+	public function getIterator(): RuleSetIterator
+	{
+		return new RuleSetIterator($this->getRules());
+	}
 
-    /**
-     * @param  self::TYPE_*|array<self::TYPE_*> $types
-     */
-    public function getIteratorFor($types): RuleSetIterator
-    {
-        if (!\is_array($types)) {
-            $types = [$types];
-        }
+	/**
+	 * @param  self::TYPE_*|array<self::TYPE_*> $types
+	 */
+	public function getIteratorFor($types): RuleSetIterator
+	{
+		if (!\is_array($types)) {
+			$types = [$types];
+		}
 
-        $allRules = $this->getRules();
+		$allRules = $this->getRules();
 
-        /** @var array<self::TYPE_*, Rule[]> $rules */
-        $rules = [];
+		/** @var array<self::TYPE_*, Rule[]> $rules */
+		$rules = [];
 
-        foreach ($types as $type) {
-            $rules[$type] = $allRules[$type];
-        }
+		foreach ($types as $type) {
+			$rules[$type] = $allRules[$type];
+		}
 
-        return new RuleSetIterator($rules);
-    }
+		return new RuleSetIterator($rules);
+	}
 
-    /**
-     * @param array<self::TYPE_*>|self::TYPE_* $types
-     */
-    public function getIteratorWithout($types): RuleSetIterator
-    {
-        if (!\is_array($types)) {
-            $types = [$types];
-        }
+	/**
+	 * @param array<self::TYPE_*>|self::TYPE_* $types
+	 */
+	public function getIteratorWithout($types): RuleSetIterator
+	{
+		if (!\is_array($types)) {
+			$types = [$types];
+		}
 
-        $rules = $this->getRules();
+		$rules = $this->getRules();
 
-        foreach ($types as $type) {
-            unset($rules[$type]);
-        }
+		foreach ($types as $type) {
+			unset($rules[$type]);
+		}
 
-        return new RuleSetIterator($rules);
-    }
+		return new RuleSetIterator($rules);
+	}
 
-    /**
-     * @return array{self::TYPE_PACKAGE, self::TYPE_REQUEST, self::TYPE_LEARNED}
-     */
-    public function getTypes(): array
-    {
-        $types = self::TYPES;
+	/**
+	 * @return array{self::TYPE_PACKAGE, self::TYPE_REQUEST, self::TYPE_LEARNED}
+	 */
+	public function getTypes(): array
+	{
+		$types = self::TYPES;
 
-        return array_keys($types);
-    }
+		return array_keys($types);
+	}
 
-    public function getPrettyString(?RepositorySet $repositorySet = null, ?Request $request = null, ?Pool $pool = null, bool $isVerbose = false): string
-    {
-        $string = "\n";
-        foreach ($this->rules as $type => $rules) {
-            $string .= str_pad(self::TYPES[$type], 8, ' ') . ": ";
-            foreach ($rules as $rule) {
-                $string .= ($repositorySet !== null && $request !== null && $pool !== null ? $rule->getPrettyString($repositorySet, $request, $pool, $isVerbose) : $rule)."\n";
-            }
-            $string .= "\n\n";
-        }
+	public function getPrettyString(?RepositorySet $repositorySet = null, ?Request $request = null, ?Pool $pool = null, bool $isVerbose = false): string
+	{
+		$string = "\n";
+		foreach ($this->rules as $type => $rules) {
+			$string .= str_pad(self::TYPES[$type], 8, ' ') . ": ";
+			foreach ($rules as $rule) {
+				$string .= ($repositorySet !== null && $request !== null && $pool !== null ? $rule->getPrettyString($repositorySet, $request, $pool, $isVerbose) : $rule)."\n";
+			}
+			$string .= "\n\n";
+		}
 
-        return $string;
-    }
+		return $string;
+	}
 
-    public function __toString(): string
-    {
-        return $this->getPrettyString();
-    }
+	public function __toString(): string
+	{
+		return $this->getPrettyString();
+	}
 }

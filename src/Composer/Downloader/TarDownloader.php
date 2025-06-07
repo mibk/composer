@@ -22,15 +22,15 @@ use React\Promise\PromiseInterface;
  */
 class TarDownloader extends ArchiveDownloader
 {
-    /**
-     * @inheritDoc
-     */
-    protected function extract(PackageInterface $package, string $file, string $path): PromiseInterface
-    {
-        // Can throw an UnexpectedValueException
-        $archive = new \PharData($file);
-        $archive->extractTo($path, null, true);
+	/**
+	 * @inheritDoc
+	 */
+	protected function extract(PackageInterface $package, string $file, string $path): PromiseInterface
+	{
+		// Can throw an UnexpectedValueException
+		$archive = new \PharData($file);
+		$archive->extractTo($path, null, true);
 
-        return \React\Promise\resolve(null);
-    }
+		return \React\Promise\resolve(null);
+	}
 }

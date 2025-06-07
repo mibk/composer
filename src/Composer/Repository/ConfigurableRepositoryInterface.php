@@ -19,8 +19,8 @@ namespace Composer\Repository;
  */
 interface ConfigurableRepositoryInterface
 {
-    /**
-     * @return mixed[]
-     */
-    public function getRepoConfig();
+	/**
+	 * @return mixed[]
+	 */
+	public function getRepoConfig();
 }

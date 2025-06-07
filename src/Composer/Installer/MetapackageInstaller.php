@@ -26,109 +26,109 @@ use Composer\DependencyResolver\Operation\UninstallOperation;
  */
 class MetapackageInstaller implements InstallerInterface
 {
-    /** @var IOInterface */
-    private $io;
+	/** @var IOInterface */
+	private $io;
 
-    public function __construct(IOInterface $io)
-    {
-        $this->io = $io;
-    }
+	public function __construct(IOInterface $io)
+	{
+		$this->io = $io;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function supports(string $packageType)
-    {
-        return $packageType === 'metapackage';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function supports(string $packageType)
+	{
+		return $packageType === 'metapackage';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
-    {
-        return $repo->hasPackage($package);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
+	{
+		return $repo->hasPackage($package);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function download(PackageInterface $package, ?PackageInterface $prevPackage = null)
-    {
-        // noop
-        return \React\Promise\resolve(null);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function download(PackageInterface $package, ?PackageInterface $prevPackage = null)
+	{
+		// noop
+		return \React\Promise\resolve(null);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function prepare($type, PackageInterface $package, ?PackageInterface $prevPackage = null)
-    {
-        // noop
-        return \React\Promise\resolve(null);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function prepare($type, PackageInterface $package, ?PackageInterface $prevPackage = null)
+	{
+		// noop
+		return \React\Promise\resolve(null);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function cleanup($type, PackageInterface $package, ?PackageInterface $prevPackage = null)
-    {
-        // noop
-        return \React\Promise\resolve(null);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function cleanup($type, PackageInterface $package, ?PackageInterface $prevPackage = null)
+	{
+		// noop
+		return \React\Promise\resolve(null);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
-    {
-        $this->io->writeError("  - " . InstallOperation::format($package));
+	/**
+	 * @inheritDoc
+	 */
+	public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
+	{
+		$this->io->writeError("  - " . InstallOperation::format($package));
 
-        $repo->addPackage(clone $package);
+		$repo->addPackage(clone $package);
 
-        return \React\Promise\resolve(null);
-    }
+		return \React\Promise\resolve(null);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
-    {
-        if (!$repo->hasPackage($initial)) {
-            throw new \InvalidArgumentException('Package is not installed: '.$initial);
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
+	{
+		if (!$repo->hasPackage($initial)) {
+			throw new \InvalidArgumentException('Package is not installed: '.$initial);
+		}
 
-        $this->io->writeError("  - " . UpdateOperation::format($initial, $target));
+		$this->io->writeError("  - " . UpdateOperation::format($initial, $target));
 
-        $repo->removePackage($initial);
-        $repo->addPackage(clone $target);
+		$repo->removePackage($initial);
+		$repo->addPackage(clone $target);
 
-        return \React\Promise\resolve(null);
-    }
+		return \React\Promise\resolve(null);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
-    {
-        if (!$repo->hasPackage($package)) {
-            throw new \InvalidArgumentException('Package is not installed: '.$package);
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+	{
+		if (!$repo->hasPackage($package)) {
+			throw new \InvalidArgumentException('Package is not installed: '.$package);
+		}
 
-        $this->io->writeError("  - " . UninstallOperation::format($package));
+		$this->io->writeError("  - " . UninstallOperation::format($package));
 
-        $repo->removePackage($package);
+		$repo->removePackage($package);
 
-        return \React\Promise\resolve(null);
-    }
+		return \React\Promise\resolve(null);
+	}
 
-    /**
-     * @inheritDoc
-     *
-     * @return null
-     */
-    public function getInstallPath(PackageInterface $package)
-    {
-        return null;
-    }
+	/**
+	 * @inheritDoc
+	 *
+	 * @return null
+	 */
+	public function getInstallPath(PackageInterface $package)
+	{
+		return null;
+	}
 }

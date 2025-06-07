@@ -25,15 +25,15 @@ use Composer\Package\BasePackage;
  */
 interface LoaderInterface
 {
-    /**
-     * Converts a package from an array to a real instance
-     *
-     * @param  mixed[] $config package data
-     * @param  string  $class  FQCN to be instantiated
-     *
-     * @return CompletePackage|CompleteAliasPackage|RootPackage|RootAliasPackage
-     *
-     * @phpstan-param class-string<CompletePackage|RootPackage> $class
-     */
-    public function load(array $config, string $class = 'Composer\Package\CompletePackage'): BasePackage;
+	/**
+	 * Converts a package from an array to a real instance
+	 *
+	 * @param  mixed[] $config package data
+	 * @param  string  $class  FQCN to be instantiated
+	 *
+	 * @return CompletePackage|CompleteAliasPackage|RootPackage|RootAliasPackage
+	 *
+	 * @phpstan-param class-string<CompletePackage|RootPackage> $class
+	 */
+	public function load(array $config, string $class = 'Composer\Package\CompletePackage'): BasePackage;
 }

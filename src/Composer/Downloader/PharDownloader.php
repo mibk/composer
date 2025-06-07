@@ -22,20 +22,20 @@ use Composer\Package\PackageInterface;
  */
 class PharDownloader extends ArchiveDownloader
 {
-    /**
-     * @inheritDoc
-     */
-    protected function extract(PackageInterface $package, string $file, string $path): PromiseInterface
-    {
-        // Can throw an UnexpectedValueException
-        $archive = new \Phar($file);
-        $archive->extractTo($path, null, true);
-        /* TODO: handle openssl signed phars
-         * https://github.com/composer/composer/pull/33#issuecomment-2250768
-         * https://github.com/koto/phar-util
-         * http://blog.kotowicz.net/2010/08/hardening-php-how-to-securely-include.html
-         */
+	/**
+	 * @inheritDoc
+	 */
+	protected function extract(PackageInterface $package, string $file, string $path): PromiseInterface
+	{
+		// Can throw an UnexpectedValueException
+		$archive = new \Phar($file);
+		$archive->extractTo($path, null, true);
+		/* TODO: handle openssl signed phars
+		 * https://github.com/composer/composer/pull/33#issuecomment-2250768
+		 * https://github.com/koto/phar-util
+		 * http://blog.kotowicz.net/2010/08/hardening-php-how-to-securely-include.html
+		 */
 
-        return \React\Promise\resolve(null);
-    }
+		return \React\Promise\resolve(null);
+	}
 }

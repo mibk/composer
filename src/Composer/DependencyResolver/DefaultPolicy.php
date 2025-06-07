@@ -24,262 +24,262 @@ use Composer\Semver\Constraint\Constraint;
  */
 class DefaultPolicy implements PolicyInterface
 {
-    /** @var bool */
-    private $preferStable;
-    /** @var bool */
-    private $preferLowest;
-    /** @var array<string, string>|null */
-    private $preferredVersions;
-    /** @var array<int, array<string, non-empty-list<int>>> */
-    private $preferredPackageResultCachePerPool;
-    /** @var array<int, array<string, int>> */
-    private $sortingCachePerPool;
+	/** @var bool */
+	private $preferStable;
+	/** @var bool */
+	private $preferLowest;
+	/** @var array<string, string>|null */
+	private $preferredVersions;
+	/** @var array<int, array<string, non-empty-list<int>>> */
+	private $preferredPackageResultCachePerPool;
+	/** @var array<int, array<string, int>> */
+	private $sortingCachePerPool;
 
-    /**
-     * @param array<string, string>|null $preferredVersions Must be an array of package name => normalized version
-     */
-    public function __construct(bool $preferStable = false, bool $preferLowest = false, ?array $preferredVersions = null)
-    {
-        $this->preferStable = $preferStable;
-        $this->preferLowest = $preferLowest;
-        $this->preferredVersions = $preferredVersions;
-    }
+	/**
+	 * @param array<string, string>|null $preferredVersions Must be an array of package name => normalized version
+	 */
+	public function __construct(bool $preferStable = false, bool $preferLowest = false, ?array $preferredVersions = null)
+	{
+		$this->preferStable = $preferStable;
+		$this->preferLowest = $preferLowest;
+		$this->preferredVersions = $preferredVersions;
+	}
 
-    /**
-     * @param string $operator One of Constraint::STR_OP_*
-     *
-     * @phpstan-param Constraint::STR_OP_* $operator
-     */
-    public function versionCompare(PackageInterface $a, PackageInterface $b, string $operator): bool
-    {
-        if ($this->preferStable && ($stabA = $a->getStability()) !== ($stabB = $b->getStability())) {
-            return BasePackage::STABILITIES[$stabA] < BasePackage::STABILITIES[$stabB];
-        }
+	/**
+	 * @param string $operator One of Constraint::STR_OP_*
+	 *
+	 * @phpstan-param Constraint::STR_OP_* $operator
+	 */
+	public function versionCompare(PackageInterface $a, PackageInterface $b, string $operator): bool
+	{
+		if ($this->preferStable && ($stabA = $a->getStability()) !== ($stabB = $b->getStability())) {
+			return BasePackage::STABILITIES[$stabA] < BasePackage::STABILITIES[$stabB];
+		}
 
-        // dev versions need to be compared as branches via matchSpecific's special treatment, the rest can be optimized with compiling matcher
-        if (($a->isDev() && str_starts_with($a->getVersion(), 'dev-')) || ($b->isDev() && str_starts_with($b->getVersion(), 'dev-'))) {
-            $constraint = new Constraint($operator, $b->getVersion());
-            $version = new Constraint('==', $a->getVersion());
+		// dev versions need to be compared as branches via matchSpecific's special treatment, the rest can be optimized with compiling matcher
+		if (($a->isDev() && str_starts_with($a->getVersion(), 'dev-')) || ($b->isDev() && str_starts_with($b->getVersion(), 'dev-'))) {
+			$constraint = new Constraint($operator, $b->getVersion());
+			$version = new Constraint('==', $a->getVersion());
 
-            return $constraint->matchSpecific($version, true);
-        }
+			return $constraint->matchSpecific($version, true);
+		}
 
-        return CompilingMatcher::match(new Constraint($operator, $b->getVersion()), Constraint::OP_EQ, $a->getVersion());
-    }
+		return CompilingMatcher::match(new Constraint($operator, $b->getVersion()), Constraint::OP_EQ, $a->getVersion());
+	}
 
-    /**
-     * @param  non-empty-list<int>  $literals
-     * @return non-empty-list<int>
-     */
-    public function selectPreferredPackages(Pool $pool, array $literals, ?string $requiredPackage = null): array
-    {
-        sort($literals);
-        $resultCacheKey = implode(',', $literals).$requiredPackage;
-        $poolId = spl_object_id($pool);
+	/**
+	 * @param  non-empty-list<int>  $literals
+	 * @return non-empty-list<int>
+	 */
+	public function selectPreferredPackages(Pool $pool, array $literals, ?string $requiredPackage = null): array
+	{
+		sort($literals);
+		$resultCacheKey = implode(',', $literals).$requiredPackage;
+		$poolId = spl_object_id($pool);
 
-        if (isset($this->preferredPackageResultCachePerPool[$poolId][$resultCacheKey])) {
-            return $this->preferredPackageResultCachePerPool[$poolId][$resultCacheKey];
-        }
+		if (isset($this->preferredPackageResultCachePerPool[$poolId][$resultCacheKey])) {
+			return $this->preferredPackageResultCachePerPool[$poolId][$resultCacheKey];
+		}
 
-        $packages = $this->groupLiteralsByName($pool, $literals);
+		$packages = $this->groupLiteralsByName($pool, $literals);
 
-        foreach ($packages as &$nameLiterals) {
-            usort($nameLiterals, function ($a, $b) use ($pool, $requiredPackage, $poolId): int {
-                $cacheKey = 'i'.$a.'.'.$b.$requiredPackage; // i prefix -> ignoreReplace = true
+		foreach ($packages as &$nameLiterals) {
+			usort($nameLiterals, function ($a, $b) use ($pool, $requiredPackage, $poolId): int {
+				$cacheKey = 'i'.$a.'.'.$b.$requiredPackage; // i prefix -> ignoreReplace = true
 
-                if (isset($this->sortingCachePerPool[$poolId][$cacheKey])) {
-                    return $this->sortingCachePerPool[$poolId][$cacheKey];
-                }
+				if (isset($this->sortingCachePerPool[$poolId][$cacheKey])) {
+					return $this->sortingCachePerPool[$poolId][$cacheKey];
+				}
 
-                return $this->sortingCachePerPool[$poolId][$cacheKey] = $this->compareByPriority($pool, $pool->literalToPackage($a), $pool->literalToPackage($b), $requiredPackage, true);
-            });
-        }
+				return $this->sortingCachePerPool[$poolId][$cacheKey] = $this->compareByPriority($pool, $pool->literalToPackage($a), $pool->literalToPackage($b), $requiredPackage, true);
+			});
+		}
 
-        foreach ($packages as &$sortedLiterals) {
-            $sortedLiterals = $this->pruneToBestVersion($pool, $sortedLiterals);
-            $sortedLiterals = $this->pruneRemoteAliases($pool, $sortedLiterals);
-        }
+		foreach ($packages as &$sortedLiterals) {
+			$sortedLiterals = $this->pruneToBestVersion($pool, $sortedLiterals);
+			$sortedLiterals = $this->pruneRemoteAliases($pool, $sortedLiterals);
+		}
 
-        $selected = array_merge(...array_values($packages));
+		$selected = array_merge(...array_values($packages));
 
-        // now sort the result across all packages to respect replaces across packages
-        usort($selected, function ($a, $b) use ($pool, $requiredPackage, $poolId): int {
-            $cacheKey = $a.'.'.$b.$requiredPackage; // no i prefix -> ignoreReplace = false
+		// now sort the result across all packages to respect replaces across packages
+		usort($selected, function ($a, $b) use ($pool, $requiredPackage, $poolId): int {
+			$cacheKey = $a.'.'.$b.$requiredPackage; // no i prefix -> ignoreReplace = false
 
-            if (isset($this->sortingCachePerPool[$poolId][$cacheKey])) {
-                return $this->sortingCachePerPool[$poolId][$cacheKey];
-            }
+			if (isset($this->sortingCachePerPool[$poolId][$cacheKey])) {
+				return $this->sortingCachePerPool[$poolId][$cacheKey];
+			}
 
-            return $this->sortingCachePerPool[$poolId][$cacheKey] = $this->compareByPriority($pool, $pool->literalToPackage($a), $pool->literalToPackage($b), $requiredPackage);
-        });
+			return $this->sortingCachePerPool[$poolId][$cacheKey] = $this->compareByPriority($pool, $pool->literalToPackage($a), $pool->literalToPackage($b), $requiredPackage);
+		});
 
-        return $this->preferredPackageResultCachePerPool[$poolId][$resultCacheKey] = $selected;
-    }
+		return $this->preferredPackageResultCachePerPool[$poolId][$resultCacheKey] = $selected;
+	}
 
-    /**
-     * @param  non-empty-list<int> $literals
-     * @return non-empty-array<string, non-empty-list<int>>
-     */
-    protected function groupLiteralsByName(Pool $pool, array $literals): array
-    {
-        $packages = [];
-        foreach ($literals as $literal) {
-            $packageName = $pool->literalToPackage($literal)->getName();
+	/**
+	 * @param  non-empty-list<int> $literals
+	 * @return non-empty-array<string, non-empty-list<int>>
+	 */
+	protected function groupLiteralsByName(Pool $pool, array $literals): array
+	{
+		$packages = [];
+		foreach ($literals as $literal) {
+			$packageName = $pool->literalToPackage($literal)->getName();
 
-            if (!isset($packages[$packageName])) {
-                $packages[$packageName] = [];
-            }
-            $packages[$packageName][] = $literal;
-        }
+			if (!isset($packages[$packageName])) {
+				$packages[$packageName] = [];
+			}
+			$packages[$packageName][] = $literal;
+		}
 
-        return $packages;
-    }
+		return $packages;
+	}
 
-    /**
-     * @protected
-     */
-    public function compareByPriority(Pool $pool, BasePackage $a, BasePackage $b, ?string $requiredPackage = null, bool $ignoreReplace = false): int
-    {
-        // prefer aliases to the original package
-        if ($a->getName() === $b->getName()) {
-            $aAliased = $a instanceof AliasPackage;
-            $bAliased = $b instanceof AliasPackage;
-            if ($aAliased && !$bAliased) {
-                return -1; // use a
-            }
-            if (!$aAliased && $bAliased) {
-                return 1; // use b
-            }
-        }
+	/**
+	 * @protected
+	 */
+	public function compareByPriority(Pool $pool, BasePackage $a, BasePackage $b, ?string $requiredPackage = null, bool $ignoreReplace = false): int
+	{
+		// prefer aliases to the original package
+		if ($a->getName() === $b->getName()) {
+			$aAliased = $a instanceof AliasPackage;
+			$bAliased = $b instanceof AliasPackage;
+			if ($aAliased && !$bAliased) {
+				return -1; // use a
+			}
+			if (!$aAliased && $bAliased) {
+				return 1; // use b
+			}
+		}
 
-        if (!$ignoreReplace) {
-            // return original, not replaced
-            if ($this->replaces($a, $b)) {
-                return 1; // use b
-            }
-            if ($this->replaces($b, $a)) {
-                return -1; // use a
-            }
+		if (!$ignoreReplace) {
+			// return original, not replaced
+			if ($this->replaces($a, $b)) {
+				return 1; // use b
+			}
+			if ($this->replaces($b, $a)) {
+				return -1; // use a
+			}
 
-            // for replacers not replacing each other, put a higher prio on replacing
-            // packages with the same vendor as the required package
-            if ($requiredPackage !== null && false !== ($pos = strpos($requiredPackage, '/'))) {
-                $requiredVendor = substr($requiredPackage, 0, $pos);
+			// for replacers not replacing each other, put a higher prio on replacing
+			// packages with the same vendor as the required package
+			if ($requiredPackage !== null && false !== ($pos = strpos($requiredPackage, '/'))) {
+				$requiredVendor = substr($requiredPackage, 0, $pos);
 
-                $aIsSameVendor = strpos($a->getName(), $requiredVendor) === 0;
-                $bIsSameVendor = strpos($b->getName(), $requiredVendor) === 0;
+				$aIsSameVendor = strpos($a->getName(), $requiredVendor) === 0;
+				$bIsSameVendor = strpos($b->getName(), $requiredVendor) === 0;
 
-                if ($bIsSameVendor !== $aIsSameVendor) {
-                    return $aIsSameVendor ? -1 : 1;
-                }
-            }
-        }
+				if ($bIsSameVendor !== $aIsSameVendor) {
+					return $aIsSameVendor ? -1 : 1;
+				}
+			}
+		}
 
-        // priority equal, sort by package id to make reproducible
-        if ($a->id === $b->id) {
-            return 0;
-        }
+		// priority equal, sort by package id to make reproducible
+		if ($a->id === $b->id) {
+			return 0;
+		}
 
-        return ($a->id < $b->id) ? -1 : 1;
-    }
+		return ($a->id < $b->id) ? -1 : 1;
+	}
 
-    /**
-     * Checks if source replaces a package with the same name as target.
-     *
-     * Replace constraints are ignored. This method should only be used for
-     * prioritisation, not for actual constraint verification.
-     */
-    protected function replaces(BasePackage $source, BasePackage $target): bool
-    {
-        foreach ($source->getReplaces() as $link) {
-            if ($link->getTarget() === $target->getName()
+	/**
+	 * Checks if source replaces a package with the same name as target.
+	 *
+	 * Replace constraints are ignored. This method should only be used for
+	 * prioritisation, not for actual constraint verification.
+	 */
+	protected function replaces(BasePackage $source, BasePackage $target): bool
+	{
+		foreach ($source->getReplaces() as $link) {
+			if ($link->getTarget() === $target->getName()
 //                && (null === $link->getConstraint() ||
 //                $link->getConstraint()->matches(new Constraint('==', $target->getVersion())))) {
-            ) {
-                return true;
-            }
-        }
+			) {
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /**
-     * @param  list<int> $literals
-     * @return list<int>
-     */
-    protected function pruneToBestVersion(Pool $pool, array $literals): array
-    {
-        if ($this->preferredVersions !== null) {
-            $name = $pool->literalToPackage($literals[0])->getName();
-            if (isset($this->preferredVersions[$name])) {
-                $preferredVersion = $this->preferredVersions[$name];
-                $bestLiterals = [];
-                foreach ($literals as $literal) {
-                    if ($pool->literalToPackage($literal)->getVersion() === $preferredVersion) {
-                        $bestLiterals[] = $literal;
-                    }
-                }
-                if (\count($bestLiterals) > 0) {
-                    return $bestLiterals;
-                }
-            }
-        }
+	/**
+	 * @param  list<int> $literals
+	 * @return list<int>
+	 */
+	protected function pruneToBestVersion(Pool $pool, array $literals): array
+	{
+		if ($this->preferredVersions !== null) {
+			$name = $pool->literalToPackage($literals[0])->getName();
+			if (isset($this->preferredVersions[$name])) {
+				$preferredVersion = $this->preferredVersions[$name];
+				$bestLiterals = [];
+				foreach ($literals as $literal) {
+					if ($pool->literalToPackage($literal)->getVersion() === $preferredVersion) {
+						$bestLiterals[] = $literal;
+					}
+				}
+				if (\count($bestLiterals) > 0) {
+					return $bestLiterals;
+				}
+			}
+		}
 
-        $operator = $this->preferLowest ? '<' : '>';
-        $bestLiterals = [$literals[0]];
-        $bestPackage = $pool->literalToPackage($literals[0]);
-        foreach ($literals as $i => $literal) {
-            if (0 === $i) {
-                continue;
-            }
+		$operator = $this->preferLowest ? '<' : '>';
+		$bestLiterals = [$literals[0]];
+		$bestPackage = $pool->literalToPackage($literals[0]);
+		foreach ($literals as $i => $literal) {
+			if (0 === $i) {
+				continue;
+			}
 
-            $package = $pool->literalToPackage($literal);
+			$package = $pool->literalToPackage($literal);
 
-            if ($this->versionCompare($package, $bestPackage, $operator)) {
-                $bestPackage = $package;
-                $bestLiterals = [$literal];
-            } elseif ($this->versionCompare($package, $bestPackage, '==')) {
-                $bestLiterals[] = $literal;
-            }
-        }
+			if ($this->versionCompare($package, $bestPackage, $operator)) {
+				$bestPackage = $package;
+				$bestLiterals = [$literal];
+			} elseif ($this->versionCompare($package, $bestPackage, '==')) {
+				$bestLiterals[] = $literal;
+			}
+		}
 
-        return $bestLiterals;
-    }
+		return $bestLiterals;
+	}
 
-    /**
-     * Assumes that locally aliased (in root package requires) packages take priority over branch-alias ones
-     *
-     * If no package is a local alias, nothing happens
-     *
-     * @param  list<int> $literals
-     * @return list<int>
-     */
-    protected function pruneRemoteAliases(Pool $pool, array $literals): array
-    {
-        $hasLocalAlias = false;
+	/**
+	 * Assumes that locally aliased (in root package requires) packages take priority over branch-alias ones
+	 *
+	 * If no package is a local alias, nothing happens
+	 *
+	 * @param  list<int> $literals
+	 * @return list<int>
+	 */
+	protected function pruneRemoteAliases(Pool $pool, array $literals): array
+	{
+		$hasLocalAlias = false;
 
-        foreach ($literals as $literal) {
-            $package = $pool->literalToPackage($literal);
+		foreach ($literals as $literal) {
+			$package = $pool->literalToPackage($literal);
 
-            if ($package instanceof AliasPackage && $package->isRootPackageAlias()) {
-                $hasLocalAlias = true;
-                break;
-            }
-        }
+			if ($package instanceof AliasPackage && $package->isRootPackageAlias()) {
+				$hasLocalAlias = true;
+				break;
+			}
+		}
 
-        if (!$hasLocalAlias) {
-            return $literals;
-        }
+		if (!$hasLocalAlias) {
+			return $literals;
+		}
 
-        $selected = [];
-        foreach ($literals as $literal) {
-            $package = $pool->literalToPackage($literal);
+		$selected = [];
+		foreach ($literals as $literal) {
+			$package = $pool->literalToPackage($literal);
 
-            if ($package instanceof AliasPackage && $package->isRootPackageAlias()) {
-                $selected[] = $literal;
-            }
-        }
+			if ($package instanceof AliasPackage && $package->isRootPackageAlias()) {
+				$selected[] = $literal;
+			}
+		}
 
-        return $selected;
-    }
+		return $selected;
+	}
 }

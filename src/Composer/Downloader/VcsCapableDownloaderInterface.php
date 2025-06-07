@@ -21,12 +21,12 @@ use Composer\Package\PackageInterface;
  */
 interface VcsCapableDownloaderInterface
 {
-    /**
-     * Gets the VCS Reference for the package at path
-     *
-     * @param  PackageInterface $package package instance
-     * @param  string           $path    package directory
-     * @return string|null      reference or null
-     */
-    public function getVcsReference(PackageInterface $package, string $path): ?string;
+	/**
+	 * Gets the VCS Reference for the package at path
+	 *
+	 * @param  PackageInterface $package package instance
+	 * @param  string           $path    package directory
+	 * @return string|null      reference or null
+	 */
+	public function getVcsReference(PackageInterface $package, string $path): ?string;
 }

@@ -22,52 +22,52 @@ use Composer\Installer\InstallationManager;
  */
 interface WritableRepositoryInterface extends RepositoryInterface
 {
-    /**
-     * Writes repository (f.e. to the disc).
-     *
-     * @param bool $devMode Whether dev requirements were included or not in this installation
-     * @return void
-     */
-    public function write(bool $devMode, InstallationManager $installationManager);
+	/**
+	 * Writes repository (f.e. to the disc).
+	 *
+	 * @param bool $devMode Whether dev requirements were included or not in this installation
+	 * @return void
+	 */
+	public function write(bool $devMode, InstallationManager $installationManager);
 
-    /**
-     * Adds package to the repository.
-     *
-     * @param PackageInterface $package package instance
-     * @return void
-     */
-    public function addPackage(PackageInterface $package);
+	/**
+	 * Adds package to the repository.
+	 *
+	 * @param PackageInterface $package package instance
+	 * @return void
+	 */
+	public function addPackage(PackageInterface $package);
 
-    /**
-     * Removes package from the repository.
-     *
-     * @param PackageInterface $package package instance
-     * @return void
-     */
-    public function removePackage(PackageInterface $package);
+	/**
+	 * Removes package from the repository.
+	 *
+	 * @param PackageInterface $package package instance
+	 * @return void
+	 */
+	public function removePackage(PackageInterface $package);
 
-    /**
-     * Get unique packages (at most one package of each name), with aliases resolved and removed.
-     *
-     * @return PackageInterface[]
-     */
-    public function getCanonicalPackages();
+	/**
+	 * Get unique packages (at most one package of each name), with aliases resolved and removed.
+	 *
+	 * @return PackageInterface[]
+	 */
+	public function getCanonicalPackages();
 
-    /**
-     * Forces a reload of all packages.
-     *
-     * @return void
-     */
-    public function reload();
+	/**
+	 * Forces a reload of all packages.
+	 *
+	 * @return void
+	 */
+	public function reload();
 
-    /**
-     * @param string[] $devPackageNames
-     * @return void
-     */
-    public function setDevPackageNames(array $devPackageNames);
+	/**
+	 * @param string[] $devPackageNames
+	 * @return void
+	 */
+	public function setDevPackageNames(array $devPackageNames);
 
-    /**
-     * @return string[] Names of dependencies installed through require-dev
-     */
-    public function getDevPackageNames();
+	/**
+	 * @return string[] Names of dependencies installed through require-dev
+	 */
+	public function getDevPackageNames();
 }

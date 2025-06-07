@@ -20,133 +20,133 @@ use Symfony\Component\Finder;
  */
 abstract class BaseExcludeFilter
 {
-    /**
-     * @var string
-     */
-    protected $sourcePath;
+	/**
+	 * @var string
+	 */
+	protected $sourcePath;
 
-    /**
-     * @var array<array{0: non-empty-string, 1: bool, 2: bool}> array of [$pattern, $negate, $stripLeadingSlash] arrays
-     */
-    protected $excludePatterns;
+	/**
+	 * @var array<array{0: non-empty-string, 1: bool, 2: bool}> array of [$pattern, $negate, $stripLeadingSlash] arrays
+	 */
+	protected $excludePatterns;
 
-    /**
-     * @param string $sourcePath Directory containing sources to be filtered
-     */
-    public function __construct(string $sourcePath)
-    {
-        $this->sourcePath = $sourcePath;
-        $this->excludePatterns = [];
-    }
+	/**
+	 * @param string $sourcePath Directory containing sources to be filtered
+	 */
+	public function __construct(string $sourcePath)
+	{
+		$this->sourcePath = $sourcePath;
+		$this->excludePatterns = [];
+	}
 
-    /**
-     * Checks the given path against all exclude patterns in this filter
-     *
-     * Negated patterns overwrite exclude decisions of previous filters.
-     *
-     * @param string $relativePath The file's path relative to the sourcePath
-     * @param bool $exclude Whether a previous filter wants to exclude this file
-     *
-     * @return bool Whether the file should be excluded
-     */
-    public function filter(string $relativePath, bool $exclude): bool
-    {
-        foreach ($this->excludePatterns as $patternData) {
-            [$pattern, $negate, $stripLeadingSlash] = $patternData;
+	/**
+	 * Checks the given path against all exclude patterns in this filter
+	 *
+	 * Negated patterns overwrite exclude decisions of previous filters.
+	 *
+	 * @param string $relativePath The file's path relative to the sourcePath
+	 * @param bool $exclude Whether a previous filter wants to exclude this file
+	 *
+	 * @return bool Whether the file should be excluded
+	 */
+	public function filter(string $relativePath, bool $exclude): bool
+	{
+		foreach ($this->excludePatterns as $patternData) {
+			[$pattern, $negate, $stripLeadingSlash] = $patternData;
 
-            if ($stripLeadingSlash) {
-                $path = substr($relativePath, 1);
-            } else {
-                $path = $relativePath;
-            }
+			if ($stripLeadingSlash) {
+				$path = substr($relativePath, 1);
+			} else {
+				$path = $relativePath;
+			}
 
-            try {
-                if (Preg::isMatch($pattern, $path)) {
-                    $exclude = !$negate;
-                }
-            } catch (\RuntimeException $e) {
-                // suppressed
-            }
-        }
+			try {
+				if (Preg::isMatch($pattern, $path)) {
+					$exclude = !$negate;
+				}
+			} catch (\RuntimeException $e) {
+				// suppressed
+			}
+		}
 
-        return $exclude;
-    }
+		return $exclude;
+	}
 
-    /**
-     * Processes a file containing exclude rules of different formats per line
-     *
-     * @param string[] $lines A set of lines to be parsed
-     * @param callable $lineParser The parser to be used on each line
-     *
-     * @return array<array{0: non-empty-string, 1: bool, 2: bool}> Exclude patterns to be used in filter()
-     */
-    protected function parseLines(array $lines, callable $lineParser): array
-    {
-        return array_filter(
-            array_map(
-                static function ($line) use ($lineParser) {
-                    $line = trim($line);
+	/**
+	 * Processes a file containing exclude rules of different formats per line
+	 *
+	 * @param string[] $lines A set of lines to be parsed
+	 * @param callable $lineParser The parser to be used on each line
+	 *
+	 * @return array<array{0: non-empty-string, 1: bool, 2: bool}> Exclude patterns to be used in filter()
+	 */
+	protected function parseLines(array $lines, callable $lineParser): array
+	{
+		return array_filter(
+			array_map(
+				static function ($line) use ($lineParser) {
+					$line = trim($line);
 
-                    if (!$line || 0 === strpos($line, '#')) {
-                        return null;
-                    }
+					if (!$line || 0 === strpos($line, '#')) {
+						return null;
+					}
 
-                    return $lineParser($line);
-                },
-                $lines
-            ),
-            static function ($pattern): bool {
-                return $pattern !== null;
-            }
-        );
-    }
+					return $lineParser($line);
+				},
+				$lines
+			),
+			static function ($pattern): bool {
+				return $pattern !== null;
+			}
+		);
+	}
 
-    /**
-     * Generates a set of exclude patterns for filter() from gitignore rules
-     *
-     * @param string[] $rules A list of exclude rules in gitignore syntax
-     *
-     * @return array<int, array{0: non-empty-string, 1: bool, 2: bool}> Exclude patterns
-     */
-    protected function generatePatterns(array $rules): array
-    {
-        $patterns = [];
-        foreach ($rules as $rule) {
-            $patterns[] = $this->generatePattern($rule);
-        }
+	/**
+	 * Generates a set of exclude patterns for filter() from gitignore rules
+	 *
+	 * @param string[] $rules A list of exclude rules in gitignore syntax
+	 *
+	 * @return array<int, array{0: non-empty-string, 1: bool, 2: bool}> Exclude patterns
+	 */
+	protected function generatePatterns(array $rules): array
+	{
+		$patterns = [];
+		foreach ($rules as $rule) {
+			$patterns[] = $this->generatePattern($rule);
+		}
 
-        return $patterns;
-    }
+		return $patterns;
+	}
 
-    /**
-     * Generates an exclude pattern for filter() from a gitignore rule
-     *
-     * @param string $rule An exclude rule in gitignore syntax
-     *
-     * @return array{0: non-empty-string, 1: bool, 2: bool} An exclude pattern
-     */
-    protected function generatePattern(string $rule): array
-    {
-        $negate = false;
-        $pattern = '';
+	/**
+	 * Generates an exclude pattern for filter() from a gitignore rule
+	 *
+	 * @param string $rule An exclude rule in gitignore syntax
+	 *
+	 * @return array{0: non-empty-string, 1: bool, 2: bool} An exclude pattern
+	 */
+	protected function generatePattern(string $rule): array
+	{
+		$negate = false;
+		$pattern = '';
 
-        if ($rule !== '' && $rule[0] === '!') {
-            $negate = true;
-            $rule = ltrim($rule, '!');
-        }
+		if ($rule !== '' && $rule[0] === '!') {
+			$negate = true;
+			$rule = ltrim($rule, '!');
+		}
 
-        $firstSlashPosition = strpos($rule, '/');
-        if (0 === $firstSlashPosition) {
-            $pattern = '^/';
-        } elseif (false === $firstSlashPosition || strlen($rule) - 1 === $firstSlashPosition) {
-            $pattern = '/';
-        }
+		$firstSlashPosition = strpos($rule, '/');
+		if (0 === $firstSlashPosition) {
+			$pattern = '^/';
+		} elseif (false === $firstSlashPosition || strlen($rule) - 1 === $firstSlashPosition) {
+			$pattern = '/';
+		}
 
-        $rule = trim($rule, '/');
+		$rule = trim($rule, '/');
 
-        // remove delimiters as well as caret (^) and dollar sign ($) from the regex
-        $rule = substr(Finder\Glob::toRegex($rule), 2, -2);
+		// remove delimiters as well as caret (^) and dollar sign ($) from the regex
+		$rule = substr(Finder\Glob::toRegex($rule), 2, -2);
 
-        return ['{'.$pattern.$rule.'(?=$|/)}', $negate, false];
-    }
+		return ['{'.$pattern.$rule.'(?=$|/)}', $negate, false];
+	}
 }

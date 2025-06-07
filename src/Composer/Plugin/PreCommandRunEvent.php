@@ -22,42 +22,42 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 class PreCommandRunEvent extends Event
 {
-    /**
-     * @var InputInterface
-     */
-    private $input;
+	/**
+	 * @var InputInterface
+	 */
+	private $input;
 
-    /**
-     * @var string
-     */
-    private $command;
+	/**
+	 * @var string
+	 */
+	private $command;
 
-    /**
-     * Constructor.
-     *
-     * @param string         $name    The event name
-     * @param string         $command The command about to be executed
-     */
-    public function __construct(string $name, InputInterface $input, string $command)
-    {
-        parent::__construct($name);
-        $this->input = $input;
-        $this->command = $command;
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param string         $name    The event name
+	 * @param string         $command The command about to be executed
+	 */
+	public function __construct(string $name, InputInterface $input, string $command)
+	{
+		parent::__construct($name);
+		$this->input = $input;
+		$this->command = $command;
+	}
 
-    /**
-     * Returns the console input
-     */
-    public function getInput(): InputInterface
-    {
-        return $this->input;
-    }
+	/**
+	 * Returns the console input
+	 */
+	public function getInput(): InputInterface
+	{
+		return $this->input;
+	}
 
-    /**
-     * Returns the command about to be executed
-     */
-    public function getCommand(): string
-    {
-        return $this->command;
-    }
+	/**
+	 * Returns the command about to be executed
+	 */
+	public function getCommand(): string
+	{
+		return $this->command;
+	}
 }

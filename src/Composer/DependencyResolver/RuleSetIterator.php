@@ -18,88 +18,88 @@ namespace Composer\DependencyResolver;
  */
 class RuleSetIterator implements \Iterator
 {
-    /** @var array<RuleSet::TYPE_*, Rule[]> */
-    protected $rules;
-    /** @var array<RuleSet::TYPE_*> */
-    protected $types;
+	/** @var array<RuleSet::TYPE_*, Rule[]> */
+	protected $rules;
+	/** @var array<RuleSet::TYPE_*> */
+	protected $types;
 
-    /** @var int */
-    protected $currentOffset;
-    /** @var RuleSet::TYPE_*|-1 */
-    protected $currentType;
-    /** @var int */
-    protected $currentTypeOffset;
+	/** @var int */
+	protected $currentOffset;
+	/** @var RuleSet::TYPE_*|-1 */
+	protected $currentType;
+	/** @var int */
+	protected $currentTypeOffset;
 
-    /**
-     * @param array<RuleSet::TYPE_*, Rule[]> $rules
-     */
-    public function __construct(array $rules)
-    {
-        $this->rules = $rules;
-        $this->types = array_keys($rules);
-        sort($this->types);
+	/**
+	 * @param array<RuleSet::TYPE_*, Rule[]> $rules
+	 */
+	public function __construct(array $rules)
+	{
+		$this->rules = $rules;
+		$this->types = array_keys($rules);
+		sort($this->types);
 
-        $this->rewind();
-    }
+		$this->rewind();
+	}
 
-    public function current(): Rule
-    {
-        return $this->rules[$this->currentType][$this->currentOffset];
-    }
+	public function current(): Rule
+	{
+		return $this->rules[$this->currentType][$this->currentOffset];
+	}
 
-    /**
-     * @return RuleSet::TYPE_*|-1
-     */
-    public function key(): int
-    {
-        return $this->currentType;
-    }
+	/**
+	 * @return RuleSet::TYPE_*|-1
+	 */
+	public function key(): int
+	{
+		return $this->currentType;
+	}
 
-    public function next(): void
-    {
-        $this->currentOffset++;
+	public function next(): void
+	{
+		$this->currentOffset++;
 
-        if (!isset($this->rules[$this->currentType])) {
-            return;
-        }
+		if (!isset($this->rules[$this->currentType])) {
+			return;
+		}
 
-        if ($this->currentOffset >= \count($this->rules[$this->currentType])) {
-            $this->currentOffset = 0;
+		if ($this->currentOffset >= \count($this->rules[$this->currentType])) {
+			$this->currentOffset = 0;
 
-            do {
-                $this->currentTypeOffset++;
+			do {
+				$this->currentTypeOffset++;
 
-                if (!isset($this->types[$this->currentTypeOffset])) {
-                    $this->currentType = -1;
-                    break;
-                }
+				if (!isset($this->types[$this->currentTypeOffset])) {
+					$this->currentType = -1;
+					break;
+				}
 
-                $this->currentType = $this->types[$this->currentTypeOffset];
-            } while (0 === \count($this->rules[$this->currentType]));
-        }
-    }
+				$this->currentType = $this->types[$this->currentTypeOffset];
+			} while (0 === \count($this->rules[$this->currentType]));
+		}
+	}
 
-    public function rewind(): void
-    {
-        $this->currentOffset = 0;
+	public function rewind(): void
+	{
+		$this->currentOffset = 0;
 
-        $this->currentTypeOffset = -1;
-        $this->currentType = -1;
+		$this->currentTypeOffset = -1;
+		$this->currentType = -1;
 
-        do {
-            $this->currentTypeOffset++;
+		do {
+			$this->currentTypeOffset++;
 
-            if (!isset($this->types[$this->currentTypeOffset])) {
-                $this->currentType = -1;
-                break;
-            }
+			if (!isset($this->types[$this->currentTypeOffset])) {
+				$this->currentType = -1;
+				break;
+			}
 
-            $this->currentType = $this->types[$this->currentTypeOffset];
-        } while (0 === \count($this->rules[$this->currentType]));
-    }
+			$this->currentType = $this->types[$this->currentTypeOffset];
+		} while (0 === \count($this->rules[$this->currentType]));
+	}
 
-    public function valid(): bool
-    {
-        return isset($this->rules[$this->currentType], $this->rules[$this->currentType][$this->currentOffset]);
-    }
+	public function valid(): bool
+	{
+		return isset($this->rules[$this->currentType], $this->rules[$this->currentType][$this->currentOffset]);
+	}
 }

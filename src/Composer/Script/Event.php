@@ -24,99 +24,99 @@ use Composer\EventDispatcher\Event as BaseEvent;
  */
 class Event extends BaseEvent
 {
-    /**
-     * @var Composer The composer instance
-     */
-    private $composer;
+	/**
+	 * @var Composer The composer instance
+	 */
+	private $composer;
 
-    /**
-     * @var IOInterface The IO instance
-     */
-    private $io;
+	/**
+	 * @var IOInterface The IO instance
+	 */
+	private $io;
 
-    /**
-     * @var bool Dev mode flag
-     */
-    private $devMode;
+	/**
+	 * @var bool Dev mode flag
+	 */
+	private $devMode;
 
-    /**
-     * @var BaseEvent|null
-     */
-    private $originatingEvent;
+	/**
+	 * @var BaseEvent|null
+	 */
+	private $originatingEvent;
 
-    /**
-     * Constructor.
-     *
-     * @param string $name The event name
-     * @param Composer $composer The composer object
-     * @param IOInterface $io The IOInterface object
-     * @param bool $devMode Whether or not we are in dev mode
-     * @param array<string|int|float|bool|null> $args Arguments passed by the user
-     * @param mixed[] $flags Optional flags to pass data not as argument
-     */
-    public function __construct(string $name, Composer $composer, IOInterface $io, bool $devMode = false, array $args = [], array $flags = [])
-    {
-        parent::__construct($name, $args, $flags);
-        $this->composer = $composer;
-        $this->io = $io;
-        $this->devMode = $devMode;
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param string $name The event name
+	 * @param Composer $composer The composer object
+	 * @param IOInterface $io The IOInterface object
+	 * @param bool $devMode Whether or not we are in dev mode
+	 * @param array<string|int|float|bool|null> $args Arguments passed by the user
+	 * @param mixed[] $flags Optional flags to pass data not as argument
+	 */
+	public function __construct(string $name, Composer $composer, IOInterface $io, bool $devMode = false, array $args = [], array $flags = [])
+	{
+		parent::__construct($name, $args, $flags);
+		$this->composer = $composer;
+		$this->io = $io;
+		$this->devMode = $devMode;
+	}
 
-    /**
-     * Returns the composer instance.
-     */
-    public function getComposer(): Composer
-    {
-        return $this->composer;
-    }
+	/**
+	 * Returns the composer instance.
+	 */
+	public function getComposer(): Composer
+	{
+		return $this->composer;
+	}
 
-    /**
-     * Returns the IO instance.
-     */
-    public function getIO(): IOInterface
-    {
-        return $this->io;
-    }
+	/**
+	 * Returns the IO instance.
+	 */
+	public function getIO(): IOInterface
+	{
+		return $this->io;
+	}
 
-    /**
-     * Return the dev mode flag
-     */
-    public function isDevMode(): bool
-    {
-        return $this->devMode;
-    }
+	/**
+	 * Return the dev mode flag
+	 */
+	public function isDevMode(): bool
+	{
+		return $this->devMode;
+	}
 
-    /**
-     * Set the originating event.
-     *
-     * @return ?BaseEvent
-     */
-    public function getOriginatingEvent(): ?BaseEvent
-    {
-        return $this->originatingEvent;
-    }
+	/**
+	 * Set the originating event.
+	 *
+	 * @return ?BaseEvent
+	 */
+	public function getOriginatingEvent(): ?BaseEvent
+	{
+		return $this->originatingEvent;
+	}
 
-    /**
-     * Set the originating event.
-     *
-     * @return $this
-     */
-    public function setOriginatingEvent(BaseEvent $event): self
-    {
-        $this->originatingEvent = $this->calculateOriginatingEvent($event);
+	/**
+	 * Set the originating event.
+	 *
+	 * @return $this
+	 */
+	public function setOriginatingEvent(BaseEvent $event): self
+	{
+		$this->originatingEvent = $this->calculateOriginatingEvent($event);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Returns the upper-most event in chain.
-     */
-    private function calculateOriginatingEvent(BaseEvent $event): BaseEvent
-    {
-        if ($event instanceof Event && $event->getOriginatingEvent()) {
-            return $this->calculateOriginatingEvent($event->getOriginatingEvent());
-        }
+	/**
+	 * Returns the upper-most event in chain.
+	 */
+	private function calculateOriginatingEvent(BaseEvent $event): BaseEvent
+	{
+		if ($event instanceof Event && $event->getOriginatingEvent()) {
+			return $this->calculateOriginatingEvent($event->getOriginatingEvent());
+		}
 
-        return $event;
-    }
+		return $event;
+	}
 }

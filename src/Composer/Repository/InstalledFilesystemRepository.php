@@ -19,16 +19,16 @@ namespace Composer\Repository;
  */
 class InstalledFilesystemRepository extends FilesystemRepository implements InstalledRepositoryInterface
 {
-    public function getRepoName()
-    {
-        return 'installed '.parent::getRepoName();
-    }
+	public function getRepoName()
+	{
+		return 'installed '.parent::getRepoName();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function isFresh()
-    {
-        return !$this->file->exists();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function isFresh()
+	{
+		return !$this->file->exists();
+	}
 }

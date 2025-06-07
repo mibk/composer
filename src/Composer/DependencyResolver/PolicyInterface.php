@@ -20,14 +20,14 @@ use Composer\Semver\Constraint\Constraint;
  */
 interface PolicyInterface
 {
-    /**
-     * @phpstan-param Constraint::STR_OP_* $operator
-     */
-    public function versionCompare(PackageInterface $a, PackageInterface $b, string $operator): bool;
+	/**
+	 * @phpstan-param Constraint::STR_OP_* $operator
+	 */
+	public function versionCompare(PackageInterface $a, PackageInterface $b, string $operator): bool;
 
-    /**
-     * @param  non-empty-list<int>   $literals
-     * @return non-empty-list<int>
-     */
-    public function selectPreferredPackages(Pool $pool, array $literals, ?string $requiredPackage = null): array;
+	/**
+	 * @param  non-empty-list<int>   $literals
+	 * @return non-empty-list<int>
+	 */
+	public function selectPreferredPackages(Pool $pool, array $literals, ?string $requiredPackage = null): array;
 }

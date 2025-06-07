@@ -14,19 +14,19 @@ namespace Composer\Filter\PlatformRequirementFilter;
 
 final class IgnoreNothingPlatformRequirementFilter implements PlatformRequirementFilterInterface
 {
-    /**
-     * @return false
-     */
-    public function isIgnored(string $req): bool
-    {
-        return false;
-    }
+	/**
+	 * @return false
+	 */
+	public function isIgnored(string $req): bool
+	{
+		return false;
+	}
 
-    /**
-     * @return false
-     */
-    public function isUpperBoundIgnored(string $req): bool
-    {
-        return false;
-    }
+	/**
+	 * @return false
+	 */
+	public function isUpperBoundIgnored(string $req): bool
+	{
+		return false;
+	}
 }

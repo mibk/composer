@@ -21,53 +21,53 @@ use Composer\Installer\InstallationManager;
  */
 class WritableArrayRepository extends ArrayRepository implements WritableRepositoryInterface
 {
-    use CanonicalPackagesTrait;
+	use CanonicalPackagesTrait;
 
-    /**
-     * @var string[]
-     */
-    protected $devPackageNames = [];
+	/**
+	 * @var string[]
+	 */
+	protected $devPackageNames = [];
 
-    /** @var bool|null */
-    private $devMode = null;
+	/** @var bool|null */
+	private $devMode = null;
 
-    /**
-     * @return bool|null true if dev requirements were installed, false if --no-dev was used, null if yet unknown
-     */
-    public function getDevMode()
-    {
-        return $this->devMode;
-    }
+	/**
+	 * @return bool|null true if dev requirements were installed, false if --no-dev was used, null if yet unknown
+	 */
+	public function getDevMode()
+	{
+		return $this->devMode;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function setDevPackageNames(array $devPackageNames)
-    {
-        $this->devPackageNames = $devPackageNames;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function setDevPackageNames(array $devPackageNames)
+	{
+		$this->devPackageNames = $devPackageNames;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getDevPackageNames()
-    {
-        return $this->devPackageNames;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getDevPackageNames()
+	{
+		return $this->devPackageNames;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function write(bool $devMode, InstallationManager $installationManager)
-    {
-        $this->devMode = $devMode;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function write(bool $devMode, InstallationManager $installationManager)
+	{
+		$this->devMode = $devMode;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function reload()
-    {
-        $this->devMode = null;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function reload()
+	{
+		$this->devMode = null;
+	}
 }

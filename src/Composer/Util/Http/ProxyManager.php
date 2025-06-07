@@ -21,153 +21,153 @@ use Composer\Util\NoProxyPattern;
  */
 class ProxyManager
 {
-    /** @var ?string */
-    private $error = null;
-    /** @var ?ProxyItem */
-    private $httpProxy = null;
-    /** @var ?ProxyItem */
-    private $httpsProxy = null;
-    /** @var ?NoProxyPattern */
-    private $noProxyHandler = null;
+	/** @var ?string */
+	private $error = null;
+	/** @var ?ProxyItem */
+	private $httpProxy = null;
+	/** @var ?ProxyItem */
+	private $httpsProxy = null;
+	/** @var ?NoProxyPattern */
+	private $noProxyHandler = null;
 
-    /** @var ?self */
-    private static $instance = null;
+	/** @var ?self */
+	private static $instance = null;
 
-    private function __construct()
-    {
-        try {
-            $this->getProxyData();
-        } catch (\RuntimeException $e) {
-            $this->error = $e->getMessage();
-        }
-    }
+	private function __construct()
+	{
+		try {
+			$this->getProxyData();
+		} catch (\RuntimeException $e) {
+			$this->error = $e->getMessage();
+		}
+	}
 
-    public static function getInstance(): ProxyManager
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
+	public static function getInstance(): ProxyManager
+	{
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
 
-        return self::$instance;
-    }
+		return self::$instance;
+	}
 
-    /**
-     * Clears the persistent instance
-     */
-    public static function reset(): void
-    {
-        self::$instance = null;
-    }
+	/**
+	 * Clears the persistent instance
+	 */
+	public static function reset(): void
+	{
+		self::$instance = null;
+	}
 
-    public function hasProxy(): bool
-    {
-        return $this->httpProxy !== null || $this->httpsProxy !== null;
-    }
+	public function hasProxy(): bool
+	{
+		return $this->httpProxy !== null || $this->httpsProxy !== null;
+	}
 
-    /**
-     * Returns a RequestProxy instance for the request url
-     *
-     * @param non-empty-string $requestUrl
-     */
-    public function getProxyForRequest(string $requestUrl): RequestProxy
-    {
-        if ($this->error !== null) {
-            throw new TransportException('Unable to use a proxy: '.$this->error);
-        }
+	/**
+	 * Returns a RequestProxy instance for the request url
+	 *
+	 * @param non-empty-string $requestUrl
+	 */
+	public function getProxyForRequest(string $requestUrl): RequestProxy
+	{
+		if ($this->error !== null) {
+			throw new TransportException('Unable to use a proxy: '.$this->error);
+		}
 
-        $scheme = (string) parse_url($requestUrl, PHP_URL_SCHEME);
-        $proxy = $this->getProxyForScheme($scheme);
+		$scheme = (string) parse_url($requestUrl, PHP_URL_SCHEME);
+		$proxy = $this->getProxyForScheme($scheme);
 
-        if ($proxy === null) {
-            return RequestProxy::none();
-        }
+		if ($proxy === null) {
+			return RequestProxy::none();
+		}
 
-        if ($this->noProxy($requestUrl)) {
-            return RequestProxy::noProxy();
-        }
+		if ($this->noProxy($requestUrl)) {
+			return RequestProxy::noProxy();
+		}
 
-        return $proxy->toRequestProxy($scheme);
-    }
+		return $proxy->toRequestProxy($scheme);
+	}
 
-    /**
-     * Returns a ProxyItem if one is set for the scheme, otherwise null
-     */
-    private function getProxyForScheme(string $scheme): ?ProxyItem
-    {
-        if ($scheme === 'http') {
-            return $this->httpProxy;
-        }
+	/**
+	 * Returns a ProxyItem if one is set for the scheme, otherwise null
+	 */
+	private function getProxyForScheme(string $scheme): ?ProxyItem
+	{
+		if ($scheme === 'http') {
+			return $this->httpProxy;
+		}
 
-        if ($scheme === 'https') {
-            return $this->httpsProxy;
-        }
+		if ($scheme === 'https') {
+			return $this->httpsProxy;
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * Finds proxy values from the environment and sets class properties
-     */
-    private function getProxyData(): void
-    {
-        // Handle http_proxy/HTTP_PROXY on CLI only for security reasons
-        if (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg') {
-            [$env, $name] = $this->getProxyEnv('http_proxy');
-            if ($env !== null) {
-                $this->httpProxy = new ProxyItem($env, $name);
-            }
-        }
+	/**
+	 * Finds proxy values from the environment and sets class properties
+	 */
+	private function getProxyData(): void
+	{
+		// Handle http_proxy/HTTP_PROXY on CLI only for security reasons
+		if (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg') {
+			[$env, $name] = $this->getProxyEnv('http_proxy');
+			if ($env !== null) {
+				$this->httpProxy = new ProxyItem($env, $name);
+			}
+		}
 
-        // Handle cgi_http_proxy/CGI_HTTP_PROXY if needed
-        if ($this->httpProxy === null) {
-            [$env, $name] = $this->getProxyEnv('cgi_http_proxy');
-            if ($env !== null) {
-                $this->httpProxy = new ProxyItem($env, $name);
-            }
-        }
+		// Handle cgi_http_proxy/CGI_HTTP_PROXY if needed
+		if ($this->httpProxy === null) {
+			[$env, $name] = $this->getProxyEnv('cgi_http_proxy');
+			if ($env !== null) {
+				$this->httpProxy = new ProxyItem($env, $name);
+			}
+		}
 
-        // Handle https_proxy/HTTPS_PROXY
-        [$env, $name] = $this->getProxyEnv('https_proxy');
-        if ($env !== null) {
-            $this->httpsProxy = new ProxyItem($env, $name);
-        }
+		// Handle https_proxy/HTTPS_PROXY
+		[$env, $name] = $this->getProxyEnv('https_proxy');
+		if ($env !== null) {
+			$this->httpsProxy = new ProxyItem($env, $name);
+		}
 
-        // Handle no_proxy/NO_PROXY
-        [$env, $name] = $this->getProxyEnv('no_proxy');
-        if ($env !== null) {
-            $this->noProxyHandler = new NoProxyPattern($env);
-        }
-    }
+		// Handle no_proxy/NO_PROXY
+		[$env, $name] = $this->getProxyEnv('no_proxy');
+		if ($env !== null) {
+			$this->noProxyHandler = new NoProxyPattern($env);
+		}
+	}
 
-    /**
-     * Searches $_SERVER for case-sensitive values
-     *
-     * @return array{0: string|null, 1: string} value, name
-     */
-    private function getProxyEnv(string $envName): array
-    {
-        $names = [strtolower($envName), strtoupper($envName)];
+	/**
+	 * Searches $_SERVER for case-sensitive values
+	 *
+	 * @return array{0: string|null, 1: string} value, name
+	 */
+	private function getProxyEnv(string $envName): array
+	{
+		$names = [strtolower($envName), strtoupper($envName)];
 
-        foreach ($names as $name) {
-            if (is_string($_SERVER[$name] ?? null)) {
-                if ($_SERVER[$name] !== '') {
-                    return [$_SERVER[$name], $name];
-                }
-            }
-        }
+		foreach ($names as $name) {
+			if (is_string($_SERVER[$name] ?? null)) {
+				if ($_SERVER[$name] !== '') {
+					return [$_SERVER[$name], $name];
+				}
+			}
+		}
 
-        return [null, ''];
-    }
+		return [null, ''];
+	}
 
-    /**
-     * Returns true if a url matches no_proxy value
-     */
-    private function noProxy(string $requestUrl): bool
-    {
-        if ($this->noProxyHandler === null) {
-            return false;
-        }
+	/**
+	 * Returns true if a url matches no_proxy value
+	 */
+	private function noProxy(string $requestUrl): bool
+	{
+		if ($this->noProxyHandler === null) {
+			return false;
+		}
 
-        return $this->noProxyHandler->test($requestUrl);
-    }
+		return $this->noProxyHandler->test($requestUrl);
+	}
 }

@@ -17,27 +17,27 @@ namespace Composer\Util\Http;
  */
 class CurlResponse extends Response
 {
-    /**
-     * @see https://www.php.net/curl_getinfo
-     * @var array
-     * @phpstan-var CurlInfo
-     */
-    private $curlInfo;
+	/**
+	 * @see https://www.php.net/curl_getinfo
+	 * @var array
+	 * @phpstan-var CurlInfo
+	 */
+	private $curlInfo;
 
-    /**
-     * @phpstan-param CurlInfo $curlInfo
-     */
-    public function __construct(array $request, ?int $code, array $headers, ?string $body, array $curlInfo)
-    {
-        parent::__construct($request, $code, $headers, $body);
-        $this->curlInfo = $curlInfo;
-    }
+	/**
+	 * @phpstan-param CurlInfo $curlInfo
+	 */
+	public function __construct(array $request, ?int $code, array $headers, ?string $body, array $curlInfo)
+	{
+		parent::__construct($request, $code, $headers, $body);
+		$this->curlInfo = $curlInfo;
+	}
 
-    /**
-     * @phpstan-return CurlInfo
-     */
-    public function getCurlInfo(): array
-    {
-        return $this->curlInfo;
-    }
+	/**
+	 * @phpstan-return CurlInfo
+	 */
+	public function getCurlInfo(): array
+	{
+		return $this->curlInfo;
+	}
 }

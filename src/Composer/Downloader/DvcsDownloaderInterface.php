@@ -21,12 +21,12 @@ use Composer\Package\PackageInterface;
  */
 interface DvcsDownloaderInterface
 {
-    /**
-     * Checks for unpushed changes to a current branch
-     *
-     * @param  PackageInterface $package package instance
-     * @param  string           $path    package directory
-     * @return string|null      changes or null
-     */
-    public function getUnpushedChanges(PackageInterface $package, string $path): ?string;
+	/**
+	 * Checks for unpushed changes to a current branch
+	 *
+	 * @param  PackageInterface $package package instance
+	 * @param  string           $path    package directory
+	 * @return string|null      changes or null
+	 */
+	public function getUnpushedChanges(PackageInterface $package, string $path): ?string;
 }

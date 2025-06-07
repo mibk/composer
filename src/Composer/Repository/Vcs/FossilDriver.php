@@ -24,225 +24,225 @@ use Composer\IO\IOInterface;
  */
 class FossilDriver extends VcsDriver
 {
-    /** @var array<int|string, string> Map of tag name to identifier */
-    protected $tags;
-    /** @var array<int|string, string> Map of branch name to identifier */
-    protected $branches;
-    /** @var ?string */
-    protected $rootIdentifier = null;
-    /** @var ?string */
-    protected $repoFile = null;
-    /** @var string */
-    protected $checkoutDir;
+	/** @var array<int|string, string> Map of tag name to identifier */
+	protected $tags;
+	/** @var array<int|string, string> Map of branch name to identifier */
+	protected $branches;
+	/** @var ?string */
+	protected $rootIdentifier = null;
+	/** @var ?string */
+	protected $repoFile = null;
+	/** @var string */
+	protected $checkoutDir;
 
-    /**
-     * @inheritDoc
-     */
-    public function initialize(): void
-    {
-        // Make sure fossil is installed and reachable.
-        $this->checkFossil();
+	/**
+	 * @inheritDoc
+	 */
+	public function initialize(): void
+	{
+		// Make sure fossil is installed and reachable.
+		$this->checkFossil();
 
-        // Ensure we are allowed to use this URL by config.
-        $this->config->prohibitUrlByConfig($this->url, $this->io);
+		// Ensure we are allowed to use this URL by config.
+		$this->config->prohibitUrlByConfig($this->url, $this->io);
 
-        // Only if url points to a locally accessible directory, assume it's the checkout directory.
-        // Otherwise, it should be something fossil can clone from.
-        if (Filesystem::isLocalPath($this->url) && is_dir($this->url)) {
-            $this->checkoutDir = $this->url;
-        } else {
-            if (!Cache::isUsable($this->config->get('cache-repo-dir')) || !Cache::isUsable($this->config->get('cache-vcs-dir'))) {
-                throw new \RuntimeException('FossilDriver requires a usable cache directory, and it looks like you set it to be disabled');
-            }
+		// Only if url points to a locally accessible directory, assume it's the checkout directory.
+		// Otherwise, it should be something fossil can clone from.
+		if (Filesystem::isLocalPath($this->url) && is_dir($this->url)) {
+			$this->checkoutDir = $this->url;
+		} else {
+			if (!Cache::isUsable($this->config->get('cache-repo-dir')) || !Cache::isUsable($this->config->get('cache-vcs-dir'))) {
+				throw new \RuntimeException('FossilDriver requires a usable cache directory, and it looks like you set it to be disabled');
+			}
 
-            $localName = Preg::replace('{[^a-z0-9]}i', '-', $this->url);
-            $this->repoFile = $this->config->get('cache-repo-dir') . '/' . $localName . '.fossil';
-            $this->checkoutDir = $this->config->get('cache-vcs-dir') . '/' . $localName . '/';
+			$localName = Preg::replace('{[^a-z0-9]}i', '-', $this->url);
+			$this->repoFile = $this->config->get('cache-repo-dir') . '/' . $localName . '.fossil';
+			$this->checkoutDir = $this->config->get('cache-vcs-dir') . '/' . $localName . '/';
 
-            $this->updateLocalRepo();
-        }
+			$this->updateLocalRepo();
+		}
 
-        $this->getTags();
-        $this->getBranches();
-    }
+		$this->getTags();
+		$this->getBranches();
+	}
 
-    /**
-     * Check that fossil can be invoked via command line.
-     */
-    protected function checkFossil(): void
-    {
-        if (0 !== $this->process->execute(['fossil', 'version'], $ignoredOutput)) {
-            throw new \RuntimeException("fossil was not found, check that it is installed and in your PATH env.\n\n" . $this->process->getErrorOutput());
-        }
-    }
+	/**
+	 * Check that fossil can be invoked via command line.
+	 */
+	protected function checkFossil(): void
+	{
+		if (0 !== $this->process->execute(['fossil', 'version'], $ignoredOutput)) {
+			throw new \RuntimeException("fossil was not found, check that it is installed and in your PATH env.\n\n" . $this->process->getErrorOutput());
+		}
+	}
 
-    /**
-     * Clone or update existing local fossil repository.
-     */
-    protected function updateLocalRepo(): void
-    {
-        assert($this->repoFile !== null);
+	/**
+	 * Clone or update existing local fossil repository.
+	 */
+	protected function updateLocalRepo(): void
+	{
+		assert($this->repoFile !== null);
 
-        $fs = new Filesystem();
-        $fs->ensureDirectoryExists($this->checkoutDir);
+		$fs = new Filesystem();
+		$fs->ensureDirectoryExists($this->checkoutDir);
 
-        if (!is_writable(dirname($this->checkoutDir))) {
-            throw new \RuntimeException('Can not clone '.$this->url.' to access package information. The "'.$this->checkoutDir.'" directory is not writable by the current user.');
-        }
+		if (!is_writable(dirname($this->checkoutDir))) {
+			throw new \RuntimeException('Can not clone '.$this->url.' to access package information. The "'.$this->checkoutDir.'" directory is not writable by the current user.');
+		}
 
-        // update the repo if it is a valid fossil repository
-        if (is_file($this->repoFile) && is_dir($this->checkoutDir) && 0 === $this->process->execute(['fossil', 'info'], $output, $this->checkoutDir)) {
-            if (0 !== $this->process->execute(['fossil', 'pull'], $output, $this->checkoutDir)) {
-                $this->io->writeError('<error>Failed to update '.$this->url.', package information from this repository may be outdated ('.$this->process->getErrorOutput().')</error>');
-            }
-        } else {
-            // clean up directory and do a fresh clone into it
-            $fs->removeDirectory($this->checkoutDir);
-            $fs->remove($this->repoFile);
+		// update the repo if it is a valid fossil repository
+		if (is_file($this->repoFile) && is_dir($this->checkoutDir) && 0 === $this->process->execute(['fossil', 'info'], $output, $this->checkoutDir)) {
+			if (0 !== $this->process->execute(['fossil', 'pull'], $output, $this->checkoutDir)) {
+				$this->io->writeError('<error>Failed to update '.$this->url.', package information from this repository may be outdated ('.$this->process->getErrorOutput().')</error>');
+			}
+		} else {
+			// clean up directory and do a fresh clone into it
+			$fs->removeDirectory($this->checkoutDir);
+			$fs->remove($this->repoFile);
 
-            $fs->ensureDirectoryExists($this->checkoutDir);
+			$fs->ensureDirectoryExists($this->checkoutDir);
 
-            if (0 !== $this->process->execute(['fossil', 'clone', '--', $this->url, $this->repoFile], $output)) {
-                $output = $this->process->getErrorOutput();
+			if (0 !== $this->process->execute(['fossil', 'clone', '--', $this->url, $this->repoFile], $output)) {
+				$output = $this->process->getErrorOutput();
 
-                throw new \RuntimeException('Failed to clone '.$this->url.' to repository ' . $this->repoFile . "\n\n" .$output);
-            }
+				throw new \RuntimeException('Failed to clone '.$this->url.' to repository ' . $this->repoFile . "\n\n" .$output);
+			}
 
-            if (0 !== $this->process->execute(['fossil', 'open', '--nested', '--', $this->repoFile], $output, $this->checkoutDir)) {
-                $output = $this->process->getErrorOutput();
+			if (0 !== $this->process->execute(['fossil', 'open', '--nested', '--', $this->repoFile], $output, $this->checkoutDir)) {
+				$output = $this->process->getErrorOutput();
 
-                throw new \RuntimeException('Failed to open repository '.$this->repoFile.' in ' . $this->checkoutDir . "\n\n" .$output);
-            }
-        }
-    }
+				throw new \RuntimeException('Failed to open repository '.$this->repoFile.' in ' . $this->checkoutDir . "\n\n" .$output);
+			}
+		}
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getRootIdentifier(): string
-    {
-        if (null === $this->rootIdentifier) {
-            $this->rootIdentifier = 'trunk';
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function getRootIdentifier(): string
+	{
+		if (null === $this->rootIdentifier) {
+			$this->rootIdentifier = 'trunk';
+		}
 
-        return $this->rootIdentifier;
-    }
+		return $this->rootIdentifier;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getUrl(): string
+	{
+		return $this->url;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getSource(string $identifier): array
-    {
-        return ['type' => 'fossil', 'url' => $this->getUrl(), 'reference' => $identifier];
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getSource(string $identifier): array
+	{
+		return ['type' => 'fossil', 'url' => $this->getUrl(), 'reference' => $identifier];
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getDist(string $identifier): ?array
-    {
-        return null;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getDist(string $identifier): ?array
+	{
+		return null;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getFileContent(string $file, string $identifier): ?string
-    {
-        $this->process->execute(['fossil', 'cat', '-r', $identifier, '--', $file], $content, $this->checkoutDir);
+	/**
+	 * @inheritDoc
+	 */
+	public function getFileContent(string $file, string $identifier): ?string
+	{
+		$this->process->execute(['fossil', 'cat', '-r', $identifier, '--', $file], $content, $this->checkoutDir);
 
-        if ('' === trim($content)) {
-            return null;
-        }
+		if ('' === trim($content)) {
+			return null;
+		}
 
-        return $content;
-    }
+		return $content;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getChangeDate(string $identifier): ?\DateTimeImmutable
-    {
-        $this->process->execute(['fossil', 'finfo', '-b', '-n', '1', 'composer.json'], $output, $this->checkoutDir);
-        [, $date] = explode(' ', trim($output), 3);
+	/**
+	 * @inheritDoc
+	 */
+	public function getChangeDate(string $identifier): ?\DateTimeImmutable
+	{
+		$this->process->execute(['fossil', 'finfo', '-b', '-n', '1', 'composer.json'], $output, $this->checkoutDir);
+		[, $date] = explode(' ', trim($output), 3);
 
-        return new \DateTimeImmutable($date, new \DateTimeZone('UTC'));
-    }
+		return new \DateTimeImmutable($date, new \DateTimeZone('UTC'));
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getTags(): array
-    {
-        if (null === $this->tags) {
-            $tags = [];
+	/**
+	 * @inheritDoc
+	 */
+	public function getTags(): array
+	{
+		if (null === $this->tags) {
+			$tags = [];
 
-            $this->process->execute(['fossil', 'tag', 'list'], $output, $this->checkoutDir);
-            foreach ($this->process->splitLines($output) as $tag) {
-                $tags[$tag] = $tag;
-            }
+			$this->process->execute(['fossil', 'tag', 'list'], $output, $this->checkoutDir);
+			foreach ($this->process->splitLines($output) as $tag) {
+				$tags[$tag] = $tag;
+			}
 
-            $this->tags = $tags;
-        }
+			$this->tags = $tags;
+		}
 
-        return $this->tags;
-    }
+		return $this->tags;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getBranches(): array
-    {
-        if (null === $this->branches) {
-            $branches = [];
+	/**
+	 * @inheritDoc
+	 */
+	public function getBranches(): array
+	{
+		if (null === $this->branches) {
+			$branches = [];
 
-            $this->process->execute(['fossil', 'branch', 'list'], $output, $this->checkoutDir);
-            foreach ($this->process->splitLines($output) as $branch) {
-                $branch = trim(Preg::replace('/^\*/', '', trim($branch)));
-                $branches[$branch] = $branch;
-            }
+			$this->process->execute(['fossil', 'branch', 'list'], $output, $this->checkoutDir);
+			foreach ($this->process->splitLines($output) as $branch) {
+				$branch = trim(Preg::replace('/^\*/', '', trim($branch)));
+				$branches[$branch] = $branch;
+			}
 
-            $this->branches = $branches;
-        }
+			$this->branches = $branches;
+		}
 
-        return $this->branches;
-    }
+		return $this->branches;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public static function supports(IOInterface $io, Config $config, string $url, bool $deep = false): bool
-    {
-        if (Preg::isMatch('#(^(?:https?|ssh)://(?:[^@]@)?(?:chiselapp\.com|fossil\.))#i', $url)) {
-            return true;
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public static function supports(IOInterface $io, Config $config, string $url, bool $deep = false): bool
+	{
+		if (Preg::isMatch('#(^(?:https?|ssh)://(?:[^@]@)?(?:chiselapp\.com|fossil\.))#i', $url)) {
+			return true;
+		}
 
-        if (Preg::isMatch('!/fossil/|\.fossil!', $url)) {
-            return true;
-        }
+		if (Preg::isMatch('!/fossil/|\.fossil!', $url)) {
+			return true;
+		}
 
-        // local filesystem
-        if (Filesystem::isLocalPath($url)) {
-            $url = Filesystem::getPlatformPath($url);
-            if (!is_dir($url)) {
-                return false;
-            }
+		// local filesystem
+		if (Filesystem::isLocalPath($url)) {
+			$url = Filesystem::getPlatformPath($url);
+			if (!is_dir($url)) {
+				return false;
+			}
 
-            $process = new ProcessExecutor($io);
-            // check whether there is a fossil repo in that path
-            if ($process->execute(['fossil', 'info'], $output, $url) === 0) {
-                return true;
-            }
-        }
+			$process = new ProcessExecutor($io);
+			// check whether there is a fossil repo in that path
+			if ($process->execute(['fossil', 'info'], $output, $url) === 0) {
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

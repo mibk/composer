@@ -23,108 +23,108 @@ use Composer\EventDispatcher\EventDispatcher;
  */
 class PartialComposer
 {
-    /**
-     * @var bool
-     */
-    private $global = false;
+	/**
+	 * @var bool
+	 */
+	private $global = false;
 
-    /**
-     * @var RootPackageInterface
-     */
-    private $package;
+	/**
+	 * @var RootPackageInterface
+	 */
+	private $package;
 
-    /**
-     * @var Loop
-     */
-    private $loop;
+	/**
+	 * @var Loop
+	 */
+	private $loop;
 
-    /**
-     * @var Repository\RepositoryManager
-     */
-    private $repositoryManager;
+	/**
+	 * @var Repository\RepositoryManager
+	 */
+	private $repositoryManager;
 
-    /**
-     * @var Installer\InstallationManager
-     */
-    private $installationManager;
+	/**
+	 * @var Installer\InstallationManager
+	 */
+	private $installationManager;
 
-    /**
-     * @var Config
-     */
-    private $config;
+	/**
+	 * @var Config
+	 */
+	private $config;
 
-    /**
-     * @var EventDispatcher
-     */
-    private $eventDispatcher;
+	/**
+	 * @var EventDispatcher
+	 */
+	private $eventDispatcher;
 
-    public function setPackage(RootPackageInterface $package): void
-    {
-        $this->package = $package;
-    }
+	public function setPackage(RootPackageInterface $package): void
+	{
+		$this->package = $package;
+	}
 
-    public function getPackage(): RootPackageInterface
-    {
-        return $this->package;
-    }
+	public function getPackage(): RootPackageInterface
+	{
+		return $this->package;
+	}
 
-    public function setConfig(Config $config): void
-    {
-        $this->config = $config;
-    }
+	public function setConfig(Config $config): void
+	{
+		$this->config = $config;
+	}
 
-    public function getConfig(): Config
-    {
-        return $this->config;
-    }
+	public function getConfig(): Config
+	{
+		return $this->config;
+	}
 
-    public function setLoop(Loop $loop): void
-    {
-        $this->loop = $loop;
-    }
+	public function setLoop(Loop $loop): void
+	{
+		$this->loop = $loop;
+	}
 
-    public function getLoop(): Loop
-    {
-        return $this->loop;
-    }
+	public function getLoop(): Loop
+	{
+		return $this->loop;
+	}
 
-    public function setRepositoryManager(RepositoryManager $manager): void
-    {
-        $this->repositoryManager = $manager;
-    }
+	public function setRepositoryManager(RepositoryManager $manager): void
+	{
+		$this->repositoryManager = $manager;
+	}
 
-    public function getRepositoryManager(): RepositoryManager
-    {
-        return $this->repositoryManager;
-    }
+	public function getRepositoryManager(): RepositoryManager
+	{
+		return $this->repositoryManager;
+	}
 
-    public function setInstallationManager(InstallationManager $manager): void
-    {
-        $this->installationManager = $manager;
-    }
+	public function setInstallationManager(InstallationManager $manager): void
+	{
+		$this->installationManager = $manager;
+	}
 
-    public function getInstallationManager(): InstallationManager
-    {
-        return $this->installationManager;
-    }
+	public function getInstallationManager(): InstallationManager
+	{
+		return $this->installationManager;
+	}
 
-    public function setEventDispatcher(EventDispatcher $eventDispatcher): void
-    {
-        $this->eventDispatcher = $eventDispatcher;
-    }
+	public function setEventDispatcher(EventDispatcher $eventDispatcher): void
+	{
+		$this->eventDispatcher = $eventDispatcher;
+	}
 
-    public function getEventDispatcher(): EventDispatcher
-    {
-        return $this->eventDispatcher;
-    }
+	public function getEventDispatcher(): EventDispatcher
+	{
+		return $this->eventDispatcher;
+	}
 
-    public function isGlobal(): bool
-    {
-        return $this->global;
-    }
+	public function isGlobal(): bool
+	{
+		return $this->global;
+	}
 
-    public function setGlobal(): void
-    {
-        $this->global = true;
-    }
+	public function setGlobal(): void
+	{
+		$this->global = true;
+	}
 }

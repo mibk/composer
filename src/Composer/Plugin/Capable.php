@@ -21,23 +21,23 @@ namespace Composer\Plugin;
  */
 interface Capable
 {
-    /**
-     * Method by which a Plugin announces its API implementations, through an array
-     * with a special structure.
-     *
-     * The key must be a string, representing a fully qualified class/interface name
-     * which Composer Plugin API exposes.
-     * The value must be a string as well, representing the fully qualified class name
-     * of the implementing class.
-     *
-     * @tutorial
-     *
-     * return array(
-     *     'Composer\Plugin\Capability\CommandProvider' => 'My\CommandProvider',
-     *     'Composer\Plugin\Capability\Validator'       => 'My\Validator',
-     * );
-     *
-     * @return string[]
-     */
-    public function getCapabilities();
+	/**
+	 * Method by which a Plugin announces its API implementations, through an array
+	 * with a special structure.
+	 *
+	 * The key must be a string, representing a fully qualified class/interface name
+	 * which Composer Plugin API exposes.
+	 * The value must be a string as well, representing the fully qualified class name
+	 * of the implementing class.
+	 *
+	 * @tutorial
+	 *
+	 * return array(
+	 *     'Composer\Plugin\Capability\CommandProvider' => 'My\CommandProvider',
+	 *     'Composer\Plugin\Capability\Validator'       => 'My\Validator',
+	 * );
+	 *
+	 * @return string[]
+	 */
+	public function getCapabilities();
 }

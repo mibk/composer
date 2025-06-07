@@ -19,25 +19,25 @@ namespace Composer\DependencyResolver\Operation;
  */
 interface OperationInterface
 {
-    /**
-     * Returns operation type.
-     *
-     * @return string
-     */
-    public function getOperationType();
+	/**
+	 * Returns operation type.
+	 *
+	 * @return string
+	 */
+	public function getOperationType();
 
-    /**
-     * Serializes the operation in a human readable format
-     *
-     * @param  bool   $lock Whether this is an operation on the lock file
-     * @return string
-     */
-    public function show(bool $lock);
+	/**
+	 * Serializes the operation in a human readable format
+	 *
+	 * @param  bool   $lock Whether this is an operation on the lock file
+	 * @return string
+	 */
+	public function show(bool $lock);
 
-    /**
-     * Serializes the operation in a human readable format
-     *
-     * @return string
-     */
-    public function __toString();
+	/**
+	 * Serializes the operation in a human readable format
+	 *
+	 * @return string
+	 */
+	public function __toString();
 }

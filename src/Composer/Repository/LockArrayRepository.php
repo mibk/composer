@@ -21,10 +21,10 @@ namespace Composer\Repository;
  */
 class LockArrayRepository extends ArrayRepository
 {
-    use CanonicalPackagesTrait;
+	use CanonicalPackagesTrait;
 
-    public function getRepoName(): string
-    {
-        return 'lock repo';
-    }
+	public function getRepoName(): string
+	{
+		return 'lock repo';
+	}
 }

@@ -22,107 +22,107 @@ use Composer\Util\Perforce;
  */
 class PerforceDownloader extends VcsDownloader
 {
-    /** @var Perforce|null */
-    protected $perforce;
+	/** @var Perforce|null */
+	protected $perforce;
 
-    /**
-     * @inheritDoc
-     */
-    protected function doDownload(PackageInterface $package, string $path, string $url, ?PackageInterface $prevPackage = null): PromiseInterface
-    {
-        return \React\Promise\resolve(null);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	protected function doDownload(PackageInterface $package, string $path, string $url, ?PackageInterface $prevPackage = null): PromiseInterface
+	{
+		return \React\Promise\resolve(null);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function doInstall(PackageInterface $package, string $path, string $url): PromiseInterface
-    {
-        $ref = $package->getSourceReference();
-        $label = $this->getLabelFromSourceReference((string) $ref);
+	/**
+	 * @inheritDoc
+	 */
+	public function doInstall(PackageInterface $package, string $path, string $url): PromiseInterface
+	{
+		$ref = $package->getSourceReference();
+		$label = $this->getLabelFromSourceReference((string) $ref);
 
-        $this->io->writeError('Cloning ' . $ref);
-        $this->initPerforce($package, $path, $url);
-        $this->perforce->setStream($ref);
-        $this->perforce->p4Login();
-        $this->perforce->writeP4ClientSpec();
-        $this->perforce->connectClient();
-        $this->perforce->syncCodeBase($label);
-        $this->perforce->cleanupClientSpec();
+		$this->io->writeError('Cloning ' . $ref);
+		$this->initPerforce($package, $path, $url);
+		$this->perforce->setStream($ref);
+		$this->perforce->p4Login();
+		$this->perforce->writeP4ClientSpec();
+		$this->perforce->connectClient();
+		$this->perforce->syncCodeBase($label);
+		$this->perforce->cleanupClientSpec();
 
-        return \React\Promise\resolve(null);
-    }
+		return \React\Promise\resolve(null);
+	}
 
-    private function getLabelFromSourceReference(string $ref): ?string
-    {
-        $pos = strpos($ref, '@');
-        if (false !== $pos) {
-            return substr($ref, $pos + 1);
-        }
+	private function getLabelFromSourceReference(string $ref): ?string
+	{
+		$pos = strpos($ref, '@');
+		if (false !== $pos) {
+			return substr($ref, $pos + 1);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    public function initPerforce(PackageInterface $package, string $path, string $url): void
-    {
-        if (!empty($this->perforce)) {
-            $this->perforce->initializePath($path);
+	public function initPerforce(PackageInterface $package, string $path, string $url): void
+	{
+		if (!empty($this->perforce)) {
+			$this->perforce->initializePath($path);
 
-            return;
-        }
+			return;
+		}
 
-        $repository = $package->getRepository();
-        $repoConfig = null;
-        if ($repository instanceof VcsRepository) {
-            $repoConfig = $this->getRepoConfig($repository);
-        }
-        $this->perforce = Perforce::create($repoConfig, $url, $path, $this->process, $this->io);
-    }
+		$repository = $package->getRepository();
+		$repoConfig = null;
+		if ($repository instanceof VcsRepository) {
+			$repoConfig = $this->getRepoConfig($repository);
+		}
+		$this->perforce = Perforce::create($repoConfig, $url, $path, $this->process, $this->io);
+	}
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function getRepoConfig(VcsRepository $repository): array
-    {
-        return $repository->getRepoConfig();
-    }
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function getRepoConfig(VcsRepository $repository): array
+	{
+		return $repository->getRepoConfig();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function doUpdate(PackageInterface $initial, PackageInterface $target, string $path, string $url): PromiseInterface
-    {
-        return $this->doInstall($target, $path, $url);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	protected function doUpdate(PackageInterface $initial, PackageInterface $target, string $path, string $url): PromiseInterface
+	{
+		return $this->doInstall($target, $path, $url);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getLocalChanges(PackageInterface $package, string $path): ?string
-    {
-        $this->io->writeError('Perforce driver does not check for local changes before overriding');
+	/**
+	 * @inheritDoc
+	 */
+	public function getLocalChanges(PackageInterface $package, string $path): ?string
+	{
+		$this->io->writeError('Perforce driver does not check for local changes before overriding');
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function getCommitLogs(string $fromReference, string $toReference, string $path): string
-    {
-        return $this->perforce->getCommitLogs($fromReference, $toReference);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	protected function getCommitLogs(string $fromReference, string $toReference, string $path): string
+	{
+		return $this->perforce->getCommitLogs($fromReference, $toReference);
+	}
 
-    public function setPerforce(Perforce $perforce): void
-    {
-        $this->perforce = $perforce;
-    }
+	public function setPerforce(Perforce $perforce): void
+	{
+		$this->perforce = $perforce;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function hasMetadataRepository(string $path): bool
-    {
-        return true;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	protected function hasMetadataRepository(string $path): bool
+	{
+		return true;
+	}
 }

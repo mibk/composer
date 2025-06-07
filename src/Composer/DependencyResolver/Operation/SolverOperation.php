@@ -19,24 +19,24 @@ namespace Composer\DependencyResolver\Operation;
  */
 abstract class SolverOperation implements OperationInterface
 {
-    /**
-     * @abstract must be redefined by extending classes
-     */
-    protected const TYPE = '';
+	/**
+	 * @abstract must be redefined by extending classes
+	 */
+	protected const TYPE = '';
 
-    /**
-     * Returns operation type.
-     */
-    public function getOperationType(): string
-    {
-        return static::TYPE;
-    }
+	/**
+	 * Returns operation type.
+	 */
+	public function getOperationType(): string
+	{
+		return static::TYPE;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function __toString()
-    {
-        return $this->show(false);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function __toString()
+	{
+		return $this->show(false);
+	}
 }

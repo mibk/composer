@@ -30,40 +30,40 @@ use Symfony\Component\Console\Input\InputArgument as BaseInputArgument;
  */
 class InputArgument extends BaseInputArgument
 {
-    /**
-     * @var list<string>|\Closure(CompletionInput,CompletionSuggestions):list<string|Suggestion>
-     */
-    private $suggestedValues;
+	/**
+	 * @var list<string>|\Closure(CompletionInput,CompletionSuggestions):list<string|Suggestion>
+	 */
+	private $suggestedValues;
 
-    /**
-     * @param string                              $name        The argument name
-     * @param int|null                            $mode        The argument mode: self::REQUIRED or self::OPTIONAL
-     * @param string                              $description A description text
-     * @param string|bool|int|float|string[]|null $default     The default value (for self::OPTIONAL mode only)
-     * @param list<string>|\Closure(CompletionInput,CompletionSuggestions):list<string|Suggestion> $suggestedValues The values used for input completion
-     *
-     * @throws InvalidArgumentException When argument mode is not valid
-     */
-    public function __construct(string $name, ?int $mode = null, string $description = '', $default = null, $suggestedValues = [])
-    {
-        parent::__construct($name, $mode, $description, $default);
+	/**
+	 * @param string                              $name        The argument name
+	 * @param int|null                            $mode        The argument mode: self::REQUIRED or self::OPTIONAL
+	 * @param string                              $description A description text
+	 * @param string|bool|int|float|string[]|null $default     The default value (for self::OPTIONAL mode only)
+	 * @param list<string>|\Closure(CompletionInput,CompletionSuggestions):list<string|Suggestion> $suggestedValues The values used for input completion
+	 *
+	 * @throws InvalidArgumentException When argument mode is not valid
+	 */
+	public function __construct(string $name, ?int $mode = null, string $description = '', $default = null, $suggestedValues = [])
+	{
+		parent::__construct($name, $mode, $description, $default);
 
-        $this->suggestedValues = $suggestedValues;
-    }
+		$this->suggestedValues = $suggestedValues;
+	}
 
-    /**
-     * Adds suggestions to $suggestions for the current completion input.
-     *
-     * @see Command::complete()
-     */
-    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
-    {
-        $values = $this->suggestedValues;
-        if ($values instanceof \Closure && !\is_array($values = $values($input, $suggestions))) { // @phpstan-ignore function.impossibleType
-            throw new LogicException(sprintf('Closure for option "%s" must return an array. Got "%s".', $this->getName(), get_debug_type($values)));
-        }
-        if ([] !== $values) {
-            $suggestions->suggestValues($values);
-        }
-    }
+	/**
+	 * Adds suggestions to $suggestions for the current completion input.
+	 *
+	 * @see Command::complete()
+	 */
+	public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
+	{
+		$values = $this->suggestedValues;
+		if ($values instanceof \Closure && !\is_array($values = $values($input, $suggestions))) { // @phpstan-ignore function.impossibleType
+			throw new LogicException(sprintf('Closure for option "%s" must return an array. Got "%s".', $this->getName(), get_debug_type($values)));
+		}
+		if ([] !== $values) {
+			$suggestions->suggestValues($values);
+		}
+	}
 }

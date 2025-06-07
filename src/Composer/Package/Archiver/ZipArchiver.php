@@ -21,94 +21,94 @@ use ZipArchive;
  */
 class ZipArchiver implements ArchiverInterface
 {
-    /** @var array<string, bool> */
-    protected static $formats = [
-        'zip' => true,
-    ];
+	/** @var array<string, bool> */
+	protected static $formats = [
+		'zip' => true,
+	];
 
-    /**
-     * @inheritDoc
-     */
-    public function archive(string $sources, string $target, string $format, array $excludes = [], bool $ignoreFilters = false): string
-    {
-        $fs = new Filesystem();
-        $sourcesRealpath = realpath($sources);
-        if (false !== $sourcesRealpath) {
-            $sources = $sourcesRealpath;
-        }
-        unset($sourcesRealpath);
-        $sources = $fs->normalizePath($sources);
+	/**
+	 * @inheritDoc
+	 */
+	public function archive(string $sources, string $target, string $format, array $excludes = [], bool $ignoreFilters = false): string
+	{
+		$fs = new Filesystem();
+		$sourcesRealpath = realpath($sources);
+		if (false !== $sourcesRealpath) {
+			$sources = $sourcesRealpath;
+		}
+		unset($sourcesRealpath);
+		$sources = $fs->normalizePath($sources);
 
-        $zip = new ZipArchive();
-        $res = $zip->open($target, ZipArchive::CREATE);
-        if ($res === true) {
-            $files = new ArchivableFilesFinder($sources, $excludes, $ignoreFilters);
-            foreach ($files as $file) {
-                /** @var \Symfony\Component\Finder\SplFileInfo $file */
-                $filepath = $file->getPathname();
-                $relativePath = $file->getRelativePathname();
+		$zip = new ZipArchive();
+		$res = $zip->open($target, ZipArchive::CREATE);
+		if ($res === true) {
+			$files = new ArchivableFilesFinder($sources, $excludes, $ignoreFilters);
+			foreach ($files as $file) {
+				/** @var \Symfony\Component\Finder\SplFileInfo $file */
+				$filepath = $file->getPathname();
+				$relativePath = $file->getRelativePathname();
 
-                if (Platform::isWindows()) {
-                    $relativePath = strtr($relativePath, '\\', '/');
-                }
+				if (Platform::isWindows()) {
+					$relativePath = strtr($relativePath, '\\', '/');
+				}
 
-                if ($file->isDir()) {
-                    $zip->addEmptyDir($relativePath);
-                } else {
-                    $zip->addFile($filepath, $relativePath);
-                }
+				if ($file->isDir()) {
+					$zip->addEmptyDir($relativePath);
+				} else {
+					$zip->addFile($filepath, $relativePath);
+				}
 
-                /**
-                 * setExternalAttributesName() is only available with libzip 0.11.2 or above
-                 */
-                if (method_exists($zip, 'setExternalAttributesName')) {
-                    $perms = fileperms($filepath);
+				/**
+				 * setExternalAttributesName() is only available with libzip 0.11.2 or above
+				 */
+				if (method_exists($zip, 'setExternalAttributesName')) {
+					$perms = fileperms($filepath);
 
-                    /**
-                     * Ensure to preserve the permission umasks for the filepath in the archive.
-                     */
-                    $zip->setExternalAttributesName($relativePath, ZipArchive::OPSYS_UNIX, $perms << 16);
-                }
-            }
-            if ($zip->close()) {
-                if (!file_exists($target)) {
-                    // create minimal valid ZIP file (Empty Central Directory + End of Central Directory record)
-                    $eocd = pack(
-                        'VvvvvVVv',
-                        0x06054b50,  // End of central directory signature
-                        0,           // Number of this disk
-                        0,           // Disk where central directory starts
-                        0,           // Number of central directory records on this disk
-                        0,           // Total number of central directory records
-                        0,           // Size of central directory (bytes)
-                        0,           // Offset of start of central directory
-                        0            // Comment length
-                    );
-                    file_put_contents($target, $eocd);
-                }
+					/**
+					 * Ensure to preserve the permission umasks for the filepath in the archive.
+					 */
+					$zip->setExternalAttributesName($relativePath, ZipArchive::OPSYS_UNIX, $perms << 16);
+				}
+			}
+			if ($zip->close()) {
+				if (!file_exists($target)) {
+					// create minimal valid ZIP file (Empty Central Directory + End of Central Directory record)
+					$eocd = pack(
+						'VvvvvVVv',
+						0x06054b50,  // End of central directory signature
+						0,           // Number of this disk
+						0,           // Disk where central directory starts
+						0,           // Number of central directory records on this disk
+						0,           // Total number of central directory records
+						0,           // Size of central directory (bytes)
+						0,           // Offset of start of central directory
+						0            // Comment length
+					);
+					file_put_contents($target, $eocd);
+				}
 
-                return $target;
-            }
-        }
-        $message = sprintf(
-            "Could not create archive '%s' from '%s': %s",
-            $target,
-            $sources,
-            $zip->getStatusString()
-        );
-        throw new \RuntimeException($message);
-    }
+				return $target;
+			}
+		}
+		$message = sprintf(
+			"Could not create archive '%s' from '%s': %s",
+			$target,
+			$sources,
+			$zip->getStatusString()
+		);
+		throw new \RuntimeException($message);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function supports(string $format, ?string $sourceType): bool
-    {
-        return isset(static::$formats[$format]) && $this->compressionAvailable();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function supports(string $format, ?string $sourceType): bool
+	{
+		return isset(static::$formats[$format]) && $this->compressionAvailable();
+	}
 
-    private function compressionAvailable(): bool
-    {
-        return class_exists('ZipArchive');
-    }
+	private function compressionAvailable(): bool
+	{
+		return class_exists('ZipArchive');
+	}
 }

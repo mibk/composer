@@ -25,164 +25,164 @@ use Composer\Util\Http\Response;
  */
 class PerforceDriver extends VcsDriver
 {
-    /** @var string */
-    protected $depot;
-    /** @var string */
-    protected $branch;
-    /** @var ?Perforce */
-    protected $perforce = null;
+	/** @var string */
+	protected $depot;
+	/** @var string */
+	protected $branch;
+	/** @var ?Perforce */
+	protected $perforce = null;
 
-    /**
-     * @inheritDoc
-     */
-    public function initialize(): void
-    {
-        $this->depot = $this->repoConfig['depot'];
-        $this->branch = '';
-        if (!empty($this->repoConfig['branch'])) {
-            $this->branch = $this->repoConfig['branch'];
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function initialize(): void
+	{
+		$this->depot = $this->repoConfig['depot'];
+		$this->branch = '';
+		if (!empty($this->repoConfig['branch'])) {
+			$this->branch = $this->repoConfig['branch'];
+		}
 
-        $this->initPerforce($this->repoConfig);
-        $this->perforce->p4Login();
-        $this->perforce->checkStream();
+		$this->initPerforce($this->repoConfig);
+		$this->perforce->p4Login();
+		$this->perforce->checkStream();
 
-        $this->perforce->writeP4ClientSpec();
-        $this->perforce->connectClient();
-    }
+		$this->perforce->writeP4ClientSpec();
+		$this->perforce->connectClient();
+	}
 
-    /**
-     * @param array<string, mixed> $repoConfig
-     */
-    private function initPerforce(array $repoConfig): void
-    {
-        if (!empty($this->perforce)) {
-            return;
-        }
+	/**
+	 * @param array<string, mixed> $repoConfig
+	 */
+	private function initPerforce(array $repoConfig): void
+	{
+		if (!empty($this->perforce)) {
+			return;
+		}
 
-        if (!Cache::isUsable($this->config->get('cache-vcs-dir'))) {
-            throw new \RuntimeException('PerforceDriver requires a usable cache directory, and it looks like you set it to be disabled');
-        }
+		if (!Cache::isUsable($this->config->get('cache-vcs-dir'))) {
+			throw new \RuntimeException('PerforceDriver requires a usable cache directory, and it looks like you set it to be disabled');
+		}
 
-        $repoDir = $this->config->get('cache-vcs-dir') . '/' . $this->depot;
-        $this->perforce = Perforce::create($repoConfig, $this->getUrl(), $repoDir, $this->process, $this->io);
-    }
+		$repoDir = $this->config->get('cache-vcs-dir') . '/' . $this->depot;
+		$this->perforce = Perforce::create($repoConfig, $this->getUrl(), $repoDir, $this->process, $this->io);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getFileContent(string $file, string $identifier): ?string
-    {
-        return $this->perforce->getFileContent($file, $identifier);
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getFileContent(string $file, string $identifier): ?string
+	{
+		return $this->perforce->getFileContent($file, $identifier);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getChangeDate(string $identifier): ?\DateTimeImmutable
-    {
-        return null;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getChangeDate(string $identifier): ?\DateTimeImmutable
+	{
+		return null;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getRootIdentifier(): string
-    {
-        return $this->branch;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getRootIdentifier(): string
+	{
+		return $this->branch;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getBranches(): array
-    {
-        return $this->perforce->getBranches();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getBranches(): array
+	{
+		return $this->perforce->getBranches();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getTags(): array
-    {
-        return $this->perforce->getTags();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getTags(): array
+	{
+		return $this->perforce->getTags();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getDist(string $identifier): ?array
-    {
-        return null;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getDist(string $identifier): ?array
+	{
+		return null;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getSource(string $identifier): array
-    {
-        return [
-            'type' => 'perforce',
-            'url' => $this->repoConfig['url'],
-            'reference' => $identifier,
-            'p4user' => $this->perforce->getUser(),
-        ];
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getSource(string $identifier): array
+	{
+		return [
+			'type' => 'perforce',
+			'url' => $this->repoConfig['url'],
+			'reference' => $identifier,
+			'p4user' => $this->perforce->getUser(),
+		];
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getUrl(): string
+	{
+		return $this->url;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function hasComposerFile(string $identifier): bool
-    {
-        $composerInfo = $this->perforce->getComposerInformation('//' . $this->depot . '/' . $identifier);
+	/**
+	 * @inheritDoc
+	 */
+	public function hasComposerFile(string $identifier): bool
+	{
+		$composerInfo = $this->perforce->getComposerInformation('//' . $this->depot . '/' . $identifier);
 
-        return !empty($composerInfo);
-    }
+		return !empty($composerInfo);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getContents(string $url): Response
-    {
-        throw new \BadMethodCallException('Not implemented/used in PerforceDriver');
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getContents(string $url): Response
+	{
+		throw new \BadMethodCallException('Not implemented/used in PerforceDriver');
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public static function supports(IOInterface $io, Config $config, string $url, bool $deep = false): bool
-    {
-        if ($deep || Preg::isMatch('#\b(perforce|p4)\b#i', $url)) {
-            return Perforce::checkServerExists($url, new ProcessExecutor($io));
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public static function supports(IOInterface $io, Config $config, string $url, bool $deep = false): bool
+	{
+		if ($deep || Preg::isMatch('#\b(perforce|p4)\b#i', $url)) {
+			return Perforce::checkServerExists($url, new ProcessExecutor($io));
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function cleanup(): void
-    {
-        $this->perforce->cleanupClientSpec();
-        $this->perforce = null;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function cleanup(): void
+	{
+		$this->perforce->cleanupClientSpec();
+		$this->perforce = null;
+	}
 
-    public function getDepot(): string
-    {
-        return $this->depot;
-    }
+	public function getDepot(): string
+	{
+		return $this->depot;
+	}
 
-    public function getBranch(): string
-    {
-        return $this->branch;
-    }
+	public function getBranch(): string
+	{
+		return $this->branch;
+	}
 }

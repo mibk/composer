@@ -31,83 +31,83 @@ use Symfony\Component\Finder\SplFileInfo;
  */
 class ArchivableFilesFinder extends FilterIterator
 {
-    /**
-     * @var Finder
-     */
-    protected $finder;
+	/**
+	 * @var Finder
+	 */
+	protected $finder;
 
-    /**
-     * Initializes the internal Symfony Finder with appropriate filters
-     *
-     * @param string $sources Path to source files to be archived
-     * @param string[] $excludes Composer's own exclude rules from composer.json
-     * @param bool $ignoreFilters Ignore filters when looking for files
-     */
-    public function __construct(string $sources, array $excludes, bool $ignoreFilters = false)
-    {
-        $fs = new Filesystem();
+	/**
+	 * Initializes the internal Symfony Finder with appropriate filters
+	 *
+	 * @param string $sources Path to source files to be archived
+	 * @param string[] $excludes Composer's own exclude rules from composer.json
+	 * @param bool $ignoreFilters Ignore filters when looking for files
+	 */
+	public function __construct(string $sources, array $excludes, bool $ignoreFilters = false)
+	{
+		$fs = new Filesystem();
 
-        $sourcesRealPath = realpath($sources);
-        if ($sourcesRealPath === false) {
-            throw new \RuntimeException('Could not realpath() the source directory "'.$sources.'"');
-        }
-        $sources = $fs->normalizePath($sourcesRealPath);
+		$sourcesRealPath = realpath($sources);
+		if ($sourcesRealPath === false) {
+			throw new \RuntimeException('Could not realpath() the source directory "'.$sources.'"');
+		}
+		$sources = $fs->normalizePath($sourcesRealPath);
 
-        if ($ignoreFilters) {
-            $filters = [];
-        } else {
-            $filters = [
-                new GitExcludeFilter($sources),
-                new ComposerExcludeFilter($sources, $excludes),
-            ];
-        }
+		if ($ignoreFilters) {
+			$filters = [];
+		} else {
+			$filters = [
+				new GitExcludeFilter($sources),
+				new ComposerExcludeFilter($sources, $excludes),
+			];
+		}
 
-        $this->finder = new Finder();
+		$this->finder = new Finder();
 
-        $filter = static function (\SplFileInfo $file) use ($sources, $filters, $fs): bool {
-            $realpath = $file->getRealPath();
-            if ($realpath === false) {
-                return false;
-            }
-            if ($file->isLink() && strpos($realpath, $sources) !== 0) {
-                return false;
-            }
+		$filter = static function (\SplFileInfo $file) use ($sources, $filters, $fs): bool {
+			$realpath = $file->getRealPath();
+			if ($realpath === false) {
+				return false;
+			}
+			if ($file->isLink() && strpos($realpath, $sources) !== 0) {
+				return false;
+			}
 
-            $relativePath = Preg::replace(
-                '#^'.preg_quote($sources, '#').'#',
-                '',
-                $fs->normalizePath($realpath)
-            );
+			$relativePath = Preg::replace(
+				'#^'.preg_quote($sources, '#').'#',
+				'',
+				$fs->normalizePath($realpath)
+			);
 
-            $exclude = false;
-            foreach ($filters as $filter) {
-                $exclude = $filter->filter($relativePath, $exclude);
-            }
+			$exclude = false;
+			foreach ($filters as $filter) {
+				$exclude = $filter->filter($relativePath, $exclude);
+			}
 
-            return !$exclude;
-        };
+			return !$exclude;
+		};
 
-        $this->finder
-            ->in($sources)
-            ->filter($filter)
-            ->ignoreVCS(true)
-            ->ignoreDotFiles(false)
-            ->sortByName();
+		$this->finder
+			->in($sources)
+			->filter($filter)
+			->ignoreVCS(true)
+			->ignoreDotFiles(false)
+			->sortByName();
 
-        parent::__construct($this->finder->getIterator());
-    }
+		parent::__construct($this->finder->getIterator());
+	}
 
-    public function accept(): bool
-    {
-        /** @var SplFileInfo $current */
-        $current = $this->getInnerIterator()->current();
+	public function accept(): bool
+	{
+		/** @var SplFileInfo $current */
+		$current = $this->getInnerIterator()->current();
 
-        if (!$current->isDir()) {
-            return true;
-        }
+		if (!$current->isDir()) {
+			return true;
+		}
 
-        $iterator = new FilesystemIterator((string) $current, FilesystemIterator::SKIP_DOTS);
+		$iterator = new FilesystemIterator((string) $current, FilesystemIterator::SKIP_DOTS);
 
-        return !$iterator->valid();
-    }
+		return !$iterator->valid();
+	}
 }

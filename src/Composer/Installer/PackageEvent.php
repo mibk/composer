@@ -25,86 +25,86 @@ use Composer\EventDispatcher\Event;
  */
 class PackageEvent extends Event
 {
-    /**
-     * @var Composer
-     */
-    private $composer;
+	/**
+	 * @var Composer
+	 */
+	private $composer;
 
-    /**
-     * @var IOInterface
-     */
-    private $io;
+	/**
+	 * @var IOInterface
+	 */
+	private $io;
 
-    /**
-     * @var bool
-     */
-    private $devMode;
+	/**
+	 * @var bool
+	 */
+	private $devMode;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $localRepo;
+	/**
+	 * @var RepositoryInterface
+	 */
+	private $localRepo;
 
-    /**
-     * @var OperationInterface[]
-     */
-    private $operations;
+	/**
+	 * @var OperationInterface[]
+	 */
+	private $operations;
 
-    /**
-     * @var OperationInterface The operation instance which is being executed
-     */
-    private $operation;
+	/**
+	 * @var OperationInterface The operation instance which is being executed
+	 */
+	private $operation;
 
-    /**
-     * Constructor.
-     *
-     * @param OperationInterface[] $operations
-     */
-    public function __construct(string $eventName, Composer $composer, IOInterface $io, bool $devMode, RepositoryInterface $localRepo, array $operations, OperationInterface $operation)
-    {
-        parent::__construct($eventName);
+	/**
+	 * Constructor.
+	 *
+	 * @param OperationInterface[] $operations
+	 */
+	public function __construct(string $eventName, Composer $composer, IOInterface $io, bool $devMode, RepositoryInterface $localRepo, array $operations, OperationInterface $operation)
+	{
+		parent::__construct($eventName);
 
-        $this->composer = $composer;
-        $this->io = $io;
-        $this->devMode = $devMode;
-        $this->localRepo = $localRepo;
-        $this->operations = $operations;
-        $this->operation = $operation;
-    }
+		$this->composer = $composer;
+		$this->io = $io;
+		$this->devMode = $devMode;
+		$this->localRepo = $localRepo;
+		$this->operations = $operations;
+		$this->operation = $operation;
+	}
 
-    public function getComposer(): Composer
-    {
-        return $this->composer;
-    }
+	public function getComposer(): Composer
+	{
+		return $this->composer;
+	}
 
-    public function getIO(): IOInterface
-    {
-        return $this->io;
-    }
+	public function getIO(): IOInterface
+	{
+		return $this->io;
+	}
 
-    public function isDevMode(): bool
-    {
-        return $this->devMode;
-    }
+	public function isDevMode(): bool
+	{
+		return $this->devMode;
+	}
 
-    public function getLocalRepo(): RepositoryInterface
-    {
-        return $this->localRepo;
-    }
+	public function getLocalRepo(): RepositoryInterface
+	{
+		return $this->localRepo;
+	}
 
-    /**
-     * @return OperationInterface[]
-     */
-    public function getOperations(): array
-    {
-        return $this->operations;
-    }
+	/**
+	 * @return OperationInterface[]
+	 */
+	public function getOperations(): array
+	{
+		return $this->operations;
+	}
 
-    /**
-     * Returns the package instance.
-     */
-    public function getOperation(): OperationInterface
-    {
-        return $this->operation;
-    }
+	/**
+	 * Returns the package instance.
+	 */
+	public function getOperation(): OperationInterface
+	{
+		return $this->operation;
+	}
 }

@@ -17,23 +17,23 @@ use Composer\Package\PackageInterface;
 
 class PackageInfo
 {
-    public static function getViewSourceUrl(PackageInterface $package): ?string
-    {
-        if ($package instanceof CompletePackageInterface && isset($package->getSupport()['source']) && '' !== $package->getSupport()['source']) {
-            return $package->getSupport()['source'];
-        }
+	public static function getViewSourceUrl(PackageInterface $package): ?string
+	{
+		if ($package instanceof CompletePackageInterface && isset($package->getSupport()['source']) && '' !== $package->getSupport()['source']) {
+			return $package->getSupport()['source'];
+		}
 
-        return $package->getSourceUrl();
-    }
+		return $package->getSourceUrl();
+	}
 
-    public static function getViewSourceOrHomepageUrl(PackageInterface $package): ?string
-    {
-        $url = self::getViewSourceUrl($package) ?? ($package instanceof CompletePackageInterface ? $package->getHomepage() : null);
+	public static function getViewSourceOrHomepageUrl(PackageInterface $package): ?string
+	{
+		$url = self::getViewSourceUrl($package) ?? ($package instanceof CompletePackageInterface ? $package->getHomepage() : null);
 
-        if ($url === '') {
-            return null;
-        }
+		if ($url === '') {
+			return null;
+		}
 
-        return $url;
-    }
+		return $url;
+	}
 }

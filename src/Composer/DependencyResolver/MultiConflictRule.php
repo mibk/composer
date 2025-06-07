@@ -19,95 +19,95 @@ namespace Composer\DependencyResolver;
  */
 class MultiConflictRule extends Rule
 {
-    /** @var non-empty-list<int> */
-    protected $literals;
+	/** @var non-empty-list<int> */
+	protected $literals;
 
-    /**
-     * @param non-empty-list<int> $literals
-     */
-    public function __construct(array $literals, $reason, $reasonData)
-    {
-        parent::__construct($reason, $reasonData);
+	/**
+	 * @param non-empty-list<int> $literals
+	 */
+	public function __construct(array $literals, $reason, $reasonData)
+	{
+		parent::__construct($reason, $reasonData);
 
-        if (\count($literals) < 3) {
-            throw new \RuntimeException("multi conflict rule requires at least 3 literals");
-        }
+		if (\count($literals) < 3) {
+			throw new \RuntimeException("multi conflict rule requires at least 3 literals");
+		}
 
-        // sort all packages ascending by id
-        sort($literals);
+		// sort all packages ascending by id
+		sort($literals);
 
-        $this->literals = $literals;
-    }
+		$this->literals = $literals;
+	}
 
-    /**
-     * @return non-empty-list<int>
-     */
-    public function getLiterals(): array
-    {
-        return $this->literals;
-    }
+	/**
+	 * @return non-empty-list<int>
+	 */
+	public function getLiterals(): array
+	{
+		return $this->literals;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getHash()
-    {
-        $data = unpack('ihash', (string) hash(\PHP_VERSION_ID > 80100 ? 'xxh3' : 'sha1', 'c:'.implode(',', $this->literals), true));
-        if (false === $data) {
-            throw new \RuntimeException('Failed unpacking: '.implode(', ', $this->literals));
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function getHash()
+	{
+		$data = unpack('ihash', (string) hash(\PHP_VERSION_ID > 80100 ? 'xxh3' : 'sha1', 'c:'.implode(',', $this->literals), true));
+		if (false === $data) {
+			throw new \RuntimeException('Failed unpacking: '.implode(', ', $this->literals));
+		}
 
-        return $data['hash'];
-    }
+		return $data['hash'];
+	}
 
-    /**
-     * Checks if this rule is equal to another one
-     *
-     * Ignores whether either of the rules is disabled.
-     *
-     * @param  Rule $rule The rule to check against
-     * @return bool Whether the rules are equal
-     */
-    public function equals(Rule $rule): bool
-    {
-        if ($rule instanceof MultiConflictRule) {
-            return $this->literals === $rule->getLiterals();
-        }
+	/**
+	 * Checks if this rule is equal to another one
+	 *
+	 * Ignores whether either of the rules is disabled.
+	 *
+	 * @param  Rule $rule The rule to check against
+	 * @return bool Whether the rules are equal
+	 */
+	public function equals(Rule $rule): bool
+	{
+		if ($rule instanceof MultiConflictRule) {
+			return $this->literals === $rule->getLiterals();
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    public function isAssertion(): bool
-    {
-        return false;
-    }
+	public function isAssertion(): bool
+	{
+		return false;
+	}
 
-    /**
-     * @return never
-     * @throws \RuntimeException
-     */
-    public function disable(): void
-    {
-        throw new \RuntimeException("Disabling multi conflict rules is not possible. Please contact composer at https://github.com/composer/composer to let us debug what lead to this situation.");
-    }
+	/**
+	 * @return never
+	 * @throws \RuntimeException
+	 */
+	public function disable(): void
+	{
+		throw new \RuntimeException("Disabling multi conflict rules is not possible. Please contact composer at https://github.com/composer/composer to let us debug what lead to this situation.");
+	}
 
-    /**
-     * Formats a rule as a string of the format (Literal1|Literal2|...)
-     */
-    public function __toString(): string
-    {
-        // TODO multi conflict?
-        $result = $this->isDisabled() ? 'disabled(multi(' : '(multi(';
+	/**
+	 * Formats a rule as a string of the format (Literal1|Literal2|...)
+	 */
+	public function __toString(): string
+	{
+		// TODO multi conflict?
+		$result = $this->isDisabled() ? 'disabled(multi(' : '(multi(';
 
-        foreach ($this->literals as $i => $literal) {
-            if ($i !== 0) {
-                $result .= '|';
-            }
-            $result .= $literal;
-        }
+		foreach ($this->literals as $i => $literal) {
+			if ($i !== 0) {
+				$result .= '|';
+			}
+			$result .= $literal;
+		}
 
-        $result .= '))';
+		$result .= '))';
 
-        return $result;
-    }
+		return $result;
+	}
 }
