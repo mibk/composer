@@ -1114,14 +1114,14 @@ class Installer
 	{
 		return new static(
 			$io,
-				$composer->getConfig(),
-				$composer->getPackage(),
-				$composer->getDownloadManager(),
-				$composer->getRepositoryManager(),
-				$composer->getLocker(),
-				$composer->getInstallationManager(),
-				$composer->getEventDispatcher(),
-				$composer->getAutoloadGenerator()
+			$composer->getConfig(),
+			$composer->getPackage(),
+			$composer->getDownloadManager(),
+			$composer->getRepositoryManager(),
+			$composer->getLocker(),
+			$composer->getInstallationManager(),
+			$composer->getEventDispatcher(),
+			$composer->getAutoloadGenerator()
 		);
 	}
 

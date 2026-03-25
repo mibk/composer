@@ -23,8 +23,8 @@ class PackageSorter
 	 * This is ideally the default branch version, or failing that it will return the package with the highest version
 	 *
 	 * @template T of PackageInterface
-	 * @param array<T> $packages
-	 * @return ($packages is non-empty-array<T> ? T : T|null)
+	 * @param    array<T> $packages
+	 * @return   ($packages is non-empty-array<T> ? T : T|null)
 	 */
 	public static function getMostCurrentVersion(array $packages): ?PackageInterface
 	{
@@ -50,8 +50,8 @@ class PackageSorter
 	 * Sorts packages by name
 	 *
 	 * @template T of PackageInterface
-	 * @param array<T> $packages
-	 * @return array<T>
+	 * @param    array<T> $packages
+	 * @return   array<T>
 	 */
 	public static function sortPackagesAlphabetically(array $packages): array
 	{

@@ -40,7 +40,7 @@ class IgnoredSecurityAdvisory extends SecurityAdvisory
 	public function jsonSerialize()
 	{
 		$data = parent::jsonSerialize();
-		if ($this->ignoreReason === NULL) {
+		if ($this->ignoreReason === null) {
 			unset($data['ignoreReason']);
 		}
 

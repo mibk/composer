@@ -376,7 +376,7 @@ class Problem
 			}
 
 			$nonLockedPackages = array_filter($packages, static function($p): bool {
-				return !$p->getRepository() instanceof LockArrayRepository;
+				return ! $p->getRepository() instanceof LockArrayRepository;
 			});
 
 			if (0 === \count($nonLockedPackages)) {

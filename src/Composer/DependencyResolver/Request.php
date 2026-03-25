@@ -120,7 +120,7 @@ class Request
 	}
 
 	/**
-	 * @param array<string> $updateAllowList
+	 * @param array<string>        $updateAllowList
 	 * @param false|self::UPDATE_* $updateAllowTransitiveDependencies
 	 */
 	public function setUpdateAllowList(array $updateAllowList, $updateAllowTransitiveDependencies): void

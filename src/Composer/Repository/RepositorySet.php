@@ -49,13 +49,13 @@ class RepositorySet
 	public const ALLOW_SHADOWED_REPOSITORIES = 2;
 
 	/**
-	 * @var array[]
+	 * @var         array[]
 	 * @phpstan-var array<string, array<string, array{alias: string, alias_normalized: string}>>
 	 */
 	private $rootAliases;
 
 	/**
-	 * @var string[]
+	 * @var         string[]
 	 * @phpstan-var array<string, string>
 	 */
 	private $rootReferences;
@@ -64,19 +64,19 @@ class RepositorySet
 	private $repositories = [];
 
 	/**
-	 * @var int[] array of stability => BasePackage::STABILITY_* value
+	 * @var         int[] array of stability => BasePackage::STABILITY_* value
 	 * @phpstan-var array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>
 	 */
 	private $acceptableStabilities;
 
 	/**
-	 * @var int[] array of package name => BasePackage::STABILITY_* value
+	 * @var         int[] array of package name => BasePackage::STABILITY_* value
 	 * @phpstan-var array<string, BasePackage::STABILITY_*>
 	 */
 	private $stabilityFlags;
 
 	/**
-	 * @var ConstraintInterface[]
+	 * @var         ConstraintInterface[]
 	 * @phpstan-var array<string, ConstraintInterface>
 	 */
 	private $rootRequires;
@@ -96,16 +96,16 @@ class RepositorySet
 	 * passing minimumStability is all you need to worry about. The rest is for advanced pool creation including
 	 * aliases, pinned references and other special cases.
 	 *
-	 * @param key-of<BasePackage::STABILITIES> $minimumStability
-	 * @param int[]  $stabilityFlags   an array of package name => BasePackage::STABILITY_* value
+	 * @param         key-of<BasePackage::STABILITIES> $minimumStability
+	 * @param         int[]                            $stabilityFlags an array of package name => BasePackage::STABILITY_* value
 	 * @phpstan-param array<string, BasePackage::STABILITY_*> $stabilityFlags
-	 * @param array[] $rootAliases
+	 * @param         array[] $rootAliases
 	 * @phpstan-param list<array{package: string, version: string, alias: string, alias_normalized: string}> $rootAliases
-	 * @param string[] $rootReferences an array of package name => source reference
+	 * @param         string[] $rootReferences an array of package name => source reference
 	 * @phpstan-param array<string, string> $rootReferences
-	 * @param ConstraintInterface[] $rootRequires an array of package name => constraint from the root package
+	 * @param         ConstraintInterface[] $rootRequires an array of package name => constraint from the root package
 	 * @phpstan-param array<string, ConstraintInterface> $rootRequires
-	 * @param array<string, ConstraintInterface> $temporaryConstraints Runtime temporary constraints that will be used to filter packages
+	 * @param         array<string, ConstraintInterface> $temporaryConstraints Runtime temporary constraints that will be used to filter packages
 	 */
 	public function __construct(string $minimumStability = 'stable', array $stabilityFlags = [], array $rootAliases = [], array $rootReferences = [], array $rootRequires = [], array $temporaryConstraints = [])
 	{
@@ -135,7 +135,7 @@ class RepositorySet
 	}
 
 	/**
-	 * @return ConstraintInterface[] an array of package name => constraint from the root package, platform requirements excluded
+	 * @return         ConstraintInterface[] an array of package name => constraint from the root package, platform requirements excluded
 	 * @phpstan-return array<string, ConstraintInterface>
 	 */
 	public function getRootRequires(): array
@@ -181,7 +181,7 @@ class RepositorySet
 	 *
 	 * Returned in the order of repositories, matching priority
 	 *
-	 * @param  int                      $flags      any of the ALLOW_* constants from this class to tweak what is returned
+	 * @param  int $flags any of the ALLOW_* constants from this class to tweak what is returned
 	 * @return BasePackage[]
 	 */
 	public function findPackages(string $name, ?ConstraintInterface $constraint = null, int $flags = 0): array
@@ -226,7 +226,7 @@ class RepositorySet
 	}
 
 	/**
-	 * @param string[] $packageNames
+	 * @param  string[] $packageNames
 	 * @return ($allowPartialAdvisories is true ? array<string, array<PartialSecurityAdvisory|SecurityAdvisory>> : array<string, array<SecurityAdvisory>>)
 	 */
 	public function getSecurityAdvisories(array $packageNames, bool $allowPartialAdvisories = false): array
@@ -240,7 +240,7 @@ class RepositorySet
 	}
 
 	/**
-	 * @param PackageInterface[] $packages
+	 * @param  PackageInterface[] $packages
 	 * @return ($allowPartialAdvisories is true ? array<string, array<PartialSecurityAdvisory|SecurityAdvisory>> : array<string, array<SecurityAdvisory>>)
 	 */
 	public function getMatchingSecurityAdvisories(array $packages, bool $allowPartialAdvisories = false): array
@@ -262,7 +262,7 @@ class RepositorySet
 	}
 
 	/**
-	 * @param array<string, ConstraintInterface> $packageConstraintMap
+	 * @param  array<string, ConstraintInterface> $packageConstraintMap
 	 * @return ($allowPartialAdvisories is true ? array<string, array<PartialSecurityAdvisory|SecurityAdvisory>> : array<string, array<SecurityAdvisory>>)
 	 */
 	private function getSecurityAdvisoriesForConstraints(array $packageConstraintMap, bool $allowPartialAdvisories): array
@@ -283,7 +283,7 @@ class RepositorySet
 	}
 
 	/**
-	 * @return array[] an array with the provider name as key and value of array('name' => '...', 'description' => '...', 'type' => '...')
+	 * @return         array[] an array with the provider name as key and value of array('name' => '...', 'description' => '...', 'type' => '...')
 	 * @phpstan-return array<string, array{name: string, description: string|null, type: string}>
 	 */
 	public function getProviders(string $packageName): array
@@ -301,7 +301,7 @@ class RepositorySet
 	/**
 	 * Check for each given package name whether it would be accepted by this RepositorySet in the given $stability
 	 *
-	 * @param string[] $names
+	 * @param string[]                         $names
 	 * @param key-of<BasePackage::STABILITIES> $stability one of 'stable', 'RC', 'beta', 'alpha' or 'dev'
 	 */
 	public function isPackageAcceptable(array $names, string $stability): bool
@@ -400,7 +400,7 @@ class RepositorySet
 	}
 
 	/**
-	 * @param array[] $aliases
+	 * @param         array[] $aliases
 	 * @phpstan-param list<array{package: string, version: string, alias: string, alias_normalized: string}> $aliases
 	 *
 	 * @return array<string, array<string, array{alias: string, alias_normalized: string}>>

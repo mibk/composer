@@ -134,7 +134,7 @@ EOT
 		// reverse-sort the uninstalls based on the install order
 		$installOrder = [];
 		foreach ($installOperations as $index => $op) {
-			if ($op instanceof InstallOperation && !$op->getPackage() instanceof AliasPackage) {
+			if ($op instanceof InstallOperation && ! $op->getPackage() instanceof AliasPackage) {
 				$installOrder[$op->getPackage()->getName()] = $index;
 			}
 		}

@@ -267,15 +267,15 @@ class Factory
 	/**
 	 * Creates a Composer instance
 	 *
-	 * @param  IOInterface                       $io             IO instance
-	 * @param  array<string, mixed>|string|null  $localConfig    either a configuration array or a filename to read from, if null it will
+	 * @param IOInterface                      $io          IO instance
+	 * @param array<string, mixed>|string|null $localConfig either a configuration array or a filename to read from, if null it will
 	 *                                                           read from the default filename
-	 * @param  bool|'local'|'global'             $disablePlugins Whether plugins should not be loaded, can be set to local or global to only disable local/global plugins
-	 * @param  bool                              $disableScripts Whether scripts should not be run
-	 * @param  bool                              $fullLoad       Whether to initialize everything or only main project stuff (used when loading the global composer)
-	 * @throws \InvalidArgumentException
-	 * @throws \UnexpectedValueException
-	 * @return Composer|PartialComposer Composer if $fullLoad is true, otherwise PartialComposer
+	 * @param          bool|'local'|'global' $disablePlugins Whether plugins should not be loaded, can be set to local or global to only disable local/global plugins
+	 * @param          bool                  $disableScripts Whether scripts should not be run
+	 * @param          bool                  $fullLoad       Whether to initialize everything or only main project stuff (used when loading the global composer)
+	 * @throws         \InvalidArgumentException
+	 * @throws         \UnexpectedValueException
+	 * @return         Composer|PartialComposer Composer if $fullLoad is true, otherwise PartialComposer
 	 * @phpstan-return ($fullLoad is true ? Composer : PartialComposer)
 	 */
 	public function createComposer(IOInterface $io, $localConfig = null, $disablePlugins = false, ?string $cwd = null, bool $fullLoad = true, bool $disableScripts = false)
@@ -461,8 +461,8 @@ class Factory
 	}
 
 	/**
-	 * @param  bool          $disablePlugins Whether plugins should not be loaded
-	 * @param  bool          $disableScripts Whether scripts should not be executed
+	 * @param bool $disablePlugins Whether plugins should not be loaded
+	 * @param bool $disableScripts Whether scripts should not be executed
 	 */
 	public static function createGlobal(IOInterface $io, bool $disablePlugins = false, bool $disableScripts = false): ?Composer
 	{
@@ -485,8 +485,8 @@ class Factory
 	}
 
 	/**
-	 * @param bool|'local'|'global' $disablePlugins Whether plugins should not be loaded, can be set to local or global to only disable local/global plugins
-	 * @return PartialComposer|Composer|null By default PartialComposer, but Composer if $fullLoad is set to true
+	 * @param          bool|'local'|'global'         $disablePlugins Whether plugins should not be loaded, can be set to local or global to only disable local/global plugins
+	 * @return         PartialComposer|Composer|null By default PartialComposer, but Composer if $fullLoad is set to true
 	 * @phpstan-return ($fullLoad is true ? Composer|null : PartialComposer|null)
 	 */
 	protected function createGlobalComposer(IOInterface $io, Config $config, $disablePlugins, bool $disableScripts, bool $fullLoad = false): ?PartialComposer
@@ -505,8 +505,8 @@ class Factory
 	}
 
 	/**
-	 * @param  IO\IOInterface             $io
-	 * @param  EventDispatcher            $eventDispatcher
+	 * @param IO\IOInterface  $io
+	 * @param EventDispatcher $eventDispatcher
 	 */
 	public function createDownloadManager(IOInterface $io, Config $config, HttpDownloader $httpDownloader, ProcessExecutor $process, ?EventDispatcher $eventDispatcher = null): Downloader\DownloadManager
 	{
@@ -572,7 +572,7 @@ class Factory
 	}
 
 	/**
-	 * @param  bool|'local'|'global' $disablePlugins Whether plugins should not be loaded, can be set to local or global to only disable local/global plugins
+	 * @param bool|'local'|'global' $disablePlugins Whether plugins should not be loaded, can be set to local or global to only disable local/global plugins
 	 */
 	protected function createPluginManager(IOInterface $io, Composer $composer, ?PartialComposer $globalComposer = null, $disablePlugins = false): Plugin\PluginManager
 	{
@@ -595,8 +595,8 @@ class Factory
 	}
 
 	/**
-	 * @param InstalledRepositoryInterface   $repo repository to purge packages from
-	 * @param Installer\InstallationManager  $im   manager to check whether packages are still installed
+	 * @param InstalledRepositoryInterface  $repo repository to purge packages from
+	 * @param Installer\InstallationManager $im   manager to check whether packages are still installed
 	 */
 	protected function purgePackages(InstalledRepositoryInterface $repo, Installer\InstallationManager $im): void
 	{
@@ -613,11 +613,11 @@ class Factory
 	}
 
 	/**
-	 * @param  IOInterface $io             IO instance
-	 * @param  mixed       $config         either a configuration array or a filename to read from, if null it will read from
+	 * @param IOInterface $io     IO instance
+	 * @param mixed       $config either a configuration array or a filename to read from, if null it will read from
 	 *                                     the default filename
-	 * @param  bool|'local'|'global' $disablePlugins Whether plugins should not be loaded, can be set to local or global to only disable local/global plugins
-	 * @param  bool        $disableScripts Whether scripts should not be run
+	 * @param bool|'local'|'global' $disablePlugins Whether plugins should not be loaded, can be set to local or global to only disable local/global plugins
+	 * @param bool                  $disableScripts Whether scripts should not be run
 	 */
 	public static function create(IOInterface $io, $config = null, $disablePlugins = false, bool $disableScripts = false): Composer
 	{
@@ -637,9 +637,9 @@ class Factory
 	/**
 	 * If you are calling this in a plugin, you probably should instead use $composer->getLoop()->getHttpDownloader()
 	 *
-	 * @param  IOInterface    $io      IO instance
-	 * @param  Config         $config  Config instance
-	 * @param  mixed[]        $options Array of options passed directly to HttpDownloader constructor
+	 * @param IOInterface $io      IO instance
+	 * @param Config      $config  Config instance
+	 * @param mixed[]     $options Array of options passed directly to HttpDownloader constructor
 	 */
 	public static function createHttpDownloader(IOInterface $io, Config $config, array $options = []): HttpDownloader
 	{
@@ -734,7 +734,7 @@ class Factory
 	}
 
 	/**
-	 * @param mixed $fileOrData
+	 * @param mixed              $fileOrData
 	 * @param JsonFile::*_SCHEMA $schema
 	 */
 	private static function validateJsonSchema(?IOInterface $io, $fileOrData, int $schema = JsonFile::LAX_SCHEMA, ?string $source = null): void

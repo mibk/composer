@@ -27,7 +27,7 @@ interface AdvisoryProviderInterface
 	public function hasSecurityAdvisories(): bool;
 
 	/**
-	 * @param array<string, ConstraintInterface> $packageConstraintMap Map of package name to constraint (can be MatchAllConstraint to fetch all advisories)
+	 * @param  array<string, ConstraintInterface> $packageConstraintMap Map of package name to constraint (can be MatchAllConstraint to fetch all advisories)
 	 * @return ($allowPartialAdvisories is true ? array{namesFound: string[], advisories: array<string, array<PartialSecurityAdvisory|SecurityAdvisory>>} : array{namesFound: string[], advisories: array<string, array<SecurityAdvisory>>})
 	 */
 	public function getSecurityAdvisories(array $packageConstraintMap, bool $allowPartialAdvisories = false): array;

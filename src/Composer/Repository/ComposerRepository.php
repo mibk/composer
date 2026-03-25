@@ -49,7 +49,7 @@ use React\Promise\PromiseInterface;
 class ComposerRepository extends ArrayRepository implements ConfigurableRepositoryInterface, AdvisoryProviderInterface
 {
 	/**
-	 * @var mixed[]
+	 * @var         mixed[]
 	 * @phpstan-var array{url: string, options?: mixed[], type?: 'composer', allow_ssl_downgrade?: bool}
 	 */
 	private $repoConfig;
@@ -79,7 +79,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 	protected $providersUrl = null;
 	/** @var ?non-empty-string */
 	protected $listUrl = null;
-	/** @var bool Indicates whether a comprehensive list of packages this repository might provide is expressed in the repository root. **/
+	/** @var bool Indicates whether a comprehensive list of packages this repository might provide is expressed in the repository root. * */
 	protected $hasAvailablePackageList = false;
 	/** @var ?array<string> */
 	protected $availablePackages = null;
@@ -132,7 +132,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 	private $versionParser;
 
 	/**
-	 * @param array<string, mixed> $repoConfig
+	 * @param         array<string, mixed> $repoConfig
 	 * @phpstan-param array{url: non-empty-string, options?: mixed[], type?: 'composer', allow_ssl_downgrade?: bool} $repoConfig
 	 */
 	public function __construct(array $repoConfig, IOInterface $io, Config $config, HttpDownloader $httpDownloader, ?EventDispatcher $eventDispatcher = null)
@@ -365,7 +365,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
 		$filterResults =
 			/**
-			 * @param list<string> $results
+			 * @param  list<string> $results
 			 * @return list<string>
 			 */
 			static function(array $results): array {
@@ -376,7 +376,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 			$packageFilterRegex = BasePackage::packageNameToRegexp($packageFilter);
 			$filterResults =
 				/**
-				 * @param list<string> $results
+				 * @param  list<string> $results
 				 * @return list<string>
 				 */
 				static function(array $results) use ($packageFilterRegex): array {
@@ -647,8 +647,8 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
 		$parser = new VersionParser();
 		/**
-		 * @param array<mixed> $data
-		 * @param string $name
+		 * @param  array<mixed> $data
+		 * @param  string       $name
 		 * @return ($allowPartialAdvisories is false ? SecurityAdvisory|null : PartialSecurityAdvisory|SecurityAdvisory|null)
 		 */
 		$create = function(array $data, string $name) use ($parser, $allowPartialAdvisories, &$packageConstraintMap): ?PartialSecurityAdvisory
@@ -826,12 +826,12 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 	}
 
 	/**
-	 * @param  string      $name package name
-	 * @param array<string, int>|null $acceptableStabilities
+	 * @param         string                  $name package name
+	 * @param         array<string, int>|null $acceptableStabilities
 	 * @phpstan-param array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>|null $acceptableStabilities
-	 * @param array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
+	 * @param         array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
 	 * @phpstan-param array<string, BasePackage::STABILITY_*>|null $stabilityFlags
-	 * @param array<string, array<string, PackageInterface>> $alreadyLoaded
+	 * @param         array<string, array<string, PackageInterface>> $alreadyLoaded
 	 *
 	 * @return array<string, BasePackage>
 	 */
@@ -997,11 +997,11 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 	/**
 	 * @param array<string, ConstraintInterface|null> $packageNames array of package name => ConstraintInterface|null - if a constraint is provided, only
 	 *                                                packages matching it will be loaded
-	 * @param array<string, int>|null $acceptableStabilities
+	 * @param         array<string, int>|null $acceptableStabilities
 	 * @phpstan-param array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>|null $acceptableStabilities
-	 * @param array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
+	 * @param         array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
 	 * @phpstan-param array<string, BasePackage::STABILITY_*>|null $stabilityFlags
-	 * @param array<string, array<string, PackageInterface>> $alreadyLoaded
+	 * @param         array<string, array<string, PackageInterface>> $alreadyLoaded
 	 *
 	 * @return array{namesFound: array<string, true>, packages: array<string, BasePackage>}
 	 */
@@ -1127,11 +1127,11 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 	}
 
 	/**
-	 * @param string $name package name (must be lowercased already)
-	 * @param array<string, mixed> $versionData
-	 * @param array<string, int>|null $acceptableStabilities
+	 * @param         string                  $name package name (must be lowercased already)
+	 * @param         array<string, mixed>    $versionData
+	 * @param         array<string, int>|null $acceptableStabilities
 	 * @phpstan-param array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>|null $acceptableStabilities
-	 * @param array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
+	 * @param         array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
 	 * @phpstan-param array<string, BasePackage::STABILITY_*>|null $stabilityFlags
 	 */
 	private function isVersionAcceptable(?ConstraintInterface $constraint, string $name, array $versionData, ?array $acceptableStabilities = null, ?array $stabilityFlags = null): bool
@@ -1299,7 +1299,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 	}
 
 	/**
-	 * @param string $url
+	 * @param  string $url
 	 * @return non-empty-string
 	 */
 	private function canonicalizeUrl(string $url): string
@@ -1768,7 +1768,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 	/**
 	 * Checks if the package name is present in this lazy providers repo
 	 *
-	 * @return bool   true if the package name is present in availablePackages or matched by availablePackagePatterns
+	 * @return bool true if the package name is present in availablePackages or matched by availablePackagePatterns
 	 */
 	protected function lazyProvidersRepoContains(string $name)
 	{

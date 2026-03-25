@@ -45,7 +45,7 @@ class RuleWatchGraph
 			return;
 		}
 
-		if (!$node->getRule() instanceof MultiConflictRule) {
+		if (! $node->getRule() instanceof MultiConflictRule) {
 			foreach ([$node->watch1, $node->watch2] as $literal) {
 				if (!isset($this->watchChains[$literal])) {
 					$this->watchChains[$literal] = new RuleWatchChain;
@@ -103,7 +103,7 @@ class RuleWatchGraph
 		$chain->rewind();
 		while ($chain->valid()) {
 			$node = $chain->current();
-			if (!$node->getRule() instanceof MultiConflictRule) {
+			if (! $node->getRule() instanceof MultiConflictRule) {
 				$otherWatch = $node->getOtherWatch($literal);
 
 				if (!$node->getRule()->isDisabled() && !$decisions->satisfy($otherWatch)) {

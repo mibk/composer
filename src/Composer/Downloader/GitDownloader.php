@@ -445,7 +445,7 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
 		$branch = Preg::replace('{(?:^dev-|(?:\.x)?-dev$)}i', '', $prettyVersion);
 
 		/**
-		 * @var            \Closure (non-empty-list<string>): bool $execute
+		 * @var            \Closure(non-empty-list<string>): bool $execute
 		 * @phpstan-ignore varTag.nativeType
 		 */
 		$execute = function(array $command) use (&$output, $path) {
